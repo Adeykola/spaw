@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Song — Dr AjokeSings</title>
+<meta name="theme-color" content="#0a0908">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="cursor" data-cursor aria-hidden="true"></div>
+<div class="cursor__label" data-cursor-label aria-hidden="true"></div>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="icon-play" viewBox="0 0 24 24"><path d="M6 4l15 8-15 8V4z"/></symbol>
+  <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></symbol>
+  <symbol id="icon-prev" viewBox="0 0 24 24"><path d="M6 5v14M18 5L8 12l10 7V5z"/></symbol>
+  <symbol id="icon-next" viewBox="0 0 24 24"><path d="M18 5v14M6 5l10 7L6 19V5z"/></symbol>
+</svg>
+
+<header class="site-header" data-site-header>
+  <div class="wrap">
+    <a href="index.html" class="brand" aria-label="Dr AjokeSings — home">Ajoke<em>Sings</em></a>
+    <nav class="primary-nav" aria-label="Primary">
+      <ul class="primary-nav__list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="music.html" aria-current="page">Music</a></li>
+        <li><a href="videos.html">Videos</a></li>
+        <li><a href="ministry.html">Ministry</a></li>
+        <li><a href="symphony.html">Symphony</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <a href="contact.html#booking" class="btn btn-solid" data-magnetic>Book Ministration</a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<nav id="mobile-nav" class="mobile-nav" data-mobile-nav aria-label="Mobile">
+  <ul class="mobile-nav__list">
+    <li><a href="index.html">Home</a></li><li><a href="music.html">Music</a></li><li><a href="videos.html">Videos</a></li>
+    <li><a href="ministry.html">Ministry</a></li><li><a href="symphony.html">Symphony</a></li><li><a href="events.html">Events</a></li>
+    <li><a href="about.html">About</a></li><li><a href="contact.html">Contact &amp; Booking</a></li>
+  </ul>
+</nav>
+
+<main id="main">
+  <div data-song-detail></div>
+
+  <section class="section section--light" aria-label="About this song">
+    <div class="wrap" style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl);">
+      <div>
+        <p class="eyebrow">The Story</p>
+        <p class="statement__bio" data-song-description style="margin-top: var(--space-m); font-size: var(--step-1);"></p>
+      </div>
+      <div>
+        <p class="eyebrow">Lyrics</p>
+        <div class="lyrics-block" data-song-lyrics style="margin-top: var(--space-m);"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Listen on streaming platforms">
+    <div class="wrap">
+      <p class="eyebrow" style="margin-bottom: var(--space-m);">Listen Everywhere</p>
+      <div class="platform-links" data-song-links></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div><p class="footer-brand display">Ajoke<em style="font-style:italic;color:var(--red-bright);">Sings</em></p><p class="footer-tagline">Worship, carried by voice. Lagos, Nigeria — and everywhere the songs travel.</p></div>
+      <div class="footer-col"><h3>Explore</h3><ul><li><a href="music.html">Music</a></li><li><a href="videos.html">Videos</a></li><li><a href="ministry.html">Ministry</a></li><li><a href="symphony.html">Symphony</a></li></ul></div>
+      <div class="footer-col"><h3>Connect</h3><ul><li><a href="events.html">Events</a></li><li><a href="contact.html#booking">Booking</a></li><li><a href="contact.html">Contact &amp; Booking</a></li><li><a href="about.html">About</a></li></ul></div>
+      <div class="footer-col"><h3>Follow</h3><ul><li><a href="https://instagram.com/drajokesings" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://youtube.com/@drajokesings" target="_blank" rel="noopener">YouTube</a></li><li><a href="https://tiktok.com/@drajokesings" target="_blank" rel="noopener">TikTok</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>&copy; <span data-year>2026</span> Dr AjokeSings. All rights reserved.</p><div class="footer-social"><a href="admin.html">Admin</a></div></div>
+  </div>
+</footer>
+
+<div class="persistent-player" data-persistent-player hidden>
+  <div class="pp-track"><img data-pp-art src="" alt=""><div class="pp-track__info"><p class="pp-track__title" data-pp-title></p><p class="pp-track__artist" data-pp-artist></p></div></div>
+  <div class="pp-controls">
+    <div class="pp-controls__buttons">
+      <button class="pp-btn" data-pp-prev type="button" aria-label="Previous"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icon-prev"></use></svg></button>
+      <button class="pp-btn pp-btn--play" data-pp-play type="button" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icon-play"></use></svg></button>
+      <button class="pp-btn" data-pp-next type="button" aria-label="Next"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icon-next"></use></svg></button>
+    </div>
+    <div class="pp-scrub"><span data-pp-current>0:00</span><div class="pp-bar" data-pp-bar role="slider" tabindex="0" aria-label="Seek"><div class="pp-bar__fill" data-pp-fill></div></div><span data-pp-duration>0:00</span></div>
+  </div>
+  <div class="pp-volume"><input type="range" data-pp-volume min="0" max="1" step="0.01" value="0.8" aria-label="Volume"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="js/data.js" defer></script>
+<script src="js/player.js" defer></script>
+<script src="js/navigation.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/music.js" defer></script>
+</body>
+</html>

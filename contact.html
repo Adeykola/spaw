@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contact &amp; Booking — Dr AjokeSings</title>
+<meta name="description" content="Send a message or request a ministration date — one form, two doors. Booking, press, mentorship and general enquiries for Dr AjokeSings.">
+<meta name="theme-color" content="#0a0908">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+<meta property="og:title" content="Contact &amp; Booking — Dr AjokeSings">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/images/events-hero.jpg">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="cursor" data-cursor aria-hidden="true"></div>
+<div class="cursor__label" data-cursor-label aria-hidden="true"></div>
+
+<svg style="display:none" aria-hidden="true">
+  <symbol id="icon-check" viewBox="0 0 24 24"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+</svg>
+
+<header class="site-header" data-site-header>
+  <div class="wrap">
+    <a href="index.html" class="brand" aria-label="Dr AjokeSings — home">Ajoke<em>Sings</em></a>
+    <nav class="primary-nav" aria-label="Primary">
+      <ul class="primary-nav__list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="music.html">Music</a></li>
+        <li><a href="videos.html">Videos</a></li>
+        <li><a href="ministry.html">Ministry</a></li>
+        <li><a href="symphony.html">Symphony</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <a href="contact.html#booking" class="btn btn-solid" data-magnetic aria-current="page">Book Ministration</a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<nav id="mobile-nav" class="mobile-nav" data-mobile-nav aria-label="Mobile">
+  <ul class="mobile-nav__list">
+    <li><a href="index.html">Home</a></li><li><a href="music.html">Music</a></li><li><a href="videos.html">Videos</a></li>
+    <li><a href="ministry.html">Ministry</a></li><li><a href="symphony.html">Symphony</a></li><li><a href="events.html">Events</a></li>
+    <li><a href="about.html">About</a></li><li><a href="contact.html">Contact &amp; Booking</a></li>
+  </ul>
+  <p class="mobile-nav__meta">Lagos, Nigeria &middot; hello@drajokesings.com</p>
+</nav>
+
+<main id="main">
+
+  <!-- ============================= PAGE HERO ============================= -->
+  <section class="page-hero page-hero--short" aria-label="Contact and booking">
+    <div class="page-hero__media"><img src="assets/images/events-hero.jpg" alt="A full hall before doors open" loading="eager"></div>
+    <div class="page-hero__scrim"></div>
+    <div class="page-hero__content">
+      <p class="eyebrow page-hero__eyebrow">Contact &amp; Booking</p>
+      <h1 class="page-hero__title display">One inbox, <em>two doors.</em></h1>
+      <p class="page-hero__sub">Say hello, or ask for a date. Same form &mdash; pick the door on the left and it asks you only what it needs.</p>
+    </div>
+  </section>
+
+  <!-- ============================= FORM + ASIDE ============================= -->
+  <section class="section contact-section" id="booking" aria-label="Send an enquiry">
+    <div class="wrap contact-shell">
+
+      <!-- ---- FORM ---- -->
+      <div class="contact-main">
+        <form class="contact-form" data-contact-form novalidate>
+
+          <fieldset class="mode-switch" data-mode-switch>
+            <legend class="sr-only">What is this about?</legend>
+            <div class="mode-switch__options">
+              <label class="mode-option">
+                <input type="radio" name="enquiryType" value="message" checked data-mode-input>
+                <span class="mode-option__inner">
+                  <span class="mode-option__num">01</span>
+                  <span class="mode-option__title">Send a message</span>
+                  <span class="mode-option__desc">General enquiries, press, mentorship, prayer requests, or anything else.</span>
+                </span>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="enquiryType" value="booking" data-mode-input>
+                <span class="mode-option__inner">
+                  <span class="mode-option__num">02</span>
+                  <span class="mode-option__title">Book a ministration</span>
+                  <span class="mode-option__desc">Invite Dr AjokeSings to lead worship at your service, conference, or concert.</span>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <p class="form-error-banner" data-form-error role="alert"></p>
+
+          <!-- Shared fields -->
+          <div class="form-grid">
+            <div class="field">
+              <label for="c-name">Full name *</label>
+              <input type="text" id="c-name" name="name" autocomplete="name" required>
+              <p class="field-error" data-field-error="name"></p>
+            </div>
+            <div class="field">
+              <label for="c-email">Email address *</label>
+              <input type="email" id="c-email" name="email" autocomplete="email" required>
+              <p class="field-error" data-field-error="email"></p>
+            </div>
+            <div class="field">
+              <label for="c-phone">Phone <span data-phone-req hidden>*</span></label>
+              <input type="tel" id="c-phone" name="phone" autocomplete="tel" placeholder="+234 800 000 0000">
+              <p class="field-error" data-field-error="phone"></p>
+            </div>
+            <div class="field">
+              <label for="c-subject">Subject *</label>
+              <input type="text" id="c-subject" name="subject" placeholder="What is this about?" required>
+              <p class="field-error" data-field-error="subject"></p>
+            </div>
+          </div>
+
+          <!-- Booking-only fields -->
+          <div class="booking-fields" data-booking-fields hidden>
+            <p class="eyebrow booking-fields__head">About the event</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="c-org">Church / organisation *</label>
+                <input type="text" id="c-org" name="organisation" placeholder="Who is extending the invitation?">
+                <p class="field-error" data-field-error="organisation"></p>
+              </div>
+              <div class="field">
+                <label for="c-event-type">Type of event *</label>
+                <select id="c-event-type" name="eventType">
+                  <option value="">Select one</option>
+                  <option>Sunday service</option>
+                  <option>Worship night</option>
+                  <option>Conference</option>
+                  <option>Concert</option>
+                  <option>Crusade / outreach</option>
+                  <option>Workshop / masterclass</option>
+                  <option>Wedding</option>
+                  <option>Corporate or private event</option>
+                  <option>Other</option>
+                </select>
+                <p class="field-error" data-field-error="eventType"></p>
+              </div>
+              <div class="field">
+                <label for="c-date">Event date *</label>
+                <input type="date" id="c-date" name="eventDate">
+                <p class="field-hint">Provisional is fine &mdash; the team will confirm availability.</p>
+                <p class="field-error" data-field-error="eventDate"></p>
+              </div>
+              <div class="field">
+                <label for="c-city">City &amp; venue *</label>
+                <input type="text" id="c-city" name="city" placeholder="Lagos, Nigeria — Freedom Hall">
+                <p class="field-error" data-field-error="city"></p>
+              </div>
+              <div class="field">
+                <label for="c-attendance">Expected attendance</label>
+                <input type="text" id="c-attendance" name="attendance" placeholder="Roughly how many people?">
+              </div>
+              <div class="field">
+                <label for="c-budget">Honorarium range</label>
+                <select id="c-budget" name="budget">
+                  <option value="">Prefer to discuss</option>
+                  <option>Local church &mdash; whatever is possible</option>
+                  <option>Under ₦500,000</option>
+                  <option>₦500,000 &ndash; ₦1,500,000</option>
+                  <option>Above ₦1,500,000</option>
+                  <option>International &mdash; travel &amp; accommodation covered</option>
+                </select>
+                <p class="field-hint">Never a barrier for local churches. Ask anyway.</p>
+              </div>
+            </div>
+
+            <fieldset class="check-group">
+              <legend>What are you asking for?</legend>
+              <div class="check-group__options">
+                <label class="checkbox-field"><input type="checkbox" name="needs" value="Full worship ministration"><span>Full worship ministration</span></label>
+                <label class="checkbox-field"><input type="checkbox" name="needs" value="Short set / two or three songs"><span>Short set &mdash; two or three songs</span></label>
+                <label class="checkbox-field"><input type="checkbox" name="needs" value="Workshop or masterclass"><span>Workshop or masterclass</span></label>
+                <label class="checkbox-field"><input type="checkbox" name="needs" value="Panel / speaking"><span>Panel or speaking slot</span></label>
+                <label class="checkbox-field"><input type="checkbox" name="needs" value="Full band required"><span>Full band required</span></label>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="field field--full" style="margin-top: var(--space-m);">
+            <label for="c-message"><span data-message-label>Your message *</span></label>
+            <textarea id="c-message" name="message" rows="6" placeholder="Tell us what you have in mind."></textarea>
+            <p class="field-hint" data-message-hint>The more context you give, the faster the reply comes back.</p>
+            <p class="field-error" data-field-error="message"></p>
+          </div>
+
+          <label class="checkbox-field" style="margin-top: var(--space-m);">
+            <input type="checkbox" name="newsletter" id="c-newsletter">
+            <span>Also add me to the mailing list &mdash; releases, events, and Symphony news.</span>
+          </label>
+
+          <div class="form-submit-row">
+            <button type="submit" class="btn btn-solid" data-magnetic>Send enquiry</button>
+            <p class="field-hint" data-response-note>Most messages are answered within three working days.</p>
+          </div>
+        </form>
+
+        <!-- ---- CONFIRMATION ---- -->
+        <div class="confirm-screen" data-contact-confirm hidden>
+          <div class="confirm-screen__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-check"></use></svg>
+          </div>
+          <h2 class="confirm-screen__title display" data-confirm-title>Message received.</h2>
+          <p class="confirm-screen__body" data-confirm-body></p>
+          <p class="confirm-screen__id" data-confirm-id></p>
+          <p class="field-hint" style="margin-top: var(--space-s);">Keep this reference &mdash; quote it in any follow-up and the team can find your enquiry straight away.</p>
+          <div class="confirm-screen__actions">
+            <button type="button" class="btn btn-line" data-contact-reset>Send another</button>
+            <a href="music.html" class="btn btn-line" data-magnetic>Listen while you wait</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- ASIDE ---- -->
+      <aside class="contact-aside" aria-label="Direct contact details">
+        <div class="contact-card">
+          <p class="eyebrow">Direct</p>
+          <ul class="contact-list">
+            <li>
+              <span class="contact-list__label">General</span>
+              <a class="contact-list__value" href="mailto:hello@drajokesings.com">hello@drajokesings.com</a>
+            </li>
+            <li>
+              <span class="contact-list__label">Bookings</span>
+              <a class="contact-list__value" href="mailto:booking@drajokesings.com">booking@drajokesings.com</a>
+            </li>
+            <li>
+              <span class="contact-list__label">Based in</span>
+              <span class="contact-list__value">Lagos, Nigeria &middot; WAT (UTC+1)</span>
+            </li>
+            <li>
+              <span class="contact-list__label">Follow</span>
+              <span class="contact-list__value contact-list__social">
+                <a href="https://instagram.com/drajokesings" target="_blank" rel="noopener">Instagram</a>
+                <a href="https://youtube.com/@drajokesings" target="_blank" rel="noopener">YouTube</a>
+                <a href="https://tiktok.com/@drajokesings" target="_blank" rel="noopener">TikTok</a>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="contact-card contact-card--muted">
+          <p class="eyebrow">Response times</p>
+          <ul class="response-list">
+            <li><strong>Booking requests</strong><span>Within 5 working days</span></li>
+            <li><strong>Press &amp; interviews</strong><span>Within 3 working days</span></li>
+            <li><strong>Everything else</strong><span>Within 3 working days</span></li>
+          </ul>
+          <p class="contact-card__note">Dates inside the next six weeks are usually already committed. Earlier is better &mdash; three months of notice is ideal.</p>
+        </div>
+
+        <div class="contact-card contact-card--accent">
+          <p class="eyebrow" style="color: color-mix(in srgb, var(--paper) 70%, transparent);">Not what you need?</p>
+          <p class="contact-card__cross">Applying to the Symphony Talent Quest is a separate form &mdash; it asks for your music.</p>
+          <a href="symphony.html" class="btn btn-line" data-magnetic>Go to the Symphony application</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================= FAQ ============================= -->
+  <section class="section section--light" aria-label="Frequently asked questions">
+    <div class="wrap faq-wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Before You Write</p>
+          <h2 class="section-head__title display">The questions that come most.</h2>
+        </div>
+      </div>
+
+      <div class="faq">
+        <details class="faq__item">
+          <summary>How far in advance should we book?</summary>
+          <div class="faq__body"><p>Three months is comfortable, six is ideal for anything with travel attached. Requests inside six weeks are still welcome &mdash; they are simply harder to place, and the team will tell you honestly and quickly if the date cannot hold.</p></div>
+        </details>
+        <details class="faq__item">
+          <summary>We are a small church with almost no budget. Should we still ask?</summary>
+          <div class="faq__body"><p>Yes. A portion of every year is deliberately kept for local congregations who cannot pay a standard honorarium. Say so plainly in your message &mdash; it will not count against you.</p></div>
+        </details>
+        <details class="faq__item">
+          <summary>Does she travel with a band?</summary>
+          <div class="faq__body"><p>She can come solo, with a rhythm section, or with the full fourteen-piece ensemble. Tick what you are hoping for in the booking form and the team will send technical and hospitality riders for each option.</p></div>
+        </details>
+        <details class="faq__item">
+          <summary>Can we record or livestream the ministration?</summary>
+          <div class="faq__body"><p>Almost always yes, with a short written agreement covering how the footage is used. Mention it up front so it is settled before the day rather than during soundcheck.</p></div>
+        </details>
+        <details class="faq__item">
+          <summary>Where do I get photos, bio, and stage requirements?</summary>
+          <div class="faq__body"><p>Ask for the press kit through this form and it comes back as one link: approved biography at three lengths, high-resolution images, logo files, technical rider, and hospitality rider.</p></div>
+        </details>
+        <details class="faq__item">
+          <summary>I want mentorship. Is this the right form?</summary>
+          <div class="faq__body"><p>Yes. Mentorship runs under the <a href="ministry.html">ministry</a>, with intake every January and July &mdash; send a message here and say which intake you are aiming for. It is a separate thing from the <a href="symphony.html">Symphony Talent Quest</a>, which has its own application because it collects your music.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= NEWSLETTER ============================= -->
+  <section class="section newsletter" aria-label="Join the community">
+    <div class="wrap">
+      <div data-reveal="fade-up">
+        <h2 class="newsletter__title display">Stay close to the sound.</h2>
+        <p class="newsletter__sub">New releases, event dates, and Symphony announcements &mdash; sent only when there's something worth saying.</p>
+      </div>
+      <form class="newsletter-form" data-newsletter-form novalidate data-reveal="fade-up">
+        <label for="newsletter-email" class="sr-only">Email address</label>
+        <div class="newsletter-form__row">
+          <input id="newsletter-email" type="email" name="email" placeholder="you@example.com" autocomplete="email">
+          <button type="submit" class="btn btn-line">Join</button>
+        </div>
+        <p class="newsletter-form__feedback" data-newsletter-feedback role="status" aria-live="polite"></p>
+        <p class="newsletter-form__note">No spam. Unsubscribe anytime.</p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div><p class="footer-brand display">Ajoke<em style="font-style:italic;color:var(--red-bright);">Sings</em></p><p class="footer-tagline">Worship, carried by voice. Lagos, Nigeria &mdash; and everywhere the songs travel.</p></div>
+      <div class="footer-col"><h3>Explore</h3><ul><li><a href="music.html">Music</a></li><li><a href="videos.html">Videos</a></li><li><a href="ministry.html">Ministry</a></li><li><a href="symphony.html">Symphony</a></li></ul></div>
+      <div class="footer-col"><h3>Connect</h3><ul><li><a href="events.html">Events</a></li><li><a href="contact.html#booking">Booking</a></li><li><a href="contact.html">Contact &amp; Booking</a></li><li><a href="about.html">About</a></li></ul></div>
+      <div class="footer-col"><h3>Follow</h3><ul><li><a href="https://instagram.com/drajokesings" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://youtube.com/@drajokesings" target="_blank" rel="noopener">YouTube</a></li><li><a href="https://tiktok.com/@drajokesings" target="_blank" rel="noopener">TikTok</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>&copy; <span data-year>2026</span> Dr AjokeSings. All rights reserved.</p><div class="footer-social"><a href="admin.html">Admin</a></div></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="js/data.js" defer></script>
+<script src="js/navigation.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/contact.js" defer></script>
+<script src="js/animations.js" defer></script>
+</body>
+</html>

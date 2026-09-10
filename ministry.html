@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ministry — Dr AjokeSings</title>
+<meta name="description" content="Worship, mentorship, and resources — the ministry behind the music.">
+<meta name="theme-color" content="#0a0908">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="cursor" data-cursor aria-hidden="true"></div>
+<div class="cursor__label" data-cursor-label aria-hidden="true"></div>
+
+<header class="site-header" data-site-header>
+  <div class="wrap">
+    <a href="index.html" class="brand" aria-label="Dr AjokeSings — home">Ajoke<em>Sings</em></a>
+    <nav class="primary-nav" aria-label="Primary">
+      <ul class="primary-nav__list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="music.html">Music</a></li>
+        <li><a href="videos.html">Videos</a></li>
+        <li><a href="ministry.html" aria-current="page">Ministry</a></li>
+        <li><a href="symphony.html">Symphony</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <a href="contact.html#booking" class="btn btn-solid" data-magnetic>Book Ministration</a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<nav id="mobile-nav" class="mobile-nav" data-mobile-nav aria-label="Mobile">
+  <ul class="mobile-nav__list">
+    <li><a href="index.html">Home</a></li><li><a href="music.html">Music</a></li><li><a href="videos.html">Videos</a></li>
+    <li><a href="ministry.html">Ministry</a></li><li><a href="symphony.html">Symphony</a></li><li><a href="events.html">Events</a></li>
+    <li><a href="about.html">About</a></li><li><a href="contact.html">Contact &amp; Booking</a></li>
+  </ul>
+</nav>
+
+<main id="main">
+  <section class="page-hero" aria-label="Ministry">
+    <div class="page-hero__media"><img src="assets/images/ministry-hero.jpg" alt="Dr AjokeSings smiling, warm portrait" loading="eager"></div>
+    <div class="page-hero__scrim"></div>
+    <div class="page-hero__content">
+      <p class="eyebrow page-hero__eyebrow">Beyond The Music</p>
+      <h1 class="page-hero__title display">This is <em>ministry.</em></h1>
+      <p class="page-hero__sub" data-ministry-mission>Loading&hellip;</p>
+    </div>
+  </section>
+
+  <section class="section section--light" aria-label="What we build">
+    <div class="wrap" style="max-width: 900px;">
+      <p class="eyebrow" style="margin-bottom: var(--space-m);">The Pillars</p>
+      <div data-ministry-pillars></div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Mentorship" data-ministry-mentorship>
+    <div class="wrap" style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl); align-items:center;">
+      <img src="assets/images/artist-square.jpg" alt="Dr AjokeSings portrait" style="width:100%; aspect-ratio:1; object-fit:cover;">
+      <div>
+        <p class="eyebrow">Mentorship</p>
+        <h2 class="display" style="font-size: var(--step-3); margin-top: var(--space-s);" data-mentorship-title></h2>
+        <p style="color: var(--gray-on-dark); margin-top: var(--space-m); max-width: 48ch;" data-mentorship-desc></p>
+        <p class="eyebrow" style="margin-top: var(--space-m);"><span data-mentorship-intake></span></p>
+        <a href="contact.html" class="btn btn-solid" style="margin-top: var(--space-m);" data-magnetic>Enquire about mentorship</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--light" aria-label="Workshops">
+    <div class="wrap">
+      <p class="eyebrow" style="margin-bottom: var(--space-m);">Workshops</p>
+      <div data-ministry-workshops></div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Resources">
+    <div class="wrap">
+      <p class="eyebrow" style="margin-bottom: var(--space-m);">Free Resources For Local Churches</p>
+      <div data-ministry-resources></div>
+    </div>
+  </section>
+
+  <section class="section emerging section--light" aria-label="Emerging artists">
+    <div class="wrap">
+      <div class="emerging__head">
+        <div>
+          <p class="eyebrow">Talent Quest Alumni</p>
+          <h2 class="emerging__title display">Emerging voices</h2>
+        </div>
+        <a href="symphony.html" class="btn btn-line" data-magnetic>Enter the Talent Quest</a>
+      </div>
+      <div class="emerging__row" data-emerging-row></div>
+    </div>
+  </section>
+
+  <section class="section newsletter" aria-label="Join the community">
+    <div class="wrap">
+      <div>
+        <h2 class="newsletter__title display">Stay close to the sound.</h2>
+        <p class="newsletter__sub">New releases, event dates, and Symphony announcements — sent only when there's something worth saying.</p>
+      </div>
+      <form class="newsletter-form" data-newsletter-form novalidate>
+        <label for="newsletter-email" class="sr-only">Email address</label>
+        <div class="newsletter-form__row">
+          <input id="newsletter-email" type="email" name="email" placeholder="you@example.com" autocomplete="email">
+          <button type="submit" class="btn btn-line">Join</button>
+        </div>
+        <p class="newsletter-form__feedback" data-newsletter-feedback role="status" aria-live="polite"></p>
+        <p class="newsletter-form__note">No spam. Unsubscribe anytime.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div><p class="footer-brand display">Ajoke<em style="font-style:italic;color:var(--red-bright);">Sings</em></p><p class="footer-tagline">Worship, carried by voice. Lagos, Nigeria — and everywhere the songs travel.</p></div>
+      <div class="footer-col"><h3>Explore</h3><ul><li><a href="music.html">Music</a></li><li><a href="videos.html">Videos</a></li><li><a href="ministry.html">Ministry</a></li><li><a href="symphony.html">Symphony</a></li></ul></div>
+      <div class="footer-col"><h3>Connect</h3><ul><li><a href="events.html">Events</a></li><li><a href="contact.html#booking">Booking</a></li><li><a href="contact.html">Contact &amp; Booking</a></li><li><a href="about.html">About</a></li></ul></div>
+      <div class="footer-col"><h3>Follow</h3><ul><li><a href="https://instagram.com/drajokesings" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://youtube.com/@drajokesings" target="_blank" rel="noopener">YouTube</a></li><li><a href="https://tiktok.com/@drajokesings" target="_blank" rel="noopener">TikTok</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>&copy; <span data-year>2026</span> Dr AjokeSings. All rights reserved.</p><div class="footer-social"><a href="admin.html">Admin</a></div></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="js/data.js" defer></script>
+<script src="js/navigation.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/animations.js" defer></script>
+</body>
+</html>

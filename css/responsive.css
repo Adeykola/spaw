@@ -1,0 +1,170 @@
+/* ==========================================================================
+   RESPONSIVE — dedicated compositions, not shrunk desktop layouts
+   Breakpoints: 1200 (small desktop/laptop), 1024 (tablet), 680 (mobile)
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .footer-top { grid-template-columns: 1.2fr 1fr 1fr; }
+  .footer-col:nth-child(4) { display: none; }
+}
+
+@media (max-width: 1024px) {
+  :root { --nav-h: 72px; }
+
+  .primary-nav__list { display: none; }
+  .nav-actions .btn-solid { display: none; }
+  .menu-toggle { display: flex; }
+
+  .hero__content { grid-template-columns: 1fr; }
+  .hero__title-block { grid-column: 1; }
+  .hero__meta { grid-column: 1; border-left: none; padding-left: 0; border-top: 1px solid var(--ink-line); padding-top: var(--space-m); }
+  .hero__scroll { grid-column: 1; }
+
+  .statement .wrap,
+  .featured-song .wrap,
+  .featured-album__content,
+  .newsletter .wrap { grid-template-columns: 1fr; }
+  .statement__side { padding-top: 0; }
+  .featured-album__content { gap: var(--space-l); }
+
+  .symphony-banner .wrap { grid-template-columns: 1fr; text-align: left; }
+  .symphony-banner__dates { text-align: left; }
+
+  .event-row { grid-template-columns: 1fr 1fr; row-gap: var(--space-2xs); }
+  .event-row__cta { grid-column: 2; justify-self: end; }
+
+  .footer-top { grid-template-columns: 1fr 1fr; row-gap: var(--space-l); }
+
+  .video-feature-grid { grid-template-columns: repeat(2, 1fr); }
+  .song-hero .wrap { grid-template-columns: 280px 1fr; }
+  .album-row__content { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 680px) {
+  :root { --edge: 1.1rem; --nav-h: 64px; }
+
+  body { font-size: 1rem; }
+
+  .intro__title { font-size: var(--step-3); }
+  .intro__body { max-width: 100%; }
+  .intro__controls { flex-direction: column; align-items: flex-start; gap: var(--space-s); }
+
+  .hero__title { font-size: clamp(2.6rem, 2rem + 6vw, 4rem); }
+  .hero__content { padding-bottom: var(--space-l); }
+
+  .statement__quote { font-size: var(--step-2); }
+  .statement__stats { flex-wrap: wrap; gap: var(--space-m); }
+
+  .featured-song__title { font-size: var(--step-3); }
+  .platform-links { gap: var(--space-s) var(--space-m); }
+
+  .featured-album { min-height: auto; padding-top: var(--space-2xl); }
+  .featured-album__bg { position: relative; height: 60vh; }
+  .featured-album__content { position: static; padding-inline: var(--edge); }
+
+  .catalogue__track { width: 72vw; }
+
+  .video-feature__frame { aspect-ratio: 4/5; }
+  .video-feature__title { font-size: var(--step-2); }
+
+  .ministry-mission__text { font-size: clamp(1.7rem, 1.2rem + 5vw, 2.6rem); }
+
+  .symphony-banner__title { font-size: var(--step-3); }
+
+  .emerging__item { width: 160px; }
+
+  .events__head { flex-direction: column; align-items: flex-start; gap: var(--space-s); }
+  .event-row { grid-template-columns: 1fr; }
+  .event-row__cta { justify-self: start; grid-column: 1; }
+
+  .booking-cta .wrap { flex-direction: column; align-items: flex-start; }
+  .booking-cta__title { font-size: var(--step-3); }
+
+  .newsletter-form__row { flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
+  .newsletter-form__row input { width: 100%; }
+
+  .footer-top { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; gap: var(--space-s); align-items: flex-start; }
+
+  /* Persistent player collapses to a compact bar on mobile */
+  .player { grid-template-columns: auto 1fr auto; padding-inline: var(--space-s); }
+  .player__scrub, .player__volume { display: none; }
+
+  /* Inner pages: dedicated mobile compositions, not shrunk desktop layouts */
+  .page-hero__title { font-size: var(--step-4); }
+  .filter-bar { flex-direction: column; align-items: flex-start; gap: var(--space-m); }
+  .search-field { width: 100%; }
+
+  .track-row { grid-template-columns: 1.75rem 2.75rem 1fr auto; gap: var(--space-s); }
+  .track-row__badge, .track-row__dur { display: none; }
+  .track-row__play { width: 30px; height: 30px; }
+
+  .album-row { min-height: auto; padding-top: var(--space-xl); }
+  .album-row__bg { position: relative; height: 46vh; }
+  .album-row__content { position: static; flex-direction: column; align-items: flex-start; padding-inline: var(--edge); }
+
+  .song-hero .wrap { grid-template-columns: 1fr; }
+  .song-hero__art { max-width: 260px; }
+  .song-hero__title { font-size: var(--step-3); }
+
+  .video-feature-grid { grid-template-columns: 1fr 1fr; gap: var(--space-m) var(--space-s); }
+
+  .form-grid { grid-template-columns: 1fr; }
+
+  .event-full-row { grid-template-columns: 1fr; }
+  .event-full-row__img { aspect-ratio: 16/10; }
+
+  .persistent-player { grid-template-columns: 1fr auto; height: auto; padding-block: var(--space-s); row-gap: var(--space-2xs); }
+  .pp-scrub { display: none; }
+  .pp-volume { display: none; }
+  .pp-track img { width: 40px; height: 40px; }
+
+  .step-track { flex-wrap: wrap; }
+
+  .admin-login__card { padding-inline: var(--space-s); }
+}
+
+@media (min-width: 1920px) {
+  :root { --max-w: 1920px; }
+}
+
+/* ==========================================================================
+   HERO SLIDER — composition per breakpoint
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .hero__title-block { grid-column: 1 / 7; }
+  .hero__meta { grid-column: 7 / 13; }
+}
+
+@media (max-width: 1024px) {
+  /* One column: the headline stacks above the facts, and the footer
+     shrinks because the rail loses its labels. */
+  .hero { --hero-footer: 6.5rem; }
+  .hero-slide { justify-content: flex-end; }
+  .hero__content { grid-template-columns: 1fr; gap: var(--space-m); align-items: start; }
+  /* Restated after the 1200px rule above so the single-column stack wins. */
+  .hero__title-block { grid-column: 1 / -1; }
+  .hero__meta { grid-column: 1 / -1; border-left: none; padding-left: 0; border-top: 1px solid var(--ink-line); padding-top: var(--space-m); }
+  .hero__title { max-width: 100%; }
+  .hero-slide[data-hero-tone="graphic"] .hero__title { max-width: 100%; }
+  .hero__lede { max-width: 60ch; }
+  .hero__controls { gap: var(--space-xs); }
+  .hero__rail { gap: var(--space-s); }
+  .hero__rail-label { display: none; }
+  .hero__rail button { grid-template-columns: auto; grid-template-areas: "num" "track"; }
+}
+
+@media (max-width: 680px) {
+  .hero { --hero-footer: 4.5rem; }
+  .hero__content { padding-top: calc(var(--nav-h) + var(--space-m)); gap: var(--space-s); }
+  .hero__title { font-size: clamp(2.6rem, 2rem + 6vw, 4rem); }
+  .hero-slide[data-hero-tone="graphic"] .hero__title { font-size: clamp(2.2rem, 1.7rem + 5vw, 3.2rem); }
+  .hero__lede { font-size: var(--step--1); max-width: 100%; }
+  /* On a phone the third fact is the first thing to go — two lines of
+     detail is enough before the call to action. */
+  .hero__facts > div { padding-top: var(--space-3xs); }
+  .hero__facts > div:nth-child(n + 3) { display: none; }
+  .hero__arrow { display: none; }
+  .hero__toggle span:not(.hero__toggle-icon) { display: none; }
+  .hero__scroll { display: none; }
+}

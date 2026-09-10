@@ -1,0 +1,26 @@
+/* ==========================================================================
+   ANIMATIONS — keyframes & motion primitives
+   GSAP drives timing/orchestration; this file defines the visual states
+   and keeps a CSS-only fallback for reduced-motion / no-JS.
+   ========================================================================== */
+
+.js-enabled [data-reveal="fade-up"] { opacity: 0; transform: translateY(28px); }
+.js-enabled [data-reveal="fade"] { opacity: 0; }
+.js-enabled [data-reveal="scale"] { opacity: 0; transform: scale(1.06); }
+.js-enabled [data-reveal="clip"] { clip-path: inset(0 0 100% 0); }
+
+.revealed[data-reveal] { opacity: 1 !important; transform: none !important; clip-path: inset(0 0 0% 0) !important; }
+
+.no-js [data-reveal] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js-enabled [data-reveal] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+}
+
+/* Hover-magnetic targets get a will-change hint only while active */
+[data-magnetic] { display: inline-block; }
+
+/* Loading progress ring used by intro + simulated fetches */
+.progress-ring circle {
+  transition: stroke-dashoffset 0.3s var(--ease-soft);
+}

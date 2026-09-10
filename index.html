@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dr AjokeSings — Worship, Carried By Voice</title>
+<meta name="description" content="Dr AjokeSings — worship minister and recording artist. Listen to Covenant, watch live sessions, and join the Symphony of Praise & Worship.">
+<meta name="theme-color" content="#0a0908">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+
+<meta property="og:title" content="Dr AjokeSings — Worship, Carried By Voice">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/images/hero-portrait.jpg">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ============================= CINEMATIC INTRO ============================= -->
+<section class="intro" data-intro aria-label="Welcome">
+  <div class="intro__progress" data-intro-progress></div>
+  <div class="intro__media">
+    <video
+      class="intro__video"
+      data-intro-video
+      src="assets/video/welcome.mp4"
+      poster="assets/images/welcome-poster.jpg"
+      muted
+      playsinline
+      preload="auto"
+      aria-hidden="true">
+    </video>
+    <div class="intro__scrim"></div>
+  </div>
+  <div class="intro__content">
+    <p class="intro__mark">AjokeSings</p>
+    <div class="intro__body">
+      <p class="intro__eyebrow">A Film Before The Music</p>
+      <h1 class="intro__title">Come in <em>quietly.</em><br>Leave <em>changed.</em></h1>
+      <div class="intro__controls">
+        <button class="intro__enter" data-intro-enter type="button">
+          Enter Experience
+          <svg width="16" height="10" viewBox="0 0 16 10" fill="none" aria-hidden="true"><path d="M1 5h14M10 1l5 4-5 4" stroke="currentColor" stroke-width="1.3"/></svg>
+        </button>
+        <button class="intro__sound" data-intro-sound type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" stroke="currentColor" stroke-width="1.3"/></svg>
+          <span data-sound-label>Sound off</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= CUSTOM CURSOR ============================= -->
+<div class="cursor" data-cursor aria-hidden="true"></div>
+<div class="cursor__label" data-cursor-label aria-hidden="true"></div>
+
+<!-- ============================= SVG ICON SPRITE ============================= -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="icon-play" viewBox="0 0 24 24"><path d="M6 4l15 8-15 8V4z"/></symbol>
+  <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></symbol>
+  <symbol id="icon-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.5" fill="none"/></symbol>
+</svg>
+
+<!-- ============================= HEADER ============================= -->
+<header class="site-header" data-site-header>
+  <div class="wrap">
+    <a href="index.html" class="brand" aria-label="Dr AjokeSings — home">Ajoke<em>Sings</em></a>
+
+    <nav class="primary-nav" aria-label="Primary">
+      <ul class="primary-nav__list">
+        <li><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="music.html">Music</a></li>
+        <li><a href="videos.html">Videos</a></li>
+        <li><a href="ministry.html">Ministry</a></li>
+        <li><a href="symphony.html">Symphony</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-actions">
+      <a href="contact.html#booking" class="btn btn-solid" data-magnetic>Book Ministration</a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav id="mobile-nav" class="mobile-nav" data-mobile-nav aria-label="Mobile">
+  <ul class="mobile-nav__list">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="music.html">Music</a></li>
+    <li><a href="videos.html">Videos</a></li>
+    <li><a href="ministry.html">Ministry</a></li>
+    <li><a href="symphony.html">Symphony</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact &amp; Booking</a></li>
+  </ul>
+  <p class="mobile-nav__meta">Lagos, Nigeria &middot; hello@drajokesings.com</p>
+</nav>
+
+<main id="main">
+
+  <!-- ============================= HERO SLIDER ============================= -->
+  <section
+    class="hero hero--slider"
+    data-hero
+    data-hero-slider
+    aria-roledescription="carousel"
+    aria-label="Featured highlights">
+
+    <div class="hero__stage" data-hero-stage>
+
+      <!-- 01 — The artist -->
+      <article class="hero-slide" data-hero-slide
+               data-hero-image="assets/images/hero-portrait.jpg"
+               data-hero-image-alt="Dr AjokeSings mid-worship, eyes closed, stage light behind"
+               data-hero-focus="60% 30%"
+               data-hero-tone="portrait"
+               aria-roledescription="slide"
+               aria-label="Slide 1 of 3: Worship, carried by voice">
+        <div class="hero-slide__slats" data-hero-slats style="background-image:url(assets/images/hero-portrait.jpg)"></div>
+        <div class="hero-slide__scrim"></div>
+        <div class="hero__content">
+          <div class="hero__title-block">
+            <p class="hero__eyebrow" data-hero-anim="1">Worship Minister &middot; Recording Artist &middot; Lagos, Nigeria</p>
+            <h1 class="hero__title display" data-hero-anim="2">Worship, carried <em>by voice.</em></h1>
+          </div>
+          <div class="hero__meta" data-hero-anim="3">
+            <div class="hero__now-playing">
+              <span class="dot" aria-hidden="true"></span>
+              Now streaming
+            </div>
+            <p class="hero__song">Yahweh, Rest My Bones</p>
+            <a href="music.html" class="btn btn-line" data-magnetic>Listen to Covenant</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- 02 — SPAW: The Concert -->
+      <article class="hero-slide" data-hero-slide
+               data-hero-image="assets/images/spaw-concert.svg"
+               data-hero-image-alt="Symphony of Praise and Worship concert artwork: stage beams over a congregation with raised hands"
+               data-hero-focus="center"
+               data-hero-tone="graphic"
+               aria-roledescription="slide"
+               aria-label="Slide 2 of 3: Symphony of Praise and Worship, the concert">
+        <div class="hero-slide__slats" data-hero-slats></div>
+        <div class="hero-slide__scrim"></div>
+        <div class="hero__content">
+          <div class="hero__title-block">
+            <p class="hero__eyebrow" data-hero-anim="1">Symphony of Praise &amp; Worship &middot; The Concert</p>
+            <h2 class="hero__title display" data-hero-anim="2">A night the city <em>sings back.</em></h2>
+            <p class="hero__lede" data-hero-anim="3">Eight hundred voices, a fourteen-piece house band, and one long room with no stage &mdash; only an altar.</p>
+          </div>
+          <div class="hero__meta" data-hero-anim="4">
+            <div class="hero__now-playing">
+              <span class="dot" aria-hidden="true"></span>
+              Tickets open
+            </div>
+            <dl class="hero__facts">
+              <div><dt>Date</dt><dd>13 December 2026</dd></div>
+              <div><dt>Venue</dt><dd>Eko Convention Centre, Lagos</dd></div>
+              <div><dt>Doors</dt><dd>16:00 &middot; Free entry, registration required</dd></div>
+            </dl>
+            <a href="events.html" class="btn btn-solid" data-magnetic>Reserve your seat</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- 03 — SPAW: Talent Quest -->
+      <article class="hero-slide" data-hero-slide
+               data-hero-image="assets/images/spaw-talent.svg"
+               data-hero-image-alt="Symphony of Praise and Worship Talent Quest artwork: a spotlight finding a microphone inside concentric rings"
+               data-hero-focus="center"
+               data-hero-tone="graphic"
+               aria-roledescription="slide"
+               aria-label="Slide 3 of 3: Symphony of Praise and Worship Talent Quest">
+        <div class="hero-slide__slats" data-hero-slats></div>
+        <div class="hero-slide__scrim"></div>
+        <div class="hero__content">
+          <div class="hero__title-block">
+            <p class="hero__eyebrow" data-hero-anim="1">Symphony of Praise &amp; Worship &middot; Talent Quest</p>
+            <h2 class="hero__title display" data-hero-anim="2">We're listening for <em>your voice.</em></h2>
+            <p class="hero__lede" data-hero-anim="3">Funded studio time toward one original recording, and a place on the Symphony stage in front of a full house. Four tracks. One cohort.</p>
+          </div>
+          <div class="hero__meta" data-hero-anim="4">
+            <div class="hero__now-playing">
+              <span class="dot" aria-hidden="true"></span>
+              Applications open
+            </div>
+            <dl class="hero__facts">
+              <div><dt>Close</dt><dd>1 November 2026</dd></div>
+              <div><dt>Auditions</dt><dd>8 November &middot; Freedom Hall, Lekki</dd></div>
+              <div><dt>Tracks</dt><dd>Vocalist &middot; Songwriter &middot; Instrumentalist &middot; Producer</dd></div>
+            </dl>
+            <a href="symphony.html" class="btn btn-solid" data-magnetic>Apply to Symphony</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="hero-sweep" data-hero-sweep aria-hidden="true"></div>
+
+    <div class="hero__footer">
+    <div class="hero__controls" data-hero-controls>
+      <button class="hero__arrow" type="button" data-hero-prev aria-label="Previous slide">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 4l-8 8 8 8" stroke="currentColor" stroke-width="1.4"/></svg>
+      </button>
+
+      <ol class="hero__rail" data-hero-rail>
+        <li>
+          <button type="button" data-hero-goto="0">
+            <span class="hero__rail-num">01</span>
+            <span class="hero__rail-track" aria-hidden="true"><span class="hero__rail-fill"></span></span>
+            <span class="hero__rail-label">The Artist</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" data-hero-goto="1">
+            <span class="hero__rail-num">02</span>
+            <span class="hero__rail-track" aria-hidden="true"><span class="hero__rail-fill"></span></span>
+            <span class="hero__rail-label">SPAW Concert</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" data-hero-goto="2">
+            <span class="hero__rail-num">03</span>
+            <span class="hero__rail-track" aria-hidden="true"><span class="hero__rail-fill"></span></span>
+            <span class="hero__rail-label">Talent Quest</span>
+          </button>
+        </li>
+      </ol>
+
+      <button class="hero__arrow" type="button" data-hero-next aria-label="Next slide">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 4l8 8-8 8" stroke="currentColor" stroke-width="1.4"/></svg>
+      </button>
+
+      <button class="hero__toggle" type="button" data-hero-toggle aria-pressed="false">
+        <span class="hero__toggle-icon" aria-hidden="true"></span>
+        <span data-hero-toggle-label>Pause</span>
+      </button>
+    </div>
+
+    <div class="hero__scroll" data-hero-scroll>
+      <span class="hero__scroll-line" aria-hidden="true"></span>
+      Scroll to begin
+    </div>
+    </div>
+
+    <p class="sr-only" role="status" aria-live="polite" data-hero-live></p>
+  </section>
+  <!-- ============================= ARTIST STATEMENT ============================= -->
+  <section class="section statement section--light" aria-label="Artist statement">
+    <div class="wrap">
+      <p class="statement__quote display" data-reveal="fade-up">&ldquo;I don't perform worship. I open a door and stand out of the way.&rdquo;</p>
+      <div class="statement__side" data-reveal="fade-up">
+        <p class="statement__bio">Dr AjokeSings writes and sings from the meeting point of scripture, memory, and modern African sound &mdash; songs built for the room to disappear and the presence to remain. Fourteen years into ministry, across twenty-three nations, the work has stayed the same: make space, then get out of the way.</p>
+        <div class="statement__stats">
+          <div><p class="stat__num display">14</p><p class="stat__label">Years in ministry</p></div>
+          <div><p class="stat__num display">62</p><p class="stat__label">Original songs</p></div>
+          <div><p class="stat__num display">23</p><p class="stat__label">Nations reached</p></div>
+        </div>
+        <a href="about.html" class="btn btn-line" data-magnetic>Read the full story</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= FEATURED SONG ============================= -->
+  <section class="section featured-song" data-featured-song aria-label="Featured song">
+    <div class="wrap" data-fs-body>
+      <div class="featured-song__art" data-reveal="scale">
+        <img data-fs-art src="" alt="" width="640" height="640" loading="lazy">
+        <button class="featured-song__play" data-fs-play data-cursor-text="PLAY" type="button" aria-label="Play preview">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icon-play"></use></svg>
+        </button>
+      </div>
+      <div class="featured-song__body" data-reveal="fade-up">
+        <p class="eyebrow">Featured Song</p>
+        <h2 class="featured-song__title display" data-fs-title></h2>
+        <p class="featured-song__album" data-fs-album></p>
+        <p class="featured-song__desc" data-fs-desc></p>
+
+        <div class="mini-player" data-player>
+          <button class="mini-player__btn" data-player-play type="button" aria-pressed="false" aria-label="Play">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#icon-play"></use></svg>
+          </button>
+          <div class="mini-player__track">
+            <div class="mini-player__bar" data-player-bar role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="mini-player__fill" data-player-fill></div>
+            </div>
+            <div class="mini-player__time">
+              <span data-player-current>0:00</span>
+              <span data-player-duration>0:00</span>
+            </div>
+          </div>
+        </div>
+        <p class="state-msg" data-player-note aria-live="polite"></p>
+
+        <div class="platform-links" data-fs-links aria-label="Listen on streaming platforms"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= FEATURED ALBUM ============================= -->
+  <section class="featured-album" data-featured-album aria-label="Featured album">
+    <div class="featured-album__bg">
+      <img data-album-bg src="" alt="" loading="lazy">
+    </div>
+    <div class="featured-album__content">
+      <div data-reveal="fade-up">
+        <p class="eyebrow">Latest Album</p>
+        <h2 class="featured-album__title display" data-album-title></h2>
+        <p class="featured-album__year" data-album-year></p>
+        <a href="albums.html" class="btn btn-line" style="margin-top: var(--space-m); color: var(--paper);" data-magnetic>View full album</a>
+      </div>
+      <div class="tracklist" data-album-tracklist data-reveal="fade-up"></div>
+    </div>
+  </section>
+
+  <!-- ============================= CATALOGUE STRIP ============================= -->
+  <section class="catalogue" data-catalogue aria-label="Music catalogue">
+    <div class="wrap">
+      <div class="catalogue__head">
+        <div>
+          <p class="eyebrow">Catalogue</p>
+          <h2 class="catalogue__title display">Every song, one voice.</h2>
+        </div>
+        <a href="music.html" class="btn btn-line" data-magnetic>Browse all music</a>
+      </div>
+    </div>
+    <div class="wrap" style="overflow: visible;">
+      <div class="emerging__row" data-catalogue-track style="gap: var(--space-l);"></div>
+    </div>
+  </section>
+
+  <!-- ============================= VIDEO EXPERIENCE ============================= -->
+  <section class="section" style="padding-block: 0;" aria-label="Featured video">
+    <div class="video-feature">
+      <div
+        class="video-feature__frame"
+        data-video-frame
+        role="button"
+        tabindex="0"
+        aria-label="Play featured video"
+        data-cursor-text="WATCH">
+        <img data-video-thumb src="" alt="" loading="lazy">
+        <div class="video-feature__scrim"></div>
+        <div class="video-feature__label">
+          <p class="eyebrow" data-video-eyebrow>Live Performance</p>
+          <h2 class="video-feature__title display" data-video-title></h2>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="video-modal" data-video-modal hidden role="dialog" aria-modal="true" aria-label="Video player">
+    <div class="video-modal__inner">
+      <button class="video-modal__close" data-video-close type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="#icon-close"></use></svg>
+        Close
+      </button>
+      <video controls playsinline></video>
+    </div>
+  </div>
+
+  <!-- ============================= MINISTRY MISSION (pinned) ============================= -->
+  <section class="ministry-mission" aria-label="Ministry mission">
+    <div class="ministry-mission__pin" data-ministry-pin>
+      <div>
+        <p class="mask-line"><span>This is not a stage.</span></p>
+        <h2 class="ministry-mission__text display">
+          <span class="mask-line"><span>It's an <em>altar</em></span></span><br>
+          <span class="mask-line"><span>built for the</span></span><br>
+          <span class="mask-line"><span>ones still <em>searching.</em></span></span>
+        </h2>
+        <p class="ministry-mission__foot">
+          <a href="ministry.html" class="btn btn-line" style="color: var(--paper);" data-magnetic>Enter the ministry</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= SYMPHONY BANNER ============================= -->
+  <section class="symphony-banner" aria-label="Symphony of Praise and Worship">
+    <p class="marquee" data-marquee aria-hidden="true">Symphony of Praise &amp; Worship &nbsp;&middot;&nbsp; Symphony of Praise &amp; Worship &nbsp;&middot;&nbsp; Symphony of Praise &amp; Worship &nbsp;&middot;&nbsp;</p>
+    <div class="wrap">
+      <div data-reveal="fade-up">
+        <p class="eyebrow">Talent Platform</p>
+        <h2 class="symphony-banner__title display">Symphony of <em>Praise &amp; Worship</em></h2>
+        <p class="symphony-banner__sub">One night of worship at Eko Convention Centre, and the yearly Talent Quest that finds the voices who open it &mdash; studio time, a released recording, and a stage.</p>
+        <a href="symphony.html" class="btn btn-solid" style="margin-top: var(--space-m);" data-magnetic>Apply to Symphony</a>
+      </div>
+      <div class="symphony-banner__dates" data-reveal="fade-up">
+        <div><strong>Nov 1</strong>Applications close</div>
+        <div><strong>Nov 8</strong>Lagos auditions</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= EMERGING ARTISTS ============================= -->
+  <section class="section emerging" aria-label="Emerging artists">
+    <div class="wrap">
+      <div class="emerging__head">
+        <div>
+          <p class="eyebrow">Talent Quest Alumni</p>
+          <h2 class="emerging__title display">Emerging voices</h2>
+        </div>
+        <a href="symphony.html" class="btn btn-line" data-magnetic>Inside the Talent Quest</a>
+      </div>
+      <div class="emerging__row" data-emerging-row></div>
+    </div>
+  </section>
+
+  <!-- ============================= EVENTS ============================= -->
+  <section class="events" aria-label="Upcoming events">
+    <div class="wrap">
+      <div class="events__head">
+        <div>
+          <p class="eyebrow">Calendar</p>
+          <h2 class="events__title display">Upcoming events</h2>
+        </div>
+        <a href="events.html" class="btn btn-line" data-magnetic>View full calendar</a>
+      </div>
+      <div class="events__list" data-events-list></div>
+    </div>
+  </section>
+
+  <!-- ============================= BOOKING CTA ============================= -->
+  <section class="booking-cta" aria-label="Booking">
+    <div class="wrap">
+      <h2 class="booking-cta__title display">Bring this ministry to your platform.</h2>
+      <a href="contact.html#booking" class="btn btn-ghost" data-magnetic>Start a booking request</a>
+    </div>
+  </section>
+
+  <!-- ============================= NEWSLETTER ============================= -->
+  <section class="section newsletter" aria-label="Join the community">
+    <div class="wrap">
+      <div data-reveal="fade-up">
+        <h2 class="newsletter__title display">Stay close to the sound.</h2>
+        <p class="newsletter__sub">New releases, event dates, and Symphony announcements &mdash; sent only when there's something worth saying.</p>
+      </div>
+      <form class="newsletter-form" data-newsletter-form novalidate data-reveal="fade-up">
+        <label for="newsletter-email" class="sr-only">Email address</label>
+        <div class="newsletter-form__row">
+          <input id="newsletter-email" type="email" name="email" placeholder="you@example.com" autocomplete="email">
+          <button type="submit" class="btn btn-line">Join</button>
+        </div>
+        <p class="newsletter-form__feedback" data-newsletter-feedback role="status" aria-live="polite"></p>
+        <p class="newsletter-form__note">No spam. Unsubscribe anytime.</p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================= FOOTER ============================= -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <p class="footer-brand display">Ajoke<em style="font-style:italic;color:var(--red-bright);">Sings</em></p>
+        <p class="footer-tagline">Worship, carried by voice. Lagos, Nigeria &mdash; and everywhere the songs travel.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Explore</h3>
+        <ul>
+          <li><a href="music.html">Music</a></li>
+          <li><a href="videos.html">Videos</a></li>
+          <li><a href="ministry.html">Ministry</a></li>
+          <li><a href="symphony.html">Symphony</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>Connect</h3>
+        <ul>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="contact.html#booking">Booking</a></li>
+          <li><a href="contact.html">Contact &amp; Booking</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>Follow</h3>
+        <ul>
+          <li><a href="https://instagram.com/drajokesings" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://youtube.com/@drajokesings" target="_blank" rel="noopener">YouTube</a></li>
+          <li><a href="https://tiktok.com/@drajokesings" target="_blank" rel="noopener">TikTok</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span data-year>2026</span> Dr AjokeSings. All rights reserved.</p>
+      <div class="footer-social">
+        <a href="admin.html">Admin</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="js/data.js" defer></script>
+<script src="js/player.js" defer></script>
+<script src="js/intro.js" defer></script>
+<script src="js/hero.js" defer></script>
+<script src="js/navigation.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/animations.js" defer></script>
+</body>
+</html>

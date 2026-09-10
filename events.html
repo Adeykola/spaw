@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Events — Dr AjokeSings</title>
+<meta name="description" content="Upcoming events, listening nights, and worship gatherings from Dr AjokeSings.">
+<meta name="theme-color" content="#0a0908">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="cursor" data-cursor aria-hidden="true"></div>
+<div class="cursor__label" data-cursor-label aria-hidden="true"></div>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="icon-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.5" fill="none"/></symbol>
+</svg>
+
+<header class="site-header" data-site-header>
+  <div class="wrap">
+    <a href="index.html" class="brand" aria-label="Dr AjokeSings — home">Ajoke<em>Sings</em></a>
+    <nav class="primary-nav" aria-label="Primary">
+      <ul class="primary-nav__list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="music.html">Music</a></li>
+        <li><a href="videos.html">Videos</a></li>
+        <li><a href="ministry.html">Ministry</a></li>
+        <li><a href="symphony.html">Symphony</a></li>
+        <li><a href="events.html" aria-current="page">Events</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <a href="contact.html#booking" class="btn btn-solid" data-magnetic>Book Ministration</a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<nav id="mobile-nav" class="mobile-nav" data-mobile-nav aria-label="Mobile">
+  <ul class="mobile-nav__list">
+    <li><a href="index.html">Home</a></li><li><a href="music.html">Music</a></li><li><a href="videos.html">Videos</a></li>
+    <li><a href="ministry.html">Ministry</a></li><li><a href="symphony.html">Symphony</a></li><li><a href="events.html">Events</a></li>
+    <li><a href="about.html">About</a></li><li><a href="contact.html">Contact &amp; Booking</a></li>
+  </ul>
+</nav>
+
+<main id="main">
+  <section class="page-hero" style="min-height:46svh;" aria-label="Events">
+    <div class="page-hero__media"><img src="assets/images/events-hero.jpg" alt="" loading="eager"></div>
+    <div class="page-hero__scrim"></div>
+    <div class="page-hero__content">
+      <p class="eyebrow page-hero__eyebrow">Calendar</p>
+      <h1 class="page-hero__title display">Where we <em>gather.</em></h1>
+    </div>
+  </section>
+
+  <section class="section section--light" aria-label="Upcoming events">
+    <div class="wrap" data-events-full-list></div>
+  </section>
+</main>
+
+<div class="video-modal" data-register-modal hidden role="dialog" aria-modal="true" aria-label="Event registration">
+  <div class="video-modal__inner" style="aspect-ratio:auto; background: var(--paper); color: var(--ink); padding: var(--space-l); max-width: 520px; margin-inline:auto;">
+    <button class="video-modal__close" data-register-close type="button" style="color:var(--ink);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="#icon-close"></use></svg>
+      Close
+    </button>
+
+    <form data-register-form>
+      <p class="eyebrow" data-register-event-name style="margin-bottom: var(--space-2xs);"></p>
+      <p class="field-hint" data-register-event-meta style="margin-bottom: var(--space-l);"></p>
+      <p class="form-error-banner" data-register-error role="alert"></p>
+
+      <div class="field" style="margin-bottom: var(--space-s);">
+        <label for="reg-name">Full name *</label>
+        <input type="text" id="reg-name" required autocomplete="name">
+      </div>
+      <div class="field" style="margin-bottom: var(--space-s);">
+        <label for="reg-email">Email *</label>
+        <input type="email" id="reg-email" required autocomplete="email">
+      </div>
+      <div class="field" style="margin-bottom: var(--space-m);">
+        <label for="reg-phone">Phone</label>
+        <input type="tel" id="reg-phone" autocomplete="tel">
+      </div>
+      <button type="submit" class="btn btn-solid" style="width:100%; justify-content:center;">Confirm registration</button>
+    </form>
+
+    <div data-register-confirm hidden>
+      <div class="confirm-screen__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12l5 5L19 7" stroke="var(--red)" stroke-width="2"/></svg></div>
+      <h2 class="confirm-screen__title display" style="font-size: var(--step-2);">You're registered.</h2>
+      <p class="confirm-screen__body">See you there, <span data-reg-name></span>. Show this QR code at check-in.</p>
+      <div class="confirm-screen__qr" data-reg-qr></div>
+      <p class="confirm-screen__id" style="font-size: var(--step-0);">ID: <span data-reg-id></span></p>
+      <div class="confirm-screen__actions">
+        <button type="button" class="btn btn-line" data-reg-ics>Add to calendar</button>
+        <button type="button" class="btn btn-line" data-register-close>Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div><p class="footer-brand display">Ajoke<em style="font-style:italic;color:var(--red-bright);">Sings</em></p><p class="footer-tagline">Worship, carried by voice. Lagos, Nigeria — and everywhere the songs travel.</p></div>
+      <div class="footer-col"><h3>Explore</h3><ul><li><a href="music.html">Music</a></li><li><a href="videos.html">Videos</a></li><li><a href="ministry.html">Ministry</a></li><li><a href="symphony.html">Symphony</a></li></ul></div>
+      <div class="footer-col"><h3>Connect</h3><ul><li><a href="events.html">Events</a></li><li><a href="contact.html#booking">Booking</a></li><li><a href="contact.html">Contact &amp; Booking</a></li><li><a href="about.html">About</a></li></ul></div>
+      <div class="footer-col"><h3>Follow</h3><ul><li><a href="https://instagram.com/drajokesings" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://youtube.com/@drajokesings" target="_blank" rel="noopener">YouTube</a></li><li><a href="https://tiktok.com/@drajokesings" target="_blank" rel="noopener">TikTok</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>&copy; <span data-year>2026</span> Dr AjokeSings. All rights reserved.</p><div class="footer-social"><a href="admin.html">Admin</a></div></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<script src="js/data.js" defer></script>
+<script src="js/navigation.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/events.js" defer></script>
+<script src="js/animations.js" defer></script>
+</body>
+</html>

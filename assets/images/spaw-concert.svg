@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Symphony of Praise and Worship concert artwork">
+  <defs>
+    <radialGradient id="c-glow" cx="72%" cy="14%" r="78%">
+      <stop offset="0%" stop-color="#e8b877" stop-opacity="0.55"/>
+      <stop offset="38%" stop-color="#a91d2c" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#0a0908" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="c-beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#faf7f2" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#e8b877" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#a91d2c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="c-beam2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d63a34" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#a91d2c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="c-floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a0908" stop-opacity="0"/>
+      <stop offset="70%" stop-color="#0a0908" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#0a0908" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="c-ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a9895a" stop-opacity="0.9"/>
+      <stop offset="55%" stop-color="#a9895a" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#d63a34" stop-opacity="0.55"/>
+    </linearGradient>
+    <filter id="c-soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+    <filter id="c-soft2" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <filter id="c-grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="7"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <clipPath id="c-frame"><rect width="1600" height="1000"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#c-frame)">
+    <rect width="1600" height="1000" fill="#0a0908"/>
+    <rect width="1600" height="1000" fill="url(#c-glow)"/>
+
+    <!-- stage light beams from the rig -->
+    <g opacity="0.85">
+      <path d="M1128 -60 L1500 1060 L1236 1060 Z" fill="url(#c-beam)" filter="url(#c-soft2)"/>
+      <path d="M1128 -60 L1004 1060 L810 1060 Z" fill="url(#c-beam)" opacity="0.6" filter="url(#c-soft2)"/>
+      <path d="M1128 -60 L1720 900 L1600 1060 Z" fill="url(#c-beam2)" filter="url(#c-soft2)"/>
+      <path d="M1128 -60 L640 1060 L520 1060 Z" fill="url(#c-beam2)" opacity="0.5" filter="url(#c-soft2)"/>
+    </g>
+    <circle cx="1128" cy="-30" r="190" fill="#e8b877" opacity="0.35" filter="url(#c-soft)"/>
+
+    <!-- concentric stage rings -->
+    <g fill="none" stroke="url(#c-ring)">
+      <circle cx="1128" cy="470" r="150" stroke-width="1"/>
+      <circle cx="1128" cy="470" r="240" stroke-width="1" opacity="0.75"/>
+      <circle cx="1128" cy="470" r="336" stroke-width="1" opacity="0.5"/>
+      <circle cx="1128" cy="470" r="446" stroke-width="1" opacity="0.3"/>
+      <circle cx="1128" cy="470" r="570" stroke-width="1" opacity="0.16"/>
+    </g>
+    <circle cx="1128" cy="470" r="150" fill="#a91d2c" opacity="0.14"/>
+
+    <!-- hairline grid, stage-plan feel -->
+    <g stroke="#a9895a" stroke-width="0.6" opacity="0.14">
+      <path d="M0 780 H1600 M0 850 H1600 M0 916 H1600"/>
+      <path d="M160 640 V1000 M420 640 V1000 M680 640 V1000 M940 640 V1000 M1200 640 V1000 M1460 640 V1000"/>
+    </g>
+
+    <!-- congregation: raised hands -->
+    <g fill="#0a0908" opacity="0.94">
+      <g transform="translate(0,150)">
+        <path d="M0 700 q60 -70 130 -22 q40 -96 100 -40 q52 -84 112 -16 q64 -64 118 12 q70 -52 122 26 q66 -46 122 30 q58 -60 124 6 q62 -58 126 18 q70 -44 128 34 q64 -50 132 24 q58 -54 126 20 q62 -46 130 28 L1600 760 L1600 900 L0 900 Z"/>
+      </g>
+    </g>
+    <g fill="none" stroke="#d63a34" stroke-width="1.4" opacity="0.55">
+      <path d="M232 838 v-104 q0 -34 30 -34 q30 0 30 34 v104"/>
+      <path d="M612 826 v-124 q0 -32 28 -32 q28 0 28 32 v124"/>
+      <path d="M1010 844 v-96 q0 -30 26 -30 q26 0 26 30 v96"/>
+      <path d="M1396 830 v-116 q0 -30 27 -30 q27 0 27 30 v116"/>
+    </g>
+
+    <!-- rim light on the crowd -->
+    <path d="M0 856 q200 -60 400 -30 q220 34 400 -18 q220 -56 420 -8 q190 46 380 -12" fill="none" stroke="#e8b877" stroke-width="1.6" opacity="0.4" filter="url(#c-soft2)"/>
+
+    <rect y="620" width="1600" height="380" fill="url(#c-floor)"/>
+
+    <!-- editorial marks -->
+    <g opacity="0.9">
+      <rect x="96" y="96" width="54" height="2" fill="#d63a34"/>
+      <text x="96" y="146" font-family="Manrope, Segoe UI, sans-serif" font-size="21" font-weight="700" letter-spacing="7" fill="#faf7f2" opacity="0.85">S P A W</text>
+      <text x="96" y="186" font-family="Manrope, Segoe UI, sans-serif" font-size="14" font-weight="600" letter-spacing="4.5" fill="#a9895a">THE CONCERT · LAGOS</text>
+    </g>
+    <text x="1504" y="946" text-anchor="end" font-family="Instrument Serif, Times New Roman, serif" font-size="150" fill="#faf7f2" opacity="0.07">2026</text>
+
+    <rect width="1600" height="1000" filter="url(#c-grain)" opacity="0.055" style="mix-blend-mode:overlay"/>
+  </g>
+</svg>
