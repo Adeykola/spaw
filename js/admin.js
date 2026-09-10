@@ -234,7 +234,7 @@ function renderHomepagePanel() {
   const current = Store.read("admin:homepageContent", {
     heroEyebrow: "Worship Minister \u00b7 Recording Artist \u00b7 Lagos, Nigeria",
     heroTitle: "Worship, carried by voice.",
-    nowPlayingSong: "Yahweh, Rest My Bones",
+    nowPlayingSong: "Alagbara",
   });
   form.querySelector("#hp-eyebrow").value = current.heroEyebrow;
   form.querySelector("#hp-title").value = current.heroTitle;
