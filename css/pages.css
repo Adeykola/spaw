@@ -725,3 +725,89 @@ a.contact-list__value:hover { color: var(--red-bright); }
   .concert-facts > div { grid-template-columns: 1fr; gap: 2px; }
   .quest-intro__lead { font-size: var(--step-1); }
 }
+
+/* ==========================================================================
+   ABOUT — family
+   A portrait sitting alongside the copy, then the group photograph run
+   wide with its caption carrying the story rather than a bare line.
+   ========================================================================== */
+.family-feature {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+.family-feature__portrait { margin: 0; }
+.family-feature__portrait img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center 28%;
+  /* Warm block behind the frame, so a slow or missing file reads as a
+     held space rather than a broken tile. */
+  background: var(--paper-dim);
+}
+.family-feature__portrait figcaption,
+.family-group figcaption {
+  margin-top: var(--space-s);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--gray-on-light);
+  max-width: 60ch;
+}
+.family-feature__body { display: flex; flex-direction: column; gap: var(--space-m); max-width: 60ch; }
+.family-feature__body p { color: var(--gray-on-light); }
+.family-feature__lead {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.18;
+  color: var(--ink) !important;
+}
+
+.family-group { margin: var(--space-2xl) 0 0; }
+.family-group img {
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  object-fit: cover;
+  object-position: center 32%;
+  background: var(--paper-dim);
+}
+.family-group figcaption {
+  /* Indented to the right-hand column so the caption reads as a note in
+     the margin rather than a label stuck under a picture. */
+  margin-left: auto;
+  max-width: 58ch;
+  padding-top: var(--space-s);
+  border-top: 1px solid var(--paper-line);
+}
+.family-group__cap-lead {
+  display: block;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-1);
+  color: var(--red);
+  margin-bottom: var(--space-2xs);
+}
+
+.family-closer {
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-l);
+  border-top: 2px solid var(--red);
+  font-size: var(--step-2);
+  line-height: 1.2;
+  max-width: 24ch;
+}
+.family-closer em { font-style: italic; color: var(--red); }
+
+@media (max-width: 1024px) {
+  .family-feature { grid-template-columns: 1fr; gap: var(--space-l); }
+  .family-feature__portrait img { aspect-ratio: 16 / 11; object-position: center 22%; }
+  .family-group { margin-top: var(--space-xl); }
+  .family-group figcaption { margin-left: 0; max-width: 100%; }
+}
+
+@media (max-width: 680px) {
+  .family-feature__lead { font-size: var(--step-1); }
+  .family-group img { aspect-ratio: 4 / 3; }
+  .family-closer { font-size: var(--step-1); max-width: 100%; margin-top: var(--space-xl); }
+}
