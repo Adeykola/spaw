@@ -38,7 +38,7 @@ async function renderEventsList() {
         return el("article", { class: "event-full-row" }, [
           el("img", { class: "event-full-row__img", src: e.image, alt: "", loading: "lazy" }),
           el("div", {}, [
-            el("p", { class: "event-full-row__date", text: `${formatFullDate(e.date, e.time)} \u00b7 ${e.time}` }),
+            el("p", { class: "event-full-row__date", text: `${formatFullDate(e.date, e.time)} \u00b7 ${e.time || "Time to be announced"}` }),
             el("h3", { class: "event-full-row__title display", text: e.name }),
             el("p", { class: "event-full-row__venue", text: `${e.venue}, ${e.city}` }),
             el("p", { class: "event-full-row__desc", text: e.description }),
@@ -82,9 +82,20 @@ function closeRegisterModal() {
 }
 
 function buildIcs(event, registration) {
-  const start = new Date(`${event.date}T${event.time}:00`);
-  const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
   const fmt = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  // No announced time yet: file it as an all-day entry rather than invent
+  // a start time the organisers haven't given.
+  let when;
+  if (event.time) {
+    const start = new Date(`${event.date}T${event.time}:00`);
+    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+    when = [`DTSTART:${fmt(start)}`, `DTEND:${fmt(end)}`];
+  } else {
+    const dayAfter = new Date(`${event.date}T00:00:00Z`);
+    dayAfter.setUTCDate(dayAfter.getUTCDate() + 1);
+    const ymd = (s) => s.slice(0, 10).replace(/-/g, "");
+    when = [`DTSTART;VALUE=DATE:${ymd(event.date)}`, `DTEND;VALUE=DATE:${ymd(dayAfter.toISOString())}`];
+  }
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -92,8 +103,7 @@ function buildIcs(event, registration) {
     "BEGIN:VEVENT",
     `UID:${registration.id}@drajokesings.com`,
     `DTSTAMP:${fmt(new Date())}`,
-    `DTSTART:${fmt(start)}`,
-    `DTEND:${fmt(end)}`,
+    ...when,
     `SUMMARY:${event.name}`,
     `LOCATION:${event.venue}, ${event.city}`,
     `DESCRIPTION:${event.description}`,

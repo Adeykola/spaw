@@ -35,8 +35,8 @@ async function renderSymphonyInfo() {
     if (datesEl) {
       datesEl.replaceChildren(
         el("div", {}, [el("strong", { text: fmt(info.applicationCloses) }), el("span", { text: "Applications close" })]),
-        el("div", {}, [el("strong", { text: fmt(info.auditionDate) }), el("span", { text: "Lagos auditions" })]),
-        el("div", {}, [el("strong", { text: fmt(info.showcaseDate) }), el("span", { text: "Concert night" })])
+        el("div", {}, [el("strong", { text: fmt(info.questDate) }), el("span", { text: "Talent Quest" })]),
+        el("div", {}, [el("strong", { text: fmt(info.concert.date) }), el("span", { text: "The Concert" })])
       );
     }
 
@@ -77,7 +77,7 @@ function renderConcert(concert, fmtLong) {
     const facts = [
       ["Date", fmtLong(concert.date)],
       ["Venue", `${concert.venue}, ${concert.city}`],
-      ["Doors", `${concert.doors} — set begins ${concert.start}`],
+      ["Time", concert.doors ? `Doors ${concert.doors} — set begins ${concert.start}` : "To be announced"],
       ["Capacity", `${concert.capacity.toLocaleString()} seats`],
       ["Admission", concert.admission],
     ];
@@ -122,8 +122,8 @@ function renderQuest(quest, info, fmt) {
     const rows = [
       ["Applications open", fmt(info.applicationOpens)],
       ["Applications close", fmt(info.applicationCloses)],
-      ["Live auditions, Lagos", fmt(info.auditionDate)],
-      ["Concert night", fmt(info.showcaseDate)],
+      ["SPAW Talent Quest", fmt(info.questDate)],
+      ["SPAW Concert", fmt(info.concert.date)],
     ];
     datesEl.replaceChildren(
       ...rows.map(([label, value]) =>

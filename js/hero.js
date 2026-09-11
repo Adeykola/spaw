@@ -236,11 +236,19 @@
     toggleBtn?.addEventListener("click", () => setPaused(!paused));
   }
 
-  // Hovering or tabbing into the hero holds the slide, so nobody loses
-  // the sentence they were halfway through reading.
-  root.addEventListener("mouseenter", () => setPointerPause(true));
-  root.addEventListener("mouseleave", () => setPointerPause(false));
-  root.addEventListener("focusin", () => setPointerPause(true));
+  // Hold the slide only while a mouse is on the controls, or while someone
+  // is tabbing through the hero by keyboard. Not on any hover: the hero
+  // fills the viewport, so on desktop the pointer almost always sits over
+  // it and autoplay would never run. Not on plain focus either: a mouse
+  // click focuses the button it hits, which would freeze autoplay after
+  // the first click. The Pause button holds it for anyone who needs to.
+  const isKeyboardFocus = (node) => {
+    try { return node.matches(":focus-visible"); } catch { return true; }
+  };
+  const controls = root.querySelector("[data-hero-controls]");
+  controls?.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") setPointerPause(true); });
+  controls?.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") setPointerPause(false); });
+  root.addEventListener("focusin", (e) => { if (isKeyboardFocus(e.target)) setPointerPause(true); });
   root.addEventListener("focusout", (e) => {
     if (!root.contains(e.relatedTarget)) setPointerPause(false);
   });

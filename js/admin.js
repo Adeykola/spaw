@@ -210,7 +210,7 @@ const eventsCrudConfig = {
   panelKey: "events", storageKey: "adminEvents",
   seed: () => DB.events,
   columns: ["Name", "Venue", "Date", "Capacity", ""],
-  toRow: (e) => [e.name, `${e.venue}, ${e.city}`, `${e.date} ${e.time}`, `${e.registered}/${e.capacity}`],
+  toRow: (e) => [e.name, `${e.venue}, ${e.city}`, `${e.date} ${e.time || "(time TBA)"}`, `${e.registered}/${e.capacity}`],
   fields: [
     { key: "name", type: "text", required: true },
     { key: "venue", type: "text", required: true },

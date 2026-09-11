@@ -24,7 +24,7 @@ Then visit `http://localhost:8000`.
 | --- | --- |
 | `index.html` | Cinematic intro film, three-slide hero, featured song + album, catalogue, video, events, newsletter |
 | `music.html` / `albums.html` / `song.html` | Catalogue with search and filters, album detail, song detail with lyrics |
-| `videos.html` | Category-filtered video grid with a modal player |
+| `media.html` | Videos (category filters, modal player) and event photo galleries (lightbox), on one page |
 | `ministry.html` | Mission, pillars, the mentorship track, workshops, free resources |
 | `symphony.html` | The Symphony concert, the Talent Quest, and the application form |
 | `events.html` | Full calendar, registration with QR code and `.ics` download |
@@ -36,7 +36,7 @@ Then visit `http://localhost:8000`.
 
 - **`js/data.js`** is the content layer and the seam to a real backend. Every read goes through an `api.*` method returning a Promise with simulated latency and real validation errors, so swapping `DB` for `fetch()` is mechanical rather than a rewrite. Anything user-generated (registrations, applications, enquiries, newsletter) persists to `localStorage` through the `Store` wrapper.
 - **`js/app.js`** carries the shared DOM helpers (`el`, `showLoading`, `showError`, `showEmpty`) used by every page script. Rendering is done with `createElement`/`textContent` — never `innerHTML` with data-derived strings.
-- **Page scripts** (`music.js`, `videos.js`, `events.js`, `talent.js`, `contact.js`, `hero.js`, `admin.js`, `analytics.js`) each guard on their own hooks and no-op elsewhere, which is what lets one bundle load everywhere.
+- **Page scripts** (`music.js`, `media.js`, `events.js`, `talent.js`, `contact.js`, `hero.js`, `admin.js`, `analytics.js`) each guard on their own hooks and no-op elsewhere, which is what lets one bundle load everywhere.
 - **Progressive enhancement throughout.** GSAP and the QR library are both optional — if either CDN fails the page still works. The intro film, hero slideshow, and all scroll animation respect `prefers-reduced-motion`.
 - **Design system** lives in `css/main.css` as custom properties: warm near-black, warm white, one wine red used sparingly, a fluid type scale pairing Instrument Serif with Manrope.
 

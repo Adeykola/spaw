@@ -811,3 +811,178 @@ a.contact-list__value:hover { color: var(--red-bright); }
   .family-group img { aspect-ratio: 4 / 3; }
   .family-closer { font-size: var(--step-1); max-width: 100%; margin-top: var(--space-xl); }
 }
+
+/* ==========================================================================
+   MEDIA — one page for films and photographs
+   "Watch" reuses the video grid above; "See" is the photography. A sticky
+   switch under the header narrows the page to either one.
+   ========================================================================== */
+.media-switch {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 60;
+  padding-block: var(--space-s);
+  background: color-mix(in srgb, var(--ink) 88%, transparent);
+  backdrop-filter: blur(12px) saturate(140%);
+  border-bottom: 1px solid var(--ink-line);
+}
+[data-media-section][hidden] { display: none !important; }
+
+/* ---- Galleries ---- */
+.gallery-list { display: flex; flex-direction: column; gap: var(--space-2xl); }
+.gallery__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-s) var(--space-m);
+  margin-bottom: var(--space-m);
+}
+.gallery__title { font-size: var(--step-2); margin-top: var(--space-2xs); }
+.gallery__meta { font-size: var(--step--1); color: var(--gray-on-dark); }
+
+/* Three columns; the lead frame opens the set at double size. With the
+   lead taking four cells, a set of nine fills four rows exactly. */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: dense;
+  gap: var(--space-s);
+}
+.photo-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  padding: 0;
+  background: var(--ink);
+  cursor: zoom-in;
+}
+.photo-card:first-child { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
+.photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.92);
+  transition: transform var(--dur-m) var(--ease-cinema), filter var(--dur-m) var(--ease-soft);
+}
+.photo-card:hover img,
+.photo-card:focus-visible img { transform: scale(1.04); filter: saturate(1.05); }
+.photo-card:focus-visible { outline-offset: -3px; }
+.photo-card__caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: var(--space-l) var(--space-s) var(--space-s);
+  text-align: left;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--paper);
+  background: linear-gradient(180deg, transparent, rgba(10, 9, 8, 0.85));
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--dur-s) var(--ease-soft), transform var(--dur-s) var(--ease-cinema);
+}
+.photo-card:hover .photo-card__caption,
+.photo-card:focus-visible .photo-card__caption { opacity: 1; transform: none; }
+/* No hover on touch screens, so the captions simply stay on. */
+@media (hover: none) {
+  .photo-card__caption { opacity: 1; transform: none; }
+}
+
+/* ---- Lightbox ---- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 520;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xl) var(--space-m) var(--space-m);
+  background: rgba(10, 9, 8, 0.95);
+  opacity: 0;
+  transition: opacity var(--dur-s) var(--ease-soft);
+}
+.lightbox[hidden] { display: none; }
+.lightbox.is-open { opacity: 1; }
+
+.lightbox__figure {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+}
+.lightbox__img {
+  max-width: 100%;
+  max-height: calc(100svh - 12rem);
+  object-fit: contain;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+}
+.lightbox.is-swapping .lightbox__img { animation: lightboxIn 0.5s var(--ease-cinema); }
+@keyframes lightboxIn {
+  from { opacity: 0; transform: scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+.lightbox__caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: var(--space-3xs) var(--space-s);
+  max-width: 70ch;
+  text-align: center;
+}
+.lightbox__count { font-size: 0.72rem; }
+.lightbox__text { font-family: var(--font-display); font-style: italic; font-size: var(--step-1); color: var(--paper); }
+.lightbox__meta { width: 100%; font-size: 0.72rem; letter-spacing: 0.04em; color: var(--gray-on-dark); }
+
+.lightbox__btn {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--ink-line);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--paper);
+  transition: border-color var(--dur-s) var(--ease-soft), background var(--dur-s) var(--ease-soft);
+}
+.lightbox__btn:hover { border-color: var(--red-bright); background: color-mix(in srgb, var(--red) 20%, transparent); }
+.lightbox__btn svg { width: 18px; height: 18px; }
+.lightbox__btn--prev { grid-column: 1; grid-row: 1; }
+.lightbox__btn--next { grid-column: 3; grid-row: 1; }
+.lightbox__btn--close {
+  position: absolute;
+  top: var(--space-m);
+  right: var(--space-m);
+  width: auto;
+  height: auto;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  grid-auto-flow: column;
+  gap: var(--space-2xs);
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .photo-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 680px) {
+  .photo-grid { gap: var(--space-2xs); }
+  .photo-card:first-child { grid-row: auto; aspect-ratio: 3 / 2; }
+  .lightbox {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    padding: var(--space-xl) var(--space-s) var(--space-s);
+  }
+  .lightbox__figure { grid-column: 1 / -1; }
+  .lightbox__btn--prev { grid-column: 1; grid-row: 2; justify-self: start; }
+  .lightbox__btn--next { grid-column: 2; grid-row: 2; justify-self: end; }
+  .lightbox__img { max-height: calc(100svh - 15rem); }
+}

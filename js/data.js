@@ -281,6 +281,75 @@ const DB = {
     },
   ],
 
+  /* Photo galleries for media.html — one per event, lead frame first, then
+   * the night in the order it happened. Captions describe what is in the
+   * frame rather than naming guests; the photographer is credited on every
+   * set and on every photograph in the lightbox. */
+  galleries: [
+    {
+      id: "gal-001",
+      event: "Symphony of Praise & Worship",
+      title: "The concert, in stills",
+      credit: "Klala Photography",
+      photos: [
+        {
+          id: "ph-001",
+          src: "assets/images/gallery/spaw-stage-gold.jpeg",
+          caption: "Dr AjokeSings on stage",
+          alt: "Dr AjokeSings sings on stage in a gold sequinned gown, one hand outstretched, with Symphony of Praise and Worship screens glowing behind her.",
+        },
+        {
+          id: "ph-002",
+          src: "assets/images/gallery/spaw-registration.jpeg",
+          caption: "Doors open, and the queue at the registration desk",
+          alt: "A crowd queues at the Symphony of Praise and Worship registration desk in a hotel foyer while volunteers in white event T-shirts check guests in.",
+        },
+        {
+          id: "ph-003",
+          src: "assets/images/gallery/spaw-front-row.jpeg",
+          caption: "The front row, hands already raised",
+          alt: "Two guests dressed in white, wearing white caps, sit in the front row with both hands raised in worship while the audience and camera crews fill the room behind them.",
+        },
+        {
+          id: "ph-004",
+          src: "assets/images/gallery/spaw-stage-drum.jpeg",
+          caption: "A duet with the drum",
+          alt: "Dr AjokeSings laughs mid-song beside a performer in purple sequins and orange feathers carrying a set of small drums, the stage washed in red and green light.",
+        },
+        {
+          id: "ph-005",
+          src: "assets/images/gallery/spaw-front-row-song.jpeg",
+          caption: "Off the stage, singing to the front row",
+          alt: "Dr AjokeSings leans down with her microphone to sing to a seated guest in a white agbada and blue cap, with guests and ushers standing around them.",
+        },
+        {
+          id: "ph-006",
+          src: "assets/images/gallery/spaw-shared-song-01.jpeg",
+          caption: "A song, shared",
+          alt: "Dr AjokeSings, in a gold sequinned gown, sings with her head close to a smiling guest in a blue and white floral dress and a white head wrap.",
+        },
+        {
+          id: "ph-007",
+          src: "assets/images/gallery/spaw-shared-song-02.jpeg",
+          caption: "And the laugh that followed",
+          alt: "Dr AjokeSings and a guest in a blue floral dress laugh together with the microphone between them as a camera light shines from the side.",
+        },
+        {
+          id: "ph-008",
+          src: "assets/images/gallery/spaw-singing-back.jpeg",
+          caption: "Singing it back",
+          alt: "A guest in a blue floral dress and white head wrap sings along with her hands clasped, photographers and guests around her.",
+        },
+        {
+          id: "ph-009",
+          src: "assets/images/gallery/spaw-guests-of-honour.jpeg",
+          caption: "Guests of honour, on their feet",
+          alt: "A guest in a white agbada and blue patterned cap smiles beside an applauding guest in a blue floral dress, the audience standing and clapping around them.",
+        },
+      ],
+    },
+  ],
+
   emergingArtists: [
     { id: "ea-001", name: "Tioluwani Grace", role: "Vocalist, Class of 2025", photo: "assets/images/motion-5.jpeg", bio: "A Lagos-raised vocalist whose falsetto stopped last year's finals cold." },
     { id: "ea-002", name: "Emeka Bright", role: "Songwriter, Class of 2025", photo: "assets/images/Violinist.jpeg", bio: "Writes in Igbo and English, often in the same verse." },
@@ -321,20 +390,23 @@ const DB = {
     title: "Symphony of Praise & Worship",
     tagline: "One night of worship, and the search that fills its stage.",
     description: "Symphony of Praise & Worship is a concert and a talent quest running on the same calendar. The night itself is a full-length worship gathering built around the house band and the room. The Quest is how the newest voices on that stage are found.",
+    // SPAW 2026, as printed on the official flyer: the Talent Quest on
+    // Friday 27 November and the concert the next day, both at Regal Hall.
+    // The flyer gives no times, so doors/start stay null (shown as "to be
+    // announced") until the organisers confirm them.
     applicationOpens: "2026-08-01",
     applicationCloses: "2026-11-01",
-    auditionDate: "2026-11-08",
-    showcaseDate: "2026-12-13",
+    questDate: "2026-11-27",
     tracks: ["Vocalist", "Songwriter", "Instrumentalist", "Producer"],
 
     concert: {
       eventId: "event-004",
       name: "Symphony of Praise & Worship — The Concert",
-      date: "2026-12-13",
-      doors: "16:00",
-      start: "17:00",
-      venue: "Eko Convention Centre",
-      city: "Lagos, Nigeria",
+      date: "2026-11-28",
+      doors: null,
+      start: null,
+      venue: "Regal Hall, Daystar Christian Center",
+      city: "Oregun, Ikeja, Lagos",
       capacity: 800,
       admission: "Free entry — registration required",
       description: "One long room, a fourteen-piece house band, and eight hundred people who came to sing rather than to watch. The set runs without an interval, moving from the Covenant material through to the new songs, and the Talent Quest finalists open the night on the same stage and the same band.",
@@ -349,10 +421,10 @@ const DB = {
     quest: {
       title: "The Talent Quest",
       tagline: "A yearly search for the next generation of worship voices.",
-      description: "Four tracks, one cohort, and one clear prize: your own recording, finished properly, and a place on the Symphony stage in front of a full house. Auditions are live in Lagos and every applicant hears back, whichever way the answer goes.",
+      description: "Four tracks, one cohort, and one clear prize: your own recording, finished properly, and a place on the Symphony stage in front of a full house. The Quest is held live at Regal Hall, Daystar Christian Center, the day before the concert, and every applicant hears back, whichever way the answer goes.",
       benefits: [
         { title: "Funded studio time", body: "Studio days toward one original recording, cut with the Symphony house team in Lagos." },
-        { title: "The Symphony stage", body: "A performance slot at the year-end concert, backed by the full fourteen-piece band." },
+        { title: "The Symphony stage", body: "A performance slot at the Symphony concert, backed by the full fourteen-piece band." },
         { title: "Released properly", body: "Your finished recording mixed, mastered, and released across the streaming platforms under your own name." },
         { title: "Photography & artwork", body: "A photo and video session plus cover artwork, so the song arrives looking like itself." },
       ],
@@ -377,14 +449,14 @@ const DB = {
     },
     {
       id: "event-002",
-      name: "Symphony of Praise & Worship — Regional Auditions (Lagos)",
-      venue: "Freedom Hall, Lekki",
-      city: "Lagos, Nigeria",
-      date: "2026-11-08",
-      time: "10:00",
+      name: "Symphony of Praise & Worship — Talent Quest",
+      venue: "Regal Hall, Daystar Christian Center",
+      city: "Oregun, Ikeja, Lagos",
+      date: "2026-11-27",
+      time: null, // not yet announced
       capacity: 150,
       registered: 96,
-      description: "Live auditions for this year's Symphony of Praise & Worship talent cohort.",
+      description: "The SPAW Talent Quest, live: this year's applicants take the stage, the day before the concert.",
       image: "assets/images/spaw-stage-01.webp",
       ticketRequired: true,
     },
@@ -403,14 +475,14 @@ const DB = {
     },
     {
       id: "event-004",
-      name: "Symphony 2026 — Year-End Showcase",
-      venue: "Eko Convention Centre",
-      city: "Lagos, Nigeria",
-      date: "2026-12-13",
-      time: "16:00",
+      name: "Symphony of Praise & Worship — The Concert",
+      venue: "Regal Hall, Daystar Christian Center",
+      city: "Oregun, Ikeja, Lagos",
+      date: "2026-11-28",
+      time: null, // not yet announced
       capacity: 800,
       registered: 122,
-      description: "The finalist cohort takes the stage for one night, backed by the full house band.",
+      description: "One night of worship with the full house band, opened by this year's Talent Quest finalists.",
       image: "assets/images/spaw-duet.webp",
       ticketRequired: true,
     },
@@ -569,6 +641,12 @@ const api = {
     return [...new Set(DB.videos.map((v) => v.category))];
   },
 
+  /* ---- Galleries (media.html) ---- */
+  async getGalleries() {
+    await this._delay(300);
+    return DB.galleries;
+  },
+
   /* ---- Ministry / Emerging Artists ---- */
   async getEmergingArtists() {
     await this._delay(260);
@@ -616,7 +694,7 @@ const api = {
     await this._delay(300);
     const now = Date.now();
     return DB.events
-      .filter((e) => new Date(`${e.date}T${e.time}:00`).getTime() >= now - 86400000)
+      .filter((e) => new Date(`${e.date}T${e.time || "00:00"}:00`).getTime() >= now - 86400000)
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .slice(0, limit);
   },

@@ -285,7 +285,9 @@
 .hero__arrow svg { width: 16px; height: 16px; }
 .hero__arrow:hover { color: var(--paper); border-color: var(--red-bright); background: color-mix(in srgb, var(--red) 18%, transparent); }
 
-.hero__rail { display: flex; gap: var(--space-m); flex: 1; min-width: 0; }
+/* An <ol>, and main.css only resets <ul> — without this the browser adds
+   its own "1. 2. 3." beside the rail's 01/02/03. */
+.hero__rail { display: flex; gap: var(--space-m); flex: 1; min-width: 0; list-style: none; margin: 0; padding: 0; }
 .hero__rail li { flex: 1; min-width: 0; }
 .hero__rail button {
   width: 100%;

@@ -24,6 +24,64 @@
   progress.setAttribute("aria-hidden", "true");
   document.body.appendChild(progress);
 
+  /* ---- Signature logo ----
+   * The write-on itself is pure CSS (see .sig in main.css). This only
+   * holds it: until the script face has actually loaded — otherwise the
+   * fallback face gets "written" and then swaps mid-stroke — and, in the
+   * homepage header, until the intro film has cleared, so the name is
+   * signed on a screen the visitor can see. Footer signatures wait until
+   * they scroll into view.
+   */
+  {
+    const autoplaySigs = Array.from(document.querySelectorAll(".sig--autoplay"));
+    const viewSigs = Array.from(document.querySelectorAll(".sig--on-view"));
+    const allSigs = autoplaySigs.concat(viewSigs);
+
+    if (allSigs.length) {
+      allSigs.forEach((sig) => sig.classList.add("is-waiting"));
+      viewSigs.forEach((sig) => sig.classList.add("is-signing"));
+
+      const release = (sig) => sig.classList.remove("is-waiting");
+
+      let fontReady = Promise.resolve();
+      if (document.fonts && typeof document.fonts.load === "function") {
+        // Read the family from the element so swapping --font-signature in
+        // main.css never needs a matching change here.
+        const family = getComputedStyle(allSigs[0]).fontFamily;
+        const load = document.fonts.load(`1em ${family}`).catch(() => {});
+        // Never hold the logo hostage to a slow font CDN.
+        const timeout = new Promise((resolve) => window.setTimeout(resolve, 2500));
+        fontReady = Promise.race([load, timeout]);
+      }
+
+      fontReady.then(() => {
+        const intro = document.querySelector("[data-intro]");
+        autoplaySigs.forEach((sig) => {
+          const behindIntro = intro && !intro.hidden && !intro.contains(sig);
+          if (behindIntro) {
+            document.addEventListener("intro:complete", () => release(sig), { once: true });
+          } else {
+            release(sig);
+          }
+        });
+
+        if (!viewSigs.length) return;
+        if (!("IntersectionObserver" in window)) {
+          viewSigs.forEach(release);
+          return;
+        }
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            release(entry.target);
+            observer.unobserve(entry.target);
+          });
+        }, { threshold: 0.6 });
+        viewSigs.forEach((sig) => observer.observe(sig));
+      });
+    }
+  }
+
   /* ---- Header scroll state + read progress ---- */
   const header = document.querySelector("[data-site-header]");
   let ticking = false;

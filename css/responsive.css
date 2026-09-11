@@ -50,7 +50,6 @@
   .intro__controls { flex-direction: column; align-items: flex-start; gap: var(--space-s); }
 
   .hero__title { font-size: clamp(2.6rem, 2rem + 6vw, 4rem); }
-  .hero__content { padding-bottom: var(--space-l); }
 
   .statement__quote { font-size: var(--step-2); }
   .statement__stats { flex-wrap: wrap; gap: var(--space-m); }
