@@ -14,7 +14,7 @@
   padding: var(--space-m);
 }
 .admin-login__card { width: min(400px, 100%); }
-.admin-login__mark { display: flex; align-items: baseline; gap: 0.55em; font-size: var(--step-3); margin-bottom: var(--space-m); }
+.admin-login__mark { display: flex; align-items: baseline; gap: 0.55em; font-size: var(--step-2); margin-bottom: var(--space-m); }
 .admin-login__mark .sig { --sig-accent: var(--red); }
 .admin-login__role { font-family: var(--font-ui); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gray-on-light); }
 .admin-login__sub { color: var(--gray-on-light); font-size: var(--step--1); margin-bottom: var(--space-l); }
@@ -35,7 +35,7 @@
   top: 0;
   height: 100svh;
 }
-.admin-sidebar__brand { font-size: 1.85rem; line-height: 1; padding: var(--space-m) var(--space-xs) var(--space-l); }
+.admin-sidebar__brand { font-size: var(--step-1); line-height: 1; padding: var(--space-m) var(--space-xs) var(--space-l); }
 .admin-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; overflow-y: auto; }
 .admin-nav button {
   display: flex; align-items: center; gap: var(--space-xs);

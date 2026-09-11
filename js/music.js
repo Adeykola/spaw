@@ -83,7 +83,7 @@ async function renderTrackList() {
           el("img", { class: "track-row__art", src: t.artwork, alt: "", loading: "lazy" }),
           el("div", {}, [
             el("p", { class: "track-row__title", text: t.title }),
-            el("p", { class: "track-row__sub", text: `${t.artist} \u2014 ${new Date(t.releaseDate).getFullYear()}` }),
+            el("p", { class: "track-row__sub", text: t.releaseDate ? `${t.artist} \u2014 ${new Date(t.releaseDate).getFullYear()}` : t.artist }),
           ]),
           el("span", { class: "track-row__badge", text: t.isSingle ? "Single" : "Album" }),
           el("span", { class: "track-row__dur", text: formatDuration(t.duration) }),
@@ -107,7 +107,7 @@ async function renderAlbumsGrid() {
 
   try {
     const albums = await api.getAllAlbums();
-    if (!albums.length) { showEmpty(grid, "No albums yet."); return; }
+    if (!albums.length) { showEmpty(grid, "No albums yet \u2014 every release so far is a single."); return; }
 
     grid.replaceChildren(
       ...(await Promise.all(
@@ -185,10 +185,13 @@ async function renderSongDetail() {
       persistentPlayer.playQueue(queue, Math.max(idx, 0));
     });
 
+    const facts = [
+      track.album ? `From ${track.album.title}` : "Single",
+      track.releaseDate ? new Date(track.releaseDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "",
+      formatDuration(track.duration),
+    ].filter(Boolean);
     const meta = el("div", { class: "song-hero__meta" }, [
-      el("span", { text: track.album ? `From ${track.album.title}` : "Single" }),
-      el("span", { text: new Date(track.releaseDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) }),
-      el("span", { text: formatDuration(track.duration) }),
+      ...facts.map((text) => el("span", { text })),
       el("a", { href: "music.html", text: "\u2190 Back to all music" }),
     ]);
 
@@ -203,8 +206,12 @@ async function renderSongDetail() {
       el("div", { class: "song-hero" }, [wash, el("div", { class: "wrap" }, [art, heroContent])])
     );
 
+    // No story rather than an invented one; the lyrics column then stands alone.
     const descWrap = document.querySelector("[data-song-description]");
-    if (descWrap) descWrap.textContent = track.description;
+    if (descWrap) {
+      descWrap.textContent = track.description || "";
+      descWrap.parentElement.hidden = !track.description;
+    }
 
     const lyricsWrap = document.querySelector("[data-song-lyrics]");
     if (lyricsWrap) {
@@ -217,14 +224,9 @@ async function renderSongDetail() {
 
     const linksWrap = document.querySelector("[data-song-links]");
     if (linksWrap) {
-      linksWrap.replaceChildren(
-        ...Object.entries(track.links)
-          .filter(([, url]) => url)
-          .map(([platform, url]) => {
-            const label = platform.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
-            return el("a", { href: url, text: label, target: "_blank", rel: "noopener" });
-          })
-      );
+      const links = Object.entries(track.links).filter(([, url]) => url);
+      linksWrap.replaceChildren(...links.map(([platform, url]) => el("a", { href: url, text: platformLabel(platform), target: "_blank", rel: "noopener" })));
+      linksWrap.closest("section").hidden = !links.length;
     }
   } catch (err) {
     console.error("[music] song detail failed", err);
@@ -239,6 +241,13 @@ async function renderAlbumsPreview() {
 
   try {
     const albums = await api.getAllAlbums();
+    // Every release so far is a single: hide the albums strip, and the
+    // All / Albums / Singles pills that would only ever show the same list.
+    if (!albums.length) {
+      wrap.closest("section").hidden = true;
+      document.querySelector("[data-filter-pill]")?.closest(".filter-pills")?.setAttribute("hidden", "");
+      return;
+    }
     wrap.replaceChildren(
       ...albums.map((a) =>
         el("a", { class: "album-preview-card", href: `albums.html?id=${encodeURIComponent(a.id)}` }, [

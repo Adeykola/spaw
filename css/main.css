@@ -30,7 +30,7 @@
   /* The wordmark face. Swap the family here and the whole signature
      (header, footer, intro, admin) follows; the fallbacks are script
      faces shipped with Windows and macOS. */
-  --font-signature: "Great Vibes", "Segoe Script", "Brush Script MT", cursive;
+  --font-signature: var(--font-display); /* the wordmark: Instrument Serif */
 
   --step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.875rem);
   --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
@@ -85,6 +85,9 @@ input, button, textarea, select { font: inherit; color: inherit; }
 button { background: none; border: none; cursor: pointer; }
 a { color: inherit; text-decoration: none; }
 ul { list-style: none; padding: 0; }
+/* The hidden attribute must win over any display a class sets (flex,
+   grid…), or sections the scripts hide stay on screen. */
+[hidden] { display: none !important; }
 h1, h2, h3, h4 { font-weight: 400; line-height: 1.05; text-wrap: balance; }
 p { text-wrap: pretty; }
 
@@ -252,7 +255,7 @@ p { text-wrap: pretty; }
 .brand {
   display: inline-flex;
   align-items: center;
-  font-size: clamp(1.8rem, 1.4rem + 1.1vw, 2.6rem);
+  font-size: var(--step-1);
   line-height: 1;
   color: var(--paper);
 }
@@ -349,7 +352,7 @@ p { text-wrap: pretty; }
   padding: var(--space-m) var(--edge) var(--space-l);
 }
 .intro__mark {
-  font-size: clamp(1.9rem, 1.5rem + 1.2vw, 2.75rem);
+  font-size: var(--step-1);
   line-height: 1;
   color: var(--paper);
 }
@@ -462,7 +465,7 @@ p { text-wrap: pretty; }
   gap: var(--space-l);
   padding-bottom: var(--space-xl);
 }
-.footer-brand { font-size: clamp(2.6rem, 1.9rem + 2.4vw, 4.2rem); line-height: 1; }
+.footer-brand { font-size: var(--step-3); line-height: 1; }
 .footer-tagline { color: var(--gray-on-dark); margin-top: var(--space-s); max-width: 32ch; font-size: var(--step--1); }
 .footer-col h3 {
   font-size: var(--step--1);
@@ -558,14 +561,15 @@ p { text-wrap: pretty; }
 
 /* ==========================================================================
    SIGNATURE LOGO
-   "DrAjokeSings" set in a script face and written onto the page. A
-   feathered mask sweeps left to right behind a travelling pen nib, the
-   underline flourish is then drawn back beneath the name — from the tail
-   of the final "s", the way a hand finishes a signature — and a single
-   stage-light glint crosses "Sings".
+   "DrAjokeSings" in Instrument Serif, the site's display face, with
+   "Sings" in red italic, written onto the page. A feathered mask sweeps
+   left to right behind a travelling pen nib, the underline flourish is
+   then drawn back beneath the name — from the tail of the final "s", the
+   way a hand finishes a signature — and a single stage-light glint
+   crosses "Sings".
 
    CSS runs all of it unaided. navigation.js only holds it: until the
-   script face has loaded (so the fallback face is never the one being
+   logo face has loaded (so the fallback face is never the one being
    written) and, in the homepage header, until the intro film has cleared.
    Footer signatures wait until they scroll into view.
    ========================================================================== */
@@ -574,13 +578,13 @@ p { text-wrap: pretty; }
   --sig-delay: 0.35s;
   --sig-dur: 1.7s;
   --sig-ease: cubic-bezier(0.45, 0.05, 0.35, 1);
-  /* Script faces overhang their em box — loops above, tails below and to
-     the right. The text carries padding so that ink stays inside the
+  /* The italic leans past its em box and the flourish sits below the
+     baseline. The text carries padding so that ink stays inside the
      masked box; these negative margins hand the space back to layout. */
-  --sig-pad-t: 0.34em;
-  --sig-pad-r: 0.42em;
-  --sig-pad-b: 0.46em;
-  --sig-pad-l: 0.28em;
+  --sig-pad-t: 0.12em;
+  --sig-pad-r: 0.2em;
+  --sig-pad-b: 0.3em;
+  --sig-pad-l: 0.08em;
   position: relative;
   display: inline-block;
   margin: calc(var(--sig-pad-t) * -1) calc(var(--sig-pad-r) * -1) calc(var(--sig-pad-b) * -1) calc(var(--sig-pad-l) * -1);
@@ -588,7 +592,7 @@ p { text-wrap: pretty; }
   font-weight: 400;
   font-style: normal;
   line-height: 1;
-  letter-spacing: 0;
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
@@ -608,7 +612,7 @@ p { text-wrap: pretty; }
           mask-position: 0 0;
 }
 
-.sig__accent { color: var(--sig-accent); }
+.sig__accent { color: var(--sig-accent); font-style: italic; }
 
 /* ---- Pen nib: rides the leading edge of the ink ---- */
 .sig__nib {
@@ -699,23 +703,10 @@ p { text-wrap: pretty; }
 .sig.is-waiting .sig__stroke,
 .sig.is-waiting .sig__accent { animation-play-state: paused; }
 
-/* Over photography the script needs help: at header size its hairlines
-   thin out and the red loses contrast against dark, busy frames. A soft
-   ink halo lifts the whole signature off the image, and a hairline stroke
-   in the letter's own colour thickens the thinnest joins. */
+/* Over photography a soft ink halo lifts the wordmark off busy frames. */
 .brand .sig,
 .intro__mark .sig {
   filter: drop-shadow(0 0.03em 0.14em rgba(10, 9, 8, 0.65));
-}
-.brand .sig__text,
-.intro__mark .sig__text {
-  -webkit-text-stroke: 0.02em currentColor;
-}
-@supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  /* "Sings" paints its fill through the background, so its colour is
-     transparent and currentColor would give an invisible stroke. */
-  .brand .sig__accent,
-  .intro__mark .sig__accent { -webkit-text-stroke-color: var(--sig-accent); }
 }
 
 /* Hovering the header wordmark runs a gold glint along the flourish. */

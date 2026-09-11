@@ -82,7 +82,9 @@ body.has-persistent-player { padding-bottom: 92px; }
 .track-row-list { display: flex; flex-direction: column; }
 .track-row {
   display: grid;
-  grid-template-columns: 2.5rem 3.5rem 1fr auto auto;
+  /* index · art · title · badge · length · play — six items, six columns
+     (with five, the play button wrapped onto a line of its own). */
+  grid-template-columns: 2.5rem 3.5rem 1fr auto auto auto;
   gap: var(--space-m);
   align-items: center;
   padding-block: var(--space-s);

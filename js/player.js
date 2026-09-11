@@ -31,7 +31,8 @@ class Player {
     this.track = track;
     this.audio.src = track.audioSrc;
     this._setPlayIcon(false);
-    if (this.els.duration) this.els.duration.textContent = this._format(track.duration);
+    // Blank rather than a misleading 0:00 when a song's length isn't known.
+    if (this.els.duration) this.els.duration.textContent = track.duration ? this._format(track.duration) : "";
     if (this.els.fill) this.els.fill.style.width = "0%";
     if (this.els.current) this.els.current.textContent = "0:00";
   }
@@ -171,7 +172,8 @@ class PersistentPlayer {
     if (this.els.art) { this.els.art.src = track.artwork; this.els.art.alt = `${track.title} artwork`; }
     if (this.els.title) this.els.title.textContent = track.title;
     if (this.els.artist) this.els.artist.textContent = track.artist || "Dr AjokeSings";
-    if (this.els.duration) this.els.duration.textContent = this._format(track.duration);
+    // Blank rather than a misleading 0:00 when a song's length isn't known.
+    if (this.els.duration) this.els.duration.textContent = track.duration ? this._format(track.duration) : "";
     if (this.els.fill) this.els.fill.style.width = "0%";
     if (this.els.current) this.els.current.textContent = "0:00";
     this.root.classList.add("is-active");

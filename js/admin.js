@@ -159,7 +159,7 @@ const musicCrudConfig = {
   panelKey: "music", storageKey: "tracks",
   seed: () => DB.tracks,
   columns: ["Title", "Album", "Duration", "Released", "Type", ""],
-  toRow: (t) => [t.title, t.albumId || "Single", `${Math.floor(t.duration / 60)}:${String(t.duration % 60).padStart(2, "0")}`, t.releaseDate, t.isSingle ? "Single" : "Album track"],
+  toRow: (t) => [t.title, t.albumId || "Single", t.duration ? `${Math.floor(t.duration / 60)}:${String(t.duration % 60).padStart(2, "0")}` : "\u2014", t.releaseDate || "\u2014", t.isSingle ? "Single" : "Album track"],
   fields: [
     { key: "title", type: "text", required: true },
     { key: "artist", type: "text" },

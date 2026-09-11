@@ -44,157 +44,109 @@ const DB = {
     },
   ],
 
-  albums: [
-    {
-      id: "album-001",
-      title: "Covenant",
-      year: 2025,
-      cover: "assets/images/TGE-3.jpeg",
-      banner: "assets/images/TGE-1.jpeg",
-      description: "A nine-song record about promises kept in the dark — recorded live with a fourteen-piece ensemble in Lagos.",
-      trackIds: ["track-001", "track-002", "track-003", "track-004"],
-    },
-    {
-      id: "album-002",
-      title: "Threshold",
-      year: 2022,
-      cover: "assets/images/motion-2.jpeg",
-      banner: "assets/images/TGE-2.jpeg",
-      description: "The record that crossed borders — worship reimagined through highlife rhythm and orchestral strings.",
-      trackIds: ["track-005", "track-006"],
-    },
-  ],
+  /* No albums yet: every release so far is a single, so the album
+   * sections (the homepage's Latest Album, the Music page's albums strip
+   * and filter pills) hide themselves until one is added here. */
+  albums: [],
 
+  /* Her songs, in the order she lists them: the homepage catalogue shows
+   * them in this order, the Music page sorts them by date. Where a song is
+   * on her YouTube channel, releaseDate is that video's publish date,
+   * links.youtube points to it, and the artwork is its title card
+   * (assets/images/songs/). Songs not on YouTube use a photo of her as
+   * stand-in artwork. Lengths, lyrics, stories and the other streaming
+   * links stay empty until they are known rather than being made up.
+   * audioSrc is still the prototype's sample audio. */
   tracks: [
     {
-      id: "track-001",
-      title: "Alagbara",
-      artist: "Dr AjokeSings",
-      albumId: "album-001",
-      releaseDate: "2025-03-14",
-      duration: 274,
-      description: "Recorded live at the Glory Experience, featuring Pelumi Deborah — a declaration of the God who is mighty, carried by the full house band.",
-      lyrics: [
-        "Alagbara l'Olorun mi",
-        "Mighty is the God I serve",
-        "There is no one like You",
-        "Alagbara, Alagbara",
-        "",
-        "You go before me, You never fail",
-        "Every battle already won",
-        "Alagbara l'Olorun mi",
-        "Mighty God, mighty God",
-      ],
-      artwork: "assets/images/Alagbara.jpeg",
-      audioSrc: "assets/audio/sample-01.mp3",
-      links: { spotify: "#", appleMusic: "#", youtube: "#", boomplay: "#", audiomack: "#", deezer: "#", amazonMusic: "#" },
-      featured: true,
-      isSingle: false,
+      id: "track-001", title: "Alagbara", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: true,
+      releaseDate: "2026-08-28", duration: null, lyrics: [], description: "Her newest release, featuring Pelumi Deborah.",
+      artwork: "assets/images/Alagbara.jpeg", audioSrc: "assets/audio/sample-01.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=rWDUeppY2Gk", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
-      id: "track-002",
-      title: "Awesome Forever",
-      artist: "Dr AjokeSings",
-      albumId: "album-001",
-      releaseDate: "2025-03-14",
-      duration: 231,
-      description: "A declaration set against talking drum and strings — He was, He is, and He remains awesome forever.",
-      lyrics: ["You are awesome forever", "Faithful when I forget my own name", "You are awesome forever", "Still the same, still the same"],
-      artwork: "assets/images/Awesome-forever.jpeg",
-      audioSrc: "assets/audio/sample-02.mp3",
-      links: { spotify: "#", appleMusic: "#", youtube: "#", boomplay: "#", audiomack: "#", deezer: "#", amazonMusic: "#" },
-      featured: false,
-      isSingle: false,
+      id: "track-002", title: "Awesome Forever", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2026-07-17", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/Awesome-forever.jpeg", audioSrc: "assets/audio/sample-02.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=QTTEkv4eSJU", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
-      id: "track-003",
-      title: "You Are God",
-      artist: "Dr AjokeSings",
-      albumId: "album-001",
-      releaseDate: "2025-03-14",
-      duration: 198,
-      description: "A quiet processional built around one sustained line, sung until the room believes it.",
-      lyrics: ["You are God, You are God", "Before the mountains, You are God", "When the answer has not come", "You are God, You are God"],
-      artwork: "assets/images/you-are-god.jpeg",
-      audioSrc: "assets/audio/sample-03.mp3",
-      links: { spotify: "#", appleMusic: "#", youtube: "#", boomplay: "#", audiomack: "#", deezer: "#", amazonMusic: "#" },
-      featured: false,
-      isSingle: false,
+      id: "track-004", title: "Iba Re", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2026-07-31", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/songs/iba-re.jpg", audioSrc: "assets/audio/sample-03.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=XgggH0xKA3I", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
-      id: "track-004",
-      title: "Every Mountain",
-      artist: "Dr AjokeSings",
-      albumId: "album-001",
-      releaseDate: "2025-03-14",
-      duration: 256,
-      description: "An anthem for the long climb, co-written with the Covenant Choir.",
-      lyrics: ["Every mountain has Your fingerprint", "Every valley knows Your voice", "So I will climb, I will not faint", "Every mountain, I rejoice"],
-      artwork: "assets/images/motion-2.jpeg",
-      audioSrc: "assets/audio/sample-04.mp3",
-      links: { spotify: "#", appleMusic: "#", youtube: "#", boomplay: "#", audiomack: "#", deezer: "#", amazonMusic: "#" },
-      featured: false,
-      isSingle: false,
+      id: "track-003", title: "You Are God", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2026-08-14", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/you-are-god.jpeg", audioSrc: "assets/audio/sample-04.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=yi8cQe-5QwQ", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
-      id: "track-005",
-      title: "Threshold",
-      artist: "Dr AjokeSings",
-      albumId: "album-002",
-      releaseDate: "2022-09-02",
-      duration: 243,
-      description: "The doorway song — recorded in one take at midnight.",
-      lyrics: ["I'm standing at the threshold", "One foot in the old, one foot in the new", "So I lift my hands at the threshold", "And I walk on through"],
-      artwork: "assets/images/TGE-3.jpeg",
-      audioSrc: "assets/audio/sample-05.mp3",
-      links: { spotify: "#", appleMusic: "#", youtube: "#", boomplay: "#", audiomack: "#", deezer: "#", amazonMusic: "#" },
-      featured: false,
-      isSingle: false,
+      id: "track-005", title: "Glory", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: null, duration: null, lyrics: [], description: "",
+      artwork: "assets/images/TGE-1.jpeg", audioSrc: "assets/audio/sample-05.mp3",
+      links: { youtube: null, spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
-      id: "track-006",
-      title: "Highlife Hallelujah",
-      artist: "Dr AjokeSings",
-      albumId: "album-002",
-      releaseDate: "2022-09-02",
-      duration: 219,
-      description: "Joy set to a highlife groove — the record's most-requested live moment.",
-      lyrics: ["Hallelujah, hallelujah", "The band is playing and my feet won't stay", "Hallelujah, hallelujah", "Joy came early and it came to stay"],
-      artwork: "assets/images/motion.jpeg",
-      audioSrc: "assets/audio/sample-06.mp3",
-      links: { spotify: "#", appleMusic: "#", youtube: "#", boomplay: "#", audiomack: "#", deezer: "#", amazonMusic: "#" },
-      featured: false,
-      isSingle: false,
+      id: "track-006", title: "My Help", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: null, duration: null, lyrics: [], description: "",
+      artwork: "assets/images/ministry-hero.jpg", audioSrc: "assets/audio/sample-06.mp3",
+      links: { youtube: null, spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
-      id: "track-007",
-      title: "Steady Hands",
-      artist: "Dr AjokeSings",
-      albumId: null,
-      releaseDate: "2026-06-20",
-      duration: 207,
-      description: "A standalone single written for a friend walking through chemotherapy — released with zero promotion, just love.",
-      lyrics: ["Steady hands, unshaken heart", "You have held me from the start", "Steady hands, I won't let go", "Even when I do not know"],
-      artwork: "assets/images/TGE-2.jpeg",
-      audioSrc: "assets/audio/sample-01.mp3",
-      links: { spotify: "#", appleMusic: "#", youtube: "#", boomplay: "#", audiomack: "#", deezer: "#", amazonMusic: "#" },
-      featured: false,
-      isSingle: true,
+      id: "track-007", title: "My All", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: null, duration: null, lyrics: [], description: "",
+      artwork: "assets/images/motion-1.jpeg", audioSrc: "assets/audio/sample-01.mp3",
+      links: { youtube: null, spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
-      id: "track-008",
-      title: "Homecoming",
-      artist: "Dr AjokeSings",
-      albumId: null,
-      releaseDate: "2026-01-11",
-      duration: 264,
-      description: "The first single of the year — a song about returning to faith after a long, quiet season away.",
-      lyrics: ["I'm coming home, I'm coming home", "The road was long but I'm not alone", "I'm coming home, table's still set", "Grace never once forgot my name"],
-      artwork: "assets/images/motion-1.jpeg",
-      audioSrc: "assets/audio/sample-02.mp3",
-      links: { spotify: "#", appleMusic: "#", youtube: "#", boomplay: "#", audiomack: "#", deezer: "#", amazonMusic: "#" },
-      featured: false,
-      isSingle: true,
+      id: "track-008", title: "Oba Nla", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2025-07-18", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/songs/oba-nla.jpg", audioSrc: "assets/audio/sample-02.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=GHeRQA2G9LI", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-009", title: "Lifted", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2025-08-08", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/songs/lifted.jpg", audioSrc: "assets/audio/sample-03.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=VgGv1ZV3umY", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-010", title: "Eledumare", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2025-08-01", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/songs/eledumare.jpg", audioSrc: "assets/audio/sample-04.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=Q2iz7ntwk50", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-011", title: "Osuba Re", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2025-07-18", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/songs/osuba-re.jpg", audioSrc: "assets/audio/sample-05.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=TfsTEKgkOpc", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-012", title: "Jesus Wept", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2026-04-05", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/songs/jesus-wept.jpg", audioSrc: "assets/audio/sample-06.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=vT8jEObVvJA", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-013", title: "Osuba Re Praise Medley", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: null, duration: null, lyrics: [], description: "",
+      artwork: "assets/images/motion.jpeg", audioSrc: "assets/audio/sample-01.mp3",
+      links: { youtube: null, spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-014", title: "Great and Mighty", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2025-08-15", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/songs/great-and-mighty.jpg", audioSrc: "assets/audio/sample-02.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=HJ2G6GieNrQ", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-015", title: "Joy to the World", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: null, duration: null, lyrics: [], description: "",
+      artwork: "assets/images/gallery/spaw-stage-gold.jpeg", audioSrc: "assets/audio/sample-03.mp3",
+      links: { youtube: null, spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
   ],
 
@@ -526,18 +478,20 @@ const api = {
     await this._delay();
     const track = DB.tracks.find((t) => t.featured) || DB.tracks[0];
     const album = DB.albums.find((a) => a.id === track.albumId);
-    return { ...track, albumTitle: album ? album.title : "Single" };
+    return { ...track, albumTitle: album ? album.title : null };
   },
 
+  // null until there is an album to feature (every release so far is a single).
   async getFeaturedAlbum() {
     await this._delay(300);
     const album = DB.albums[0];
+    if (!album) return null;
     const tracks = album.trackIds.map((id) => DB.tracks.find((t) => t.id === id)).filter(Boolean);
     return { ...album, tracks };
   },
 
   /* ---- Music ---- */
-  async getCatalogue(limit = 8) {
+  async getCatalogue(limit = DB.tracks.length) {
     await this._delay(350);
     return DB.tracks.slice(0, limit);
   },

@@ -64,10 +64,18 @@ function showEmpty(container, message) {
   container.replaceChildren(el("p", { class: "state-msg", text: message }));
 }
 
+// Blank when a length isn't known, rather than a misleading 0:00.
 function formatDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "";
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
+}
+
+// Streaming-link keys, spelled the way the brands spell themselves.
+function platformLabel(key) {
+  const brands = { youtube: "YouTube", appleMusic: "Apple Music", amazonMusic: "Amazon Music" };
+  return brands[key] || key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
 }
 
 function formatEventDate(dateStr) {
@@ -92,18 +100,14 @@ async function renderFeaturedSong() {
     section.querySelector("[data-fs-art]").src = track.artwork;
     section.querySelector("[data-fs-art]").alt = `${track.title} artwork`;
     section.querySelector("[data-fs-title]").textContent = track.title;
-    section.querySelector("[data-fs-album]").textContent = `From ${track.albumTitle}`;
+    section.querySelector("[data-fs-album]").textContent = track.albumTitle ? `From ${track.albumTitle}` : "Single";
     section.querySelector("[data-fs-desc]").textContent = track.description;
 
     const linksWrap = section.querySelector("[data-fs-links]");
     linksWrap.replaceChildren(
       ...Object.entries(track.links)
         .filter(([, url]) => url)
-        .map(([platform, url]) => {
-          const label = platform.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
-          const a = el("a", { href: url, text: label, target: "_blank", rel: "noopener" });
-          return a;
-        })
+        .map(([platform, url]) => el("a", { href: url, text: platformLabel(platform), target: "_blank", rel: "noopener" }))
     );
 
     const playerRoot = section.querySelector("[data-player]");
@@ -133,6 +137,8 @@ async function renderFeaturedAlbum() {
 
   try {
     const album = await api.getFeaturedAlbum();
+    // Every release so far is a single; the section waits for a real album.
+    if (!album) { section.hidden = true; return; }
     section.querySelector("[data-album-bg]").src = album.cover;
     section.querySelector("[data-album-bg]").alt = "";
     section.querySelector("[data-album-title]").textContent = album.title;
@@ -167,7 +173,7 @@ async function renderCatalogue() {
   showLoading(track, "Loading catalogue\u2026");
 
   try {
-    const tracks = await api.getCatalogue(8);
+    const tracks = await api.getCatalogue();
     if (!tracks.length) {
       showEmpty(track, "New music is on the way.");
       return;
