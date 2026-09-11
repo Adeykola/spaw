@@ -306,12 +306,31 @@ p { text-wrap: pretty; }
   background: var(--ink);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   padding: var(--space-xl) var(--edge);
+  /* When the links don't fit (short phones, landscape) the panel scrolls
+     itself instead of letting them spill out of its bottom edge. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
   transform: translateY(-100%);
+  /* Closed, it is invisible as well as parked above the screen: parked
+     alone, links that overflowed its bottom edge showed at the top of
+     every page, over the logo. Visibility flips only after the slide-out
+     has finished, so closing still animates. */
+  visibility: hidden;
+  transition: transform var(--dur-m) var(--ease-cinema), visibility 0s linear var(--dur-m);
+}
+.mobile-nav.is-open {
+  transform: translateY(0);
+  visibility: visible;
   transition: transform var(--dur-m) var(--ease-cinema);
 }
-.mobile-nav.is-open { transform: translateY(0); }
+/* Centred when everything fits, top-aligned and scrollable when it doesn't
+   (justify-content: center would push the overflow out of reach). */
+.mobile-nav > :first-child { margin-top: auto; }
+.mobile-nav > :last-child { margin-bottom: auto; }
+/* While the menu is open the header turns solid, so links scrolled up
+   under it (short screens) pass behind the logo instead of through it. */
+.site-header:has(~ .mobile-nav.is-open) { background: var(--ink); }
 .mobile-nav__list a {
   font-family: var(--font-display);
   font-size: var(--step-3);
