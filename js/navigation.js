@@ -161,13 +161,18 @@
     }
   }
 
+  // Pages are linked without ".html" (clean URLs), but a visitor can still
+  // land on /contact.html or /index.html, so paths are compared with those
+  // endings, and any trailing slash, taken off.
+  const pagePath = (p) => p.replace(/\.html$/, "").replace(/\/index$/, "/").replace(/(.)\/$/, "$1");
+
   document.addEventListener("click", (e) => {
     const link = e.target.closest('a[href*="#"]');
     if (!link || link.target === "_blank") return;
 
     const url = new URL(link.href, window.location.href);
     // Only handle links pointing at this same document.
-    if (url.pathname !== window.location.pathname || url.origin !== window.location.origin) return;
+    if (pagePath(url.pathname) !== pagePath(window.location.pathname) || url.origin !== window.location.origin) return;
     if (!url.hash || url.hash === "#") return;
 
     const target = document.querySelector(url.hash);
@@ -177,6 +182,24 @@
     scrollToTarget(target);
     history.pushState(null, "", url.hash);
   });
+
+  /* ---- Opened straight from disk ----
+   * Links carry no ".html"; a web host maps /music to music.html. A page
+   * opened from disk (file://) has no host to do that, so there a clicked
+   * link gets its ".html" back. Registered after the smooth-scroll handler,
+   * so same-page links it has already taken are left alone. */
+  if (window.location.protocol === "file:") {
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest("a[href]");
+      if (!link || e.defaultPrevented) return;
+      const url = new URL(link.getAttribute("href"), window.location.href);
+      if (url.protocol !== "file:" || /\.[a-z0-9]+$/i.test(url.pathname)) return;
+      e.preventDefault();
+      url.pathname += url.pathname.endsWith("/") ? "index.html" : ".html";
+      if (link.target === "_blank" || e.ctrlKey || e.metaKey || e.shiftKey) window.open(url.href, "_blank");
+      else window.location.href = url.href;
+    });
+  }
 
   // Arriving with a hash already in the URL (contact.html#booking from
   // another page): let layout settle, then place the section correctly

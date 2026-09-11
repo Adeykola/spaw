@@ -6,17 +6,13 @@ Zero build step. Open `index.html` in a browser and it runs.
 
 ## Running it
 
-Any static server works, or just open the file directly:
+Pages link to each other without `.html` (`/music`, not `/music.html`), so serve the folder with something that maps `/music` to `music.html`:
 
 ```bash
-# Python
-python -m http.server 8000
-
-# Node
 npx serve .
 ```
 
-Then visit `http://localhost:8000`.
+Then visit the address it prints. When hosting, GitHub Pages and Netlify map clean URLs on their own, `vercel.json` switches it on for Vercel, and `.htaccess` does it on Apache (cPanel) hosting. Opening `index.html` straight from disk still works: with no server to do the mapping, `navigation.js` adds the `.html` back to links as they are clicked. (`python -m http.server` does not map clean URLs, so links 404 there.)
 
 ## Pages
 

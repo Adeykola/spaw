@@ -359,7 +359,7 @@ async function renderEvents() {
         const { day, month } = formatEventDate(e.date);
         const link = el("a", {
           class: "event-row",
-          href: `events.html?id=${encodeURIComponent(e.id)}`,
+          href: `events?id=${encodeURIComponent(e.id)}`,
         }, [
           el("div", { class: "event-row__date", text: day }, [
             el("span", { text: month.toUpperCase() }),

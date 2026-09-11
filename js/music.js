@@ -78,7 +78,7 @@ async function renderTrackList() {
           persistentPlayer.playQueue(currentQueue, i);
         });
 
-        return el("a", { class: "track-row", href: `song.html?id=${encodeURIComponent(t.id)}` }, [
+        return el("a", { class: "track-row", href: `song?id=${encodeURIComponent(t.id)}` }, [
           el("span", { class: "track-row__index", text: String(i + 1).padStart(2, "0") }),
           el("img", { class: "track-row__art", src: t.artwork, alt: "", loading: "lazy" }),
           el("div", {}, [
@@ -135,7 +135,7 @@ async function renderAlbumsGrid() {
               el("p", { class: "album-row__meta", text: full.description }),
               el("div", { style: "margin-top: var(--space-m); display:flex; gap: var(--space-m); align-items:center;" }, [
                 playBtn,
-                el("a", { href: `song.html?id=${encodeURIComponent(full.tracks[0]?.id || "")}`, class: "btn btn-line", text: "View first song" }),
+                el("a", { href: `song?id=${encodeURIComponent(full.tracks[0]?.id || "")}`, class: "btn btn-line", text: "View first song" }),
               ]),
             ]),
             tracklist,
@@ -159,7 +159,7 @@ async function renderSongDetail() {
   if (!root) return;
   const id = new URLSearchParams(window.location.search).get("id");
   if (!id) {
-    showError(root, "No song was specified.", () => (window.location.href = "music.html"));
+    showError(root, "No song was specified.", () => (window.location.href = "music"));
     return;
   }
   showLoading(root, "Loading song\u2026");
@@ -192,7 +192,7 @@ async function renderSongDetail() {
     ].filter(Boolean);
     const meta = el("div", { class: "song-hero__meta" }, [
       ...facts.map((text) => el("span", { text })),
-      el("a", { href: "music.html", text: "\u2190 Back to all music" }),
+      el("a", { href: "music", text: "\u2190 Back to all music" }),
     ]);
 
     const heroContent = el("div", {}, [
@@ -250,7 +250,7 @@ async function renderAlbumsPreview() {
     }
     wrap.replaceChildren(
       ...albums.map((a) =>
-        el("a", { class: "album-preview-card", href: `albums.html?id=${encodeURIComponent(a.id)}` }, [
+        el("a", { class: "album-preview-card", href: `albums?id=${encodeURIComponent(a.id)}` }, [
           el("img", { src: a.cover, alt: `${a.title} cover`, loading: "lazy" }),
           el("div", {}, [
             el("h3", { class: "catalogue__track-title", text: a.title }),
