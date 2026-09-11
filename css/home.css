@@ -536,16 +536,38 @@
   margin-bottom: var(--space-l);
 }
 .catalogue__title { font-family: var(--font-display); font-size: var(--step-3); }
+/* Buttons default to paper-coloured text; on this paper-coloured section
+   that made "Browse all music" invisible. */
+.catalogue .btn { --btn-fg: var(--ink); }
 .catalogue__track { flex-shrink: 0; width: min(340px, 78vw); }
 .catalogue__track img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
 .catalogue__track-meta { padding-top: var(--space-s); display: flex; justify-content: space-between; gap: var(--space-s); }
 .catalogue__track-title { font-family: var(--font-display); font-size: var(--step-1); font-style: italic; }
 .catalogue__track-sub { font-size: var(--step--1); color: var(--gray-on-light); margin-top: var(--space-3xs); }
 
+/* Pinned mode — animations.js adds .is-horizontal when it takes over the
+   scroll. The section fills the screen while the row travels sideways,
+   so the padding tightens and the cards size to the screen's height,
+   keeping a whole card in view on short laptops and phones. */
+.catalogue.is-horizontal {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: var(--space-l);
+}
+/* In a column flex box, .wrap's auto side margins stop it stretching, so
+   it would shrink to its content (heading) or grow to max-width (the row,
+   pushing the last card off-screen). Pin it to the section's width. */
+.catalogue.is-horizontal > .wrap { width: 100%; }
+.catalogue.is-horizontal .emerging__row { overflow: visible; }
+.catalogue.is-horizontal .catalogue__track { width: min(340px, 78vw, 36svh); }
+
 /* ---- VIDEO EXPERIENCE ---- */
 .video-feature { position: relative; }
 .video-feature__frame {
   position: relative;
+  display: block;
   aspect-ratio: 16/8;
   overflow: hidden;
   cursor: pointer;
@@ -559,6 +581,26 @@
 }
 .video-feature__label .eyebrow { color: var(--paper); }
 .video-feature__title { font-family: var(--font-display); font-size: var(--step-3); color: var(--paper); max-width: 14ch; }
+/* A plain play mark, so the frame reads as a video on touch screens too,
+   where there is no WATCH cursor to say so. */
+.video-feature__play {
+  display: grid; place-items: center;
+  width: 4.25rem; aspect-ratio: 1;
+  margin-bottom: var(--space-s);
+  border: 1px solid rgba(250,247,242,0.55);
+  border-radius: 50%;
+  background: rgba(10,9,8,0.35);
+  transition: background var(--dur-s) var(--ease-soft), border-color var(--dur-s) var(--ease-soft);
+}
+.video-feature__play::before {
+  content: "";
+  margin-left: 0.25rem;
+  border-style: solid;
+  border-width: 0.55rem 0 0.55rem 0.9rem;
+  border-color: transparent transparent transparent var(--paper);
+}
+.video-feature__frame:hover .video-feature__play,
+.video-feature__frame:focus-visible .video-feature__play { background: var(--red); border-color: var(--red); }
 
 .video-modal {
   position: fixed; inset: 0; z-index: 500;
@@ -570,7 +612,14 @@
 }
 .video-modal.is-open { opacity: 1; pointer-events: auto; }
 .video-modal__inner { width: min(1100px, 100%); aspect-ratio: 16/9; position: relative; }
-.video-modal__inner video { width: 100%; height: 100%; }
+.video-modal__player { width: 100%; height: 100%; background: #000; }
+.video-modal__player iframe { display: block; width: 100%; height: 100%; border: 0; }
+.video-modal__yt {
+  position: absolute; left: 0; bottom: -2.5rem;
+  color: var(--gray-on-dark); font-size: var(--step--1); font-weight: 600;
+  text-decoration: underline; text-underline-offset: 0.2em;
+}
+.video-modal__yt:hover { color: var(--paper); }
 .video-modal__close {
   position: absolute; top: -48px; right: 0;
   color: var(--paper); font-size: var(--step--1); font-weight: 600;

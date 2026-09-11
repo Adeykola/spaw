@@ -194,7 +194,79 @@ async function renderCatalogue() {
 }
 
 /* ---------------------------------------------------------------------
- * Video experience
+ * YouTube playback — shared by the homepage frame and the Media page
+ * ------------------------------------------------------------------- */
+
+// YouTube's player won't run on a page with no web origin: opened from
+// disk (file://) it shows "Error 153". There the video links simply open
+// on YouTube; on a real host a plain click plays the video in the modal,
+// while ctrl/cmd/shift-clicks keep the link's usual new-tab behaviour.
+function canEmbedYouTube() {
+  return location.protocol === "https:" || location.protocol === "http:";
+}
+
+function shouldPlayInModal(e) {
+  return canEmbedYouTube() && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
+}
+
+// maxresdefault is the sharp thumbnail, but not every upload has one and
+// YouTube answers a missing one with a 120px grey placeholder instead of
+// an error, so the size is checked and hqdefault used when it's missing.
+function setYouTubeThumb(img, youtubeId) {
+  const id = encodeURIComponent(youtubeId);
+  const fallback = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+  img.onerror = () => { img.onerror = null; img.src = fallback; };
+  img.onload = () => { if (img.naturalWidth <= 120 && img.src !== fallback) img.src = fallback; };
+  img.src = `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
+}
+
+function formatVideoDate(dateStr) {
+  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+// One modal, one iframe at a time. The iframe is built on open and thrown
+// away on close, which is what actually stops the video.
+function wireYouTubeModal(modal) {
+  const player = modal.querySelector("[data-video-player]");
+  const ytLink = modal.querySelector("[data-video-yt]");
+  const closeBtn = modal.querySelector("[data-video-close]");
+  let opener = null;
+
+  function open(video, from) {
+    opener = from || document.activeElement;
+    player.replaceChildren(
+      el("iframe", {
+        src: `https://www.youtube-nocookie.com/embed/${encodeURIComponent(video.youtubeId)}?autoplay=1&rel=0&playsinline=1`,
+        title: video.title,
+        allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
+        allowFullscreen: true,
+        referrerPolicy: "strict-origin-when-cross-origin",
+      })
+    );
+    if (ytLink) ytLink.href = video.url;
+    modal.removeAttribute("hidden");
+    modal.classList.add("is-open");
+    document.body.classList.add("no-scroll");
+    closeBtn.focus();
+  }
+
+  function close() {
+    if (!modal.classList.contains("is-open")) return;
+    modal.classList.remove("is-open");
+    player.replaceChildren();
+    document.body.classList.remove("no-scroll");
+    setTimeout(() => modal.setAttribute("hidden", ""), 300);
+    opener?.focus();
+  }
+
+  closeBtn.addEventListener("click", close);
+  modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  return { open };
+}
+
+/* ---------------------------------------------------------------------
+ * Video experience — always the newest upload on her channel
  * ------------------------------------------------------------------- */
 async function renderVideos() {
   const frame = document.querySelector("[data-video-frame]");
@@ -203,11 +275,13 @@ async function renderVideos() {
   try {
     const [video] = await api.getVideos(1);
     if (!video) return;
-    frame.querySelector("[data-video-thumb]").src = video.thumbnail;
-    frame.querySelector("[data-video-thumb]").alt = `${video.title} thumbnail`;
-    frame.querySelector("[data-video-eyebrow]").textContent = video.category;
+    setYouTubeThumb(frame.querySelector("[data-video-thumb]"), video.youtubeId);
+    frame.querySelector("[data-video-eyebrow]").textContent = `Latest on YouTube · ${formatVideoDate(video.date)}`;
     frame.querySelector("[data-video-title]").textContent = video.title;
-    frame.dataset.videoSrc = video.videoSrc;
+    frame.href = video.url;
+    frame.setAttribute("aria-label", `Play the latest video: ${video.title}`);
+    frame.dataset.videoId = video.youtubeId;
+    frame.dataset.videoTitle = video.title;
   } catch (err) {
     console.error("[app] video load failed", err);
   }
@@ -217,41 +291,15 @@ function wireVideoModal() {
   const frame = document.querySelector("[data-video-frame]");
   const modal = document.querySelector("[data-video-modal]");
   if (!frame || !modal) return;
-  const modalVideo = modal.querySelector("video");
-  const closeBtn = modal.querySelector("[data-video-close]");
+  const player = wireYouTubeModal(modal);
 
-  function open() {
-    modalVideo.src = frame.dataset.videoSrc || "";
-    modal.classList.add("is-open");
-    modal.removeAttribute("hidden");
-    document.body.classList.add("no-scroll");
-    const playAttempt = modalVideo.play();
-    if (playAttempt?.catch) playAttempt.catch(() => {});
-    closeBtn.focus();
-  }
-  function close() {
-    modal.classList.remove("is-open");
-    modalVideo.pause();
-    modalVideo.removeAttribute("src");
-    modalVideo.load();
-    document.body.classList.remove("no-scroll");
-    setTimeout(() => modal.setAttribute("hidden", ""), 300);
-    frame.focus();
-  }
-
-  frame.addEventListener("click", open);
-  frame.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      open();
-    }
-  });
-  closeBtn.addEventListener("click", close);
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) close();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.classList.contains("is-open")) close();
+  // The frame is a real link to the video on YouTube; a plain click on an
+  // embeddable origin is taken over and the video plays here instead.
+  frame.addEventListener("click", (e) => {
+    const { videoId, videoTitle } = frame.dataset;
+    if (!videoId || !shouldPlayInModal(e)) return;
+    e.preventDefault();
+    player.open({ youtubeId: videoId, title: videoTitle, url: frame.href }, frame);
   });
 }
 

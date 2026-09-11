@@ -101,7 +101,7 @@ function buildIcs(event, registration) {
     "VERSION:2.0",
     "PRODID:-//DrAjokeSings//Events//EN",
     "BEGIN:VEVENT",
-    `UID:${registration.id}@drajokesings.com`,
+    `UID:${registration.id}@dr-ajokesings.com`,
     `DTSTAMP:${fmt(new Date())}`,
     ...when,
     `SUMMARY:${event.name}`,

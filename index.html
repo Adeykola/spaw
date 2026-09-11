@@ -107,7 +107,7 @@
     <li><a href="about.html">About</a></li>
     <li><a href="contact.html">Contact &amp; Booking</a></li>
   </ul>
-  <p class="mobile-nav__meta">Lagos, Nigeria &middot; hello@drajokesings.com</p>
+  <p class="mobile-nav__meta">Lagos, Nigeria &middot; hello@dr-ajokesings.com</p>
 </nav>
 
 <main id="main">
@@ -346,23 +346,25 @@
     </div>
   </section>
 
-  <!-- ============================= VIDEO EXPERIENCE ============================= -->
-  <section class="section" style="padding-block: 0;" aria-label="Featured video">
+  <!-- ============================= VIDEO EXPERIENCE (newest YouTube upload, see app.js) ============================= -->
+  <section class="section" style="padding-block: 0;" aria-label="Latest video">
     <div class="video-feature">
-      <div
+      <a
         class="video-feature__frame"
         data-video-frame
-        role="button"
-        tabindex="0"
-        aria-label="Play featured video"
+        href="https://www.youtube.com/@drajokesings/videos"
+        target="_blank"
+        rel="noopener"
+        aria-label="Watch the latest videos on YouTube"
         data-cursor-text="WATCH">
-        <img data-video-thumb src="" alt="" loading="lazy">
+        <img data-video-thumb src="assets/images/Alagbara-landscape.jpeg" alt="" loading="lazy">
         <div class="video-feature__scrim"></div>
         <div class="video-feature__label">
-          <p class="eyebrow" data-video-eyebrow>Live Performance</p>
-          <h2 class="video-feature__title display" data-video-title></h2>
+          <span class="video-feature__play" aria-hidden="true"></span>
+          <p class="eyebrow" data-video-eyebrow>Latest on YouTube</p>
+          <h2 class="video-feature__title display" data-video-title>Watch on YouTube</h2>
         </div>
-      </div>
+      </a>
     </div>
   </section>
 
@@ -372,7 +374,8 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="#icon-close"></use></svg>
         Close
       </button>
-      <video controls playsinline></video>
+      <div class="video-modal__player" data-video-player></div>
+      <a class="video-modal__yt" data-video-yt href="https://www.youtube.com/@drajokesings" target="_blank" rel="noopener">Watch on YouTube</a>
     </div>
   </div>
 

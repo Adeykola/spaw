@@ -17,8 +17,8 @@ const DB = {
     artistName: "Dr AjokeSings",
     tagline: "Worship, carried by voice.",
     locationLabel: "Lagos, Nigeria",
-    email: "hello@drajokesings.com",
-    bookingEmail: "booking@drajokesings.com",
+    email: "hello@dr-ajokesings.com",
+    bookingEmail: "booking@dr-ajokesings.com",
     social: {
       instagram: "https://instagram.com/drajokesings",
       youtube: "https://youtube.com/@drajokesings",
@@ -198,87 +198,39 @@ const DB = {
     },
   ],
 
+  /* Videos come from her YouTube channel, not from this file. `videos` is
+   * a snapshot of the channel's long-form uploads (Shorts left out), taken
+   * from its public feeds when the site was last built. At runtime
+   * api._youtube() reads the live feed and merges it over the snapshot,
+   * so a new upload appears first on its own; the snapshot is what shows
+   * if the feed can't be reached, and it keeps older videos listed after
+   * they drop out of the feed's newest-ten window. `category` is set only
+   * where the title alone can't place a video (see api._videoCategory). */
+  youtube: {
+    channelId: "UCTlHt_0n__lwSySZE6lDiuw",
+    channelUrl: "https://www.youtube.com/@drajokesings",
+    cacheMinutes: 30,
+  },
+
   videos: [
-    {
-      id: "video-001",
-      title: "Awesome Forever — Live at the Glory Experience",
-      category: "Live Performance",
-      thumbnail: "assets/images/TGE-1.jpeg",
-      videoSrc: "assets/video/glory-experience-teaser.mp4",
-      duration: 312,
-      date: "2025-04-02",
-      description: "Recorded live at the Covenant album listening night, full band, single take.",
-    },
-    {
-      id: "video-002",
-      title: "The Making of Covenant",
-      category: "Behind the Scenes",
-      thumbnail: "assets/images/motion-3.jpeg",
-      videoSrc: "assets/video/glory-experience-teaser.mp4",
-      duration: 480,
-      date: "2025-03-01",
-      description: "Inside the studio sessions with the fourteen-piece ensemble.",
-    },
-    {
-      id: "video-003",
-      title: "Alagbara ft. Pelumi Deborah — Official Video",
-      category: "Music Video",
-      thumbnail: "assets/images/Alagbara-landscape.jpeg",
-      videoSrc: "assets/video/glory-experience-teaser.mp4",
-      duration: 274,
-      date: "2025-03-20",
-      description: "Shot across three cities in a single week.",
-    },
-    {
-      id: "video-004",
-      title: "Sunrise Worship Session, Vol. 3",
-      category: "Worship Session",
-      thumbnail: "assets/images/motion-4.jpeg",
-      videoSrc: "assets/video/glory-experience-teaser.mp4",
-      duration: 620,
-      date: "2026-02-14",
-      description: "An unedited, one-take worship session recorded at first light.",
-    },
-    {
-      id: "video-005",
-      title: "On Grief and Songwriting",
-      category: "Interview",
-      thumbnail: "assets/images/motion-2.jpeg",
-      videoSrc: "assets/video/glory-experience-teaser.mp4",
-      duration: 940,
-      date: "2025-05-18",
-      description: "A long-form conversation on the season that produced Covenant.",
-    },
-    {
-      id: "video-006",
-      title: "Threshold — Anniversary Recap",
-      category: "Ministry Content",
-      thumbnail: "assets/images/motion-5.jpeg",
-      videoSrc: "assets/video/glory-experience-teaser.mp4",
-      duration: 205,
-      date: "2025-09-10",
-      description: "Three years of Threshold, revisited through the community that carried it.",
-    },
-    {
-      id: "video-007",
-      title: "Highlife Hallelujah — Official Video",
-      category: "Music Video",
-      thumbnail: "assets/images/Violinist.jpeg",
-      videoSrc: "assets/video/glory-experience-teaser.mp4",
-      duration: 219,
-      date: "2022-09-10",
-      description: "Shot in one afternoon on the streets of Lagos Island.",
-    },
-    {
-      id: "video-008",
-      title: "Symphony 2025 — Finalist Showcase",
-      category: "Live Performance",
-      thumbnail: "assets/images/spaw-stage-02.webp",
-      videoSrc: "assets/video/glory-experience-teaser.mp4",
-      duration: 1380,
-      date: "2025-12-01",
-      description: "The full showcase night from last year's Symphony of Praise & Worship cohort.",
-    },
+    { youtubeId: "rWDUeppY2Gk", published: "2026-08-28", title: "Alagbara - DrAjokesings ft. Pelumi Deborah" },
+    { youtubeId: "yi8cQe-5QwQ", published: "2026-08-14", title: "You are God - DrAjokesings" },
+    { youtubeId: "XgggH0xKA3I", published: "2026-07-31", title: "Iba re - DrAjokesings" },
+    { youtubeId: "QTTEkv4eSJU", published: "2026-07-17", title: "Awesome Forever - DrAjokesings" },
+    { youtubeId: "2pF3om8bbYM", published: "2026-07-03", title: "Worship Experience (Live) - DrAjokesings" },
+    { youtubeId: "vT8jEObVvJA", published: "2026-04-05", title: "DrAjokesings - Jesus Wept" },
+    { youtubeId: "4cSQgXJtUdY", published: "2025-12-13", title: "EMMA OH MY GOD LIVE AT THE 1ST EDITION OF SPAW CONCERT" },
+    { youtubeId: "hv2gaH38hfE", published: "2025-12-13", title: "BEEJAY SAX  LIVE AT THE 1ST EDITION OF SPAW CONCERT" },
+    { youtubeId: "Sq4iQVVjstY", published: "2025-12-13", title: "LILIAN NNEJI PERFORMANCE AT THE 1ST EDITION OF SPAW CONCERT" },
+    { youtubeId: "wbaSkEZG-Q4", published: "2025-12-13", title: "PELUMI DEBORAH PERFORMANCE AT THE 1ST EDITION OF SPAW CONCERT" },
+    { youtubeId: "IHi2aY8CTpk", published: "2025-12-07", title: "SYMPHONY OF PRAISE & WORSHIP CONCERT — 1ST EDITION  with Dr. Ajoke Sings (Ajoke Ogunsan)" },
+    { youtubeId: "INrOiAaEZZI", published: "2025-11-28", title: "ISIOMA CHARLES Interview and Audition" },
+    { youtubeId: "T8nDp59rgpc", published: "2025-11-28", title: "TAIWO AREGBESOLA Interview and Auditions" },
+    { youtubeId: "09ehsHbWoTI", published: "2025-11-28", title: "AMAH BROWN Interviews and Audition" },
+    { youtubeId: "xZrXH2mFKRk", published: "2025-11-28", title: "PEACE EDEGWA AUDITIONS" },
+    { youtubeId: "o6kNM4dDyzM", published: "2025-11-28", title: "31 ADESHIMISOLA SAMUEL", category: "Talent Quest" },
+    { youtubeId: "p3Fgd4ZXDrw", published: "2025-11-01", title: "SPAW TALENT QUEST" },
+    { youtubeId: "i6yj7g2HIxQ", published: "2025-10-23", title: "Ajoke Ogunsan  Live Stream" },
   ],
 
   /* Photo galleries for media.html — one per event, lead frame first, then
@@ -623,22 +575,104 @@ const api = {
     return { ...album, tracks };
   },
 
-  /* ---- Videos ---- */
+  /* ---- Videos: live from her YouTube channel (see DB.youtube) ---- */
   async getVideos(limit = 3) {
-    await this._delay(320);
-    return DB.videos.slice(0, limit);
+    return (await this._youtube()).slice(0, limit);
   },
 
   async getAllVideos({ category = "all" } = {}) {
-    await this._delay(360);
-    let videos = [...DB.videos];
-    if (category !== "all") videos = videos.filter((v) => v.category === category);
-    return videos.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const videos = await this._youtube();
+    return category === "all" ? videos : videos.filter((v) => v.category === category);
   },
 
   async getVideoCategories() {
-    await this._delay(120);
-    return [...new Set(DB.videos.map((v) => v.category))];
+    return [...new Set((await this._youtube()).map((v) => v.category))];
+  },
+
+  // Live feed merged over the snapshot, newest first; loaded once per page
+  // and shared by every caller.
+  _youtube() {
+    if (!this._youtubeLoad) this._youtubeLoad = this._loadYouTube();
+    return this._youtubeLoad;
+  },
+
+  async _loadYouTube() {
+    const cached = Store.read("youtube", null);
+    const fresh = cached && Date.now() - cached.at < DB.youtube.cacheMinutes * 60000;
+    let live = fresh ? cached.videos : null;
+    if (!live) {
+      try {
+        live = await this._fetchYouTubeFeed();
+        Store.write("youtube", { at: Date.now(), videos: live });
+      } catch (err) {
+        console.warn("[api] YouTube feed unreachable, showing the snapshot", err);
+        live = cached ? cached.videos : [];
+      }
+    }
+    const byId = new Map();
+    [...live, ...DB.videos].forEach((v) => { if (!byId.has(v.youtubeId)) byId.set(v.youtubeId, v); });
+    return [...byId.values()]
+      .map((v) => this._videoFromYouTube(v))
+      .sort((a, b) => b.date.localeCompare(a.date));
+  },
+
+  // YouTube serves the feed without CORS headers, so a browser can't read
+  // it directly; rss2json relays it as JSON (free tier: the newest 10
+  // items, refreshed about every half hour). To drop the relay, replace
+  // this one method with the YouTube Data API or a small serverless
+  // function returning the same { youtubeId, published, title } list.
+  async _fetchYouTubeFeed() {
+    const feed = `https://www.youtube.com/feeds/videos.xml?channel_id=${DB.youtube.channelId}`;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 6000);
+    try {
+      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}`, { signal: ctrl.signal });
+      const body = await res.json();
+      if (!res.ok || body.status !== "ok") throw new Error(body.message || `HTTP ${res.status}`);
+      return body.items
+        .filter((item) => !/\/shorts\//.test(item.link)) // Shorts are vertical clips, not library videos
+        .map((item) => ({
+          youtubeId: String(item.guid || "").replace("yt:video:", ""),
+          published: String(item.pubDate || "").slice(0, 10),
+          title: item.title,
+        }))
+        .filter((v) => /^[\w-]{11}$/.test(v.youtubeId) && /^\d{4}-\d{2}-\d{2}$/.test(v.published));
+    } finally {
+      clearTimeout(timer);
+    }
+  },
+
+  // Feed entry -> what the pages render. The page is already hers, so the
+  // channel name comes out of titles ("You are God - DrAjokesings").
+  _videoFromYouTube(v) {
+    const title = this._decode(v.title)
+      .replace(/\s*[-–—]\s*Dr\.?\s*Ajoke\s*Sings\b/i, "")
+      .replace(/^Dr\.?\s*Ajoke\s*Sings\s*[-–—]\s*/i, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+    return {
+      id: `yt-${v.youtubeId}`,
+      youtubeId: v.youtubeId,
+      title,
+      category: v.category || this._videoCategory(title),
+      date: v.published,
+      url: `https://www.youtube.com/watch?v=${v.youtubeId}`,
+    };
+  },
+
+  // Filed by what the title says, so a new upload lands in a category
+  // without anyone tagging it. Order matters: an audition filmed for
+  // SPAW is Talent Quest; a performance at SPAW is the concert.
+  _videoCategory(title) {
+    if (/audition|interview|talent quest/i.test(title)) return "Talent Quest";
+    if (/\bSPAW\b|symphony of praise/i.test(title)) return "SPAW Concert";
+    if (/\blive\b|performance/i.test(title)) return "Live";
+    return "Music";
+  },
+
+  _decode(s) {
+    const map = { amp: "&", quot: '"', apos: "'", lt: "<", gt: ">", "#39": "'" };
+    return String(s).replace(/&(amp|quot|apos|lt|gt|#39);/g, (m, e) => map[e]);
   },
 
   /* ---- Galleries (media.html) ---- */

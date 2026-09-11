@@ -181,16 +181,18 @@ const albumsCrudConfig = {
   ],
 };
 
+// Seeded from the YouTube snapshot. The public pages read the channel
+// itself (api._youtube), so this list is for reference, like the other
+// prototype CRUD panels.
 const videosCrudConfig = {
-  panelKey: "videos", storageKey: "videos",
+  panelKey: "videos", storageKey: "youtubeVideos",
   seed: () => DB.videos,
-  columns: ["Title", "Category", "Duration", "Date", ""],
-  toRow: (v) => [v.title, v.category, `${Math.floor(v.duration / 60)}:${String(v.duration % 60).padStart(2, "0")}`, v.date],
+  columns: ["Title", "YouTube ID", "Published", ""],
+  toRow: (v) => [v.title, v.youtubeId, v.published],
   fields: [
     { key: "title", type: "text", required: true },
-    { key: "category", type: "text", required: true },
-    { key: "duration", type: "number", required: true },
-    { key: "date", type: "date", required: true },
+    { key: "youtubeId", type: "text", required: true },
+    { key: "published", type: "date", required: true },
   ],
 };
 

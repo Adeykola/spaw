@@ -58,7 +58,7 @@
     <div class="page-hero__content">
       <p class="eyebrow page-hero__eyebrow">Media</p>
       <h1 class="page-hero__title display">Seen, <em>and heard.</em></h1>
-      <p class="page-hero__sub">Music videos, live sessions and the conversations behind the songs &mdash; and the photographs from the nights themselves.</p>
+      <p class="page-hero__sub">Her latest videos, straight from YouTube &mdash; and the photographs from the nights themselves.</p>
       <div class="page-hero__actions">
         <a href="#watch" class="btn btn-line" data-magnetic>Watch the films</a>
         <a href="#see" class="btn btn-line" data-magnetic>See the photographs</a>
@@ -83,7 +83,7 @@
           <p class="eyebrow">Watch</p>
           <h2 class="section-head__title display">The films.</h2>
         </div>
-        <p class="section-head__note">Music videos, live performances, worship sessions, and the long conversations behind the songs.</p>
+        <p class="section-head__note">Straight from her YouTube channel, newest first. A new upload appears here on its own.</p>
       </div>
       <div class="filter-bar">
         <div class="filter-pills" role="group" aria-label="Filter videos" data-video-categories>
@@ -91,6 +91,9 @@
         </div>
       </div>
       <div class="video-feature-grid" data-video-grid></div>
+      <div style="display: flex; justify-content: center; margin-top: var(--space-xl);">
+        <a href="https://www.youtube.com/@drajokesings" class="btn btn-line" target="_blank" rel="noopener" data-magnetic>More on YouTube</a>
+      </div>
     </div>
   </section>
 
@@ -114,7 +117,8 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="#icon-close"></use></svg>
       Close
     </button>
-    <video controls playsinline></video>
+    <div class="video-modal__player" data-video-player></div>
+    <a class="video-modal__yt" data-video-yt href="https://www.youtube.com/@drajokesings" target="_blank" rel="noopener">Watch on YouTube</a>
   </div>
 </div>
 

@@ -3,12 +3,14 @@
  * ----------------------------------------------------------------------
  * Drives media.html — one page for everything you can watch or look at.
  *
- * "Watch" is the video library: category pills, an editorial grid and a
- * modal player, carried over unchanged from the old videos page.
+ * "Watch" is her YouTube channel: every long-form upload, newest first
+ * (api.getAllVideos merges the live feed over a snapshot), filtered by
+ * category pills and played in an embedded YouTube player.
  * "See" is the photography: one gallery per event, in the order the
  * night happened, opened in a lightbox with keyboard, swipe and focus
  * handling. A type switch at the top narrows the page to either one.
- * Reuses el/showLoading/showError/showEmpty/formatDuration from app.js.
+ * Reuses el/showLoading/showError/showEmpty and the YouTube helpers
+ * (setYouTubeThumb, formatVideoDate, wireYouTubeModal) from app.js.
  * ----------------------------------------------------------------------
  */
 let videoState = { category: "all" };
@@ -85,18 +87,20 @@ async function renderVideoGrid() {
     if (!videos.length) { showEmpty(grid, "No videos in this category yet."); return; }
 
     grid.replaceChildren(
-      ...videos.map((v) =>
-        el("article", { class: "video-card", "data-video-src": v.videoSrc, "data-cursor-text": "WATCH", role: "button", tabindex: "0", aria: { label: `Play ${v.title}` } }, [
+      ...videos.map((v) => {
+        const thumb = el("img", { alt: "", loading: "lazy", decoding: "async" });
+        setYouTubeThumb(thumb, v.youtubeId);
+        return el("a", { class: "video-card", href: v.url, target: "_blank", rel: "noopener", "data-video-id": v.youtubeId, "data-cursor-text": "WATCH" }, [
           el("div", { class: "video-card__frame" }, [
-            el("img", { src: v.thumbnail, alt: `${v.title} thumbnail`, loading: "lazy" }),
-            el("span", { class: "video-card__dur", text: formatDuration(v.duration) }),
+            thumb,
+            el("span", { class: "video-card__dur", text: formatVideoDate(v.date) }),
           ]),
           el("div", { class: "video-card__meta" }, [
             el("p", { class: "video-card__cat", text: v.category }),
             el("h3", { class: "video-card__title", text: v.title }),
           ]),
-        ])
-      )
+        ]);
+      })
     );
   } catch (err) {
     console.error("[media] video grid failed", err);
@@ -108,42 +112,17 @@ function wireModal() {
   const modal = document.querySelector("[data-video-modal]");
   const grid = document.querySelector("[data-video-grid]");
   if (!modal || !grid) return;
-  const modalVideo = modal.querySelector("video");
-  const closeBtn = modal.querySelector("[data-video-close]");
-  let lastFocused = null;
+  const player = wireYouTubeModal(modal);
 
-  function open(src) {
-    lastFocused = document.activeElement;
-    modalVideo.src = src || "";
-    modal.classList.add("is-open");
-    modal.removeAttribute("hidden");
-    document.body.classList.add("no-scroll");
-    const attempt = modalVideo.play();
-    if (attempt?.catch) attempt.catch(() => {});
-    closeBtn.focus();
-  }
-  function close() {
-    modal.classList.remove("is-open");
-    modalVideo.pause();
-    modalVideo.removeAttribute("src");
-    modalVideo.load();
-    document.body.classList.remove("no-scroll");
-    setTimeout(() => modal.setAttribute("hidden", ""), 300);
-    lastFocused?.focus();
-  }
-
+  // Every card is a link to the video on YouTube; a plain click on an
+  // embeddable origin plays it here instead (see shouldPlayInModal).
   grid.addEventListener("click", (e) => {
-    const card = e.target.closest("[data-video-src]");
-    if (card) open(card.dataset.videoSrc);
+    const card = e.target.closest("[data-video-id]");
+    if (!card || !shouldPlayInModal(e)) return;
+    e.preventDefault();
+    const title = card.querySelector(".video-card__title")?.textContent || "";
+    player.open({ youtubeId: card.dataset.videoId, title, url: card.href }, card);
   });
-  grid.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    const card = e.target.closest("[data-video-src]");
-    if (card) { e.preventDefault(); open(card.dataset.videoSrc); }
-  });
-  closeBtn.addEventListener("click", close);
-  modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("is-open")) close(); });
 }
 
 /* ---------------------------------------------------------------------
