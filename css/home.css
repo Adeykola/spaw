@@ -379,6 +379,263 @@
   .hero-slide [data-hero-anim] { opacity: 1; transform: none; }
 }
 
+/* ---- SPAW slides on phones ----------------------------------------
+   Each SPAW slide carries a second layout for phones (.hero__phone): the
+   full name spelt out large, a Register button, a short write-up and
+   "See more", beside her portrait (.hero-side), which fades into the
+   dark, with a side caption and a "2026" watermark: the marks the wide
+   artwork keeps at edges a phone crops off. Hidden here; responsive.css
+   swaps it in for .hero__desk below 680px.
+   --------------------------------------------------------------------- */
+.hero__phone,
+.hero-side { display: none; }
+
+.hero__phone {
+  position: relative;
+  grid-column: 1 / -1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-s);
+}
+/* Darkness rising from the bottom of the slide to just above the copy, so
+   the words always sit on near-black whatever the photo holds there. Sized
+   by the copy itself, so it follows it on every screen height. */
+.hero__phone::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -9rem calc(var(--edge) * -1) calc((var(--hero-footer) + var(--space-s)) * -1);
+  background: linear-gradient(180deg, transparent, rgba(10, 9, 8, 0.74) 9rem, rgba(10, 9, 8, 0.95));
+  pointer-events: none;
+}
+.hero__spaw {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 1.1rem + 5vw, 2.75rem);
+  font-weight: 400;
+  line-height: 0.98;
+  color: var(--paper);
+}
+.hero__spaw-event { font-style: italic; color: var(--red-bright); }
+.hero__spaw-with {
+  margin-top: var(--space-xs);
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+/* "Register here": a full-width, square-cornered block, the one thing on
+   the slide to press. */
+.hero__register {
+  align-self: stretch;
+  justify-content: center;
+  padding: 1.05rem 1.5rem;
+  border-radius: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--paper) 22%, transparent), 0 18px 36px -20px var(--red);
+}
+.hero__phone-text {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--paper) 80%, transparent);
+}
+.hero__phone-when {
+  margin-top: calc(var(--space-s) * -0.55);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.hero__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-block: 0.35rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--paper) 35%, transparent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+.hero__more svg { width: 18px; height: 18px; transition: transform var(--dur-s) var(--ease-cinema); }
+.hero__more:hover svg,
+.hero__more:focus-visible svg { transform: translateX(4px); }
+
+/* Her portrait, the caption and the watermark. */
+.hero-side { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.hero-side__photo {
+  position: absolute;
+  top: calc(var(--nav-h) - var(--space-s));
+  right: 0;
+  bottom: calc(var(--hero-footer) + 12rem);
+  width: 74%;
+  /* Faded at the left, towards the headline, and at the right, under the
+     caption... */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 36%, #000 80%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 36%, #000 80%, transparent);
+}
+.hero-side__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--side-focus, 50% 20%);
+  /* ...and at the top and bottom, so no edge of the photograph shows. */
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 62%, transparent);
+          mask-image: linear-gradient(180deg, transparent, #000 14%, #000 62%, transparent);
+}
+.hero-side__mark {
+  position: absolute;
+  top: 34%;
+  right: calc(var(--edge) + 1.4rem);
+  font-family: var(--font-display);
+  font-size: clamp(6rem, 36vw, 12rem);
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  color: rgba(250, 247, 242, 0.08);
+}
+/* Two lines set vertically up the right edge: the name in gold capitals,
+   and its line in italic beside it. */
+.hero-side__caption {
+  position: absolute;
+  top: calc(var(--nav-h) + var(--space-2xs));
+  right: calc(var(--edge) * 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  line-height: 1;
+}
+.hero-side__caption span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.hero-side__caption em {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--paper);
+}
+/* The portrait glides in from the right as its slide arrives, and leaves
+   with the copy. */
+.hero--slider.is-ready .hero-side__photo { opacity: 0; transform: translateX(12%); }
+.hero--slider.is-ready .hero-slide.is-active .hero-side__photo { animation: heroSideIn 1.5s var(--ease-cinema) 0.2s forwards; }
+.hero-slide.is-leaving .hero-side { opacity: 0; transition: opacity 0.4s var(--ease-soft); }
+@keyframes heroSideIn { to { opacity: 1; transform: none; } }
+
+/* ---- "See more" sheet (SPAW slides, phones) ----
+   A modal <dialog> rising from the bottom; hero.js opens and closes it. */
+.spaw-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: 40rem;
+  max-height: 88svh;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--ink-line);
+  background: var(--ink-soft);
+  color: var(--paper);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.spaw-sheet[open] { animation: sheetUp 0.55s var(--ease-cinema); }
+.spaw-sheet.is-closing { animation: sheetDown 0.28s var(--ease-soft) forwards; }
+.spaw-sheet::backdrop { background: rgba(10, 9, 8, 0.72); }
+.spaw-sheet[open]::backdrop { animation: sheetFade 0.45s var(--ease-soft); }
+.spaw-sheet.is-closing::backdrop { animation: sheetFade 0.28s var(--ease-soft) reverse forwards; }
+@keyframes sheetUp { from { transform: translateY(100%); } }
+@keyframes sheetDown { to { transform: translateY(100%); } }
+@keyframes sheetFade { from { opacity: 0; } }
+/* The page behind stays put while a sheet is open. */
+html:has(.spaw-sheet[open]) { overflow: hidden; }
+
+.spaw-sheet__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-m) var(--edge) calc(var(--space-m) + env(safe-area-inset-bottom, 0px));
+}
+/* A grab handle, so it reads as a sheet. */
+.spaw-sheet__inner::before {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  left: 50%;
+  width: 40px;
+  height: 3px;
+  margin-left: -20px;
+  border-radius: 2px;
+  background: var(--ink-line);
+}
+.spaw-sheet__close {
+  position: absolute;
+  top: var(--space-s);
+  right: var(--edge);
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ink-line);
+  border-radius: 50%;
+  color: var(--paper);
+}
+.spaw-sheet__close svg { width: 16px; height: 16px; }
+.spaw-sheet__eyebrow {
+  padding-right: 3.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.spaw-sheet__title {
+  margin-top: calc(var(--space-s) * -0.5);
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 400;
+  line-height: 1.02;
+}
+.spaw-sheet__title em { color: var(--red-bright); }
+.spaw-sheet__title span {
+  display: block;
+  margin-top: 0.6rem;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.spaw-sheet__tagline { font-family: var(--font-display); font-size: var(--step-1); font-style: italic; line-height: 1.2; }
+.spaw-sheet__text { font-size: 0.95rem; line-height: 1.6; color: color-mix(in srgb, var(--paper) 82%, transparent); }
+.spaw-sheet__gives { display: grid; gap: var(--space-xs); padding: 0; list-style: none; }
+.spaw-sheet__gives li { position: relative; padding-left: 1.1rem; font-size: 0.9rem; line-height: 1.5; color: var(--gray-on-dark); }
+.spaw-sheet__gives li::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 5px; height: 5px; background: var(--red-bright); }
+.spaw-sheet__gives strong { display: block; font-weight: 600; color: var(--paper); }
+.spaw-sheet__facts { display: grid; gap: var(--space-xs); }
+.spaw-sheet__facts > div { display: grid; gap: 2px; padding-top: var(--space-2xs); border-top: 1px solid var(--ink-line); }
+.spaw-sheet__facts dt { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+.spaw-sheet__facts dd { margin: 0; font-size: 0.92rem; }
+.spaw-sheet__actions { display: flex; flex-direction: column; align-items: center; gap: var(--space-s); margin-top: var(--space-2xs); }
+.spaw-sheet__link { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gray-on-dark); }
+.spaw-sheet__link svg { width: 16px; height: 16px; }
+
 /* ---- ARTIST STATEMENT ---- */
 .statement {
   padding-block: var(--space-2xl);

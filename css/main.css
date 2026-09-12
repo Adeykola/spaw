@@ -311,18 +311,20 @@ p { text-wrap: pretty; }
      itself instead of letting them spill out of its bottom edge. */
   overflow-y: auto;
   overscroll-behavior: contain;
-  transform: translateY(-100%);
-  /* Closed, it is invisible as well as parked above the screen: parked
-     alone, links that overflowed its bottom edge showed at the top of
-     every page, over the logo. Visibility flips only after the slide-out
-     has finished, so closing still animates. */
+  /* Parked off the right-hand edge, where the menu button is, and slid in
+     from there. */
+  transform: translateX(100%);
+  /* Closed, it is invisible as well as parked off screen: parked alone,
+     links that overflowed its edge showed at the top of every page, over
+     the logo. Visibility flips only after the slide-out has finished, so
+     closing still animates. */
   visibility: hidden;
-  transition: transform var(--dur-m) var(--ease-cinema), visibility 0s linear var(--dur-m);
+  transition: transform 0.6s var(--ease-cinema), visibility 0s linear 0.6s;
 }
 .mobile-nav.is-open {
-  transform: translateY(0);
+  transform: translateX(0);
   visibility: visible;
-  transition: transform var(--dur-m) var(--ease-cinema);
+  transition: transform 0.75s var(--ease-cinema);
 }
 /* Centred when everything fits, top-aligned and scrollable when it doesn't
    (justify-content: center would push the overflow out of reach). */
@@ -331,13 +333,59 @@ p { text-wrap: pretty; }
 /* While the menu is open the header turns solid, so links scrolled up
    under it (short screens) pass behind the logo instead of through it. */
 .site-header:has(~ .mobile-nav.is-open) { background: var(--ink); }
-.mobile-nav__list a {
-  font-family: var(--font-display);
-  font-size: var(--step-3);
-  display: inline-block;
-  padding-block: var(--space-2xs);
+
+/* The links: block capitals in the UI face, numbered in gold and ruled
+   apart with hairlines. Each slides in from the right behind the panel,
+   one after another (--i is the item's place in the list, set by
+   navigation.js); the page you are on is marked in red. */
+.mobile-nav__list { counter-reset: mnav; border-top: 1px solid var(--ink-line); }
+.mobile-nav__list li {
+  counter-increment: mnav;
+  border-bottom: 1px solid var(--ink-line);
+  opacity: 0;
+  transform: translateX(2.5rem);
+  transition: opacity 0.25s var(--ease-soft), transform 0.25s var(--ease-soft);
 }
-.mobile-nav__meta { margin-top: var(--space-l); color: var(--gray-on-dark); font-size: var(--step--1); }
+.mobile-nav.is-open .mobile-nav__list li {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s var(--ease-soft), transform 0.8s var(--ease-cinema);
+  transition-delay: calc(0.22s + var(--i, 0) * 0.06s);
+}
+.mobile-nav__list a {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-s);
+  padding-block: 1rem;
+  font-family: var(--font-ui);
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--paper);
+  transition: color var(--dur-s) var(--ease-soft);
+}
+.mobile-nav__list a::before {
+  content: counter(mnav, decimal-leading-zero);
+  min-width: 1.6rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.mobile-nav__list a:hover { color: var(--gold); }
+.mobile-nav__list a[aria-current="page"],
+.mobile-nav__list a[aria-current="page"]::before { color: var(--red-bright); }
+.mobile-nav__meta {
+  margin-top: var(--space-l);
+  color: var(--gray-on-dark);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-soft);
+}
+.mobile-nav.is-open .mobile-nav__meta { opacity: 1; transition: opacity 0.8s var(--ease-soft) 0.7s; }
 
 /* ==========================================================================
    CINEMATIC INTRO

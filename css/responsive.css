@@ -166,4 +166,23 @@
   .hero__arrow { display: none; }
   .hero__toggle span:not(.hero__toggle-icon) { display: none; }
   .hero__scroll { display: none; }
+  /* SPAW slides: the phone layout (home.css) stands in for the desktop one. */
+  .hero-slide--spaw .hero__desk { display: none; }
+  .hero-slide--spaw .hero__phone { display: flex; }
+  .hero-slide--spaw .hero-side { display: block; }
+}
+
+/* Short phones, and phones whose browser bars take a bite of the screen:
+   the SPAW write-up lives in "See more" alone, so the name, the button and
+   her portrait still share one screen. */
+@media (max-width: 680px) and (max-height: 700px) {
+  .hero-slide--spaw .hero__phone { gap: var(--space-xs); }
+  .hero__spaw { font-size: clamp(1.9rem, 1rem + 4.4vw, 2.3rem); }
+  .hero-slide--spaw .hero__phone-text { display: none; }
+}
+
+/* Shorter still, the gold line of the side caption would run down into
+   the Register button, so only its italic line stays. */
+@media (max-width: 680px) and (max-height: 630px) {
+  .hero-side__caption span { display: none; }
 }

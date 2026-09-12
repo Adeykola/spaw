@@ -51,6 +51,16 @@ async function renderEventsList() {
         ]);
       })
     );
+
+    // Arriving from a link to one event: events?id=… (the homepage
+    // calendar) brings its row into view, and events?register=… (the
+    // "Register here" buttons) opens its registration form as well.
+    const params = new URLSearchParams(window.location.search);
+    const wanted = events.findIndex((e) => e.id === (params.get("register") || params.get("id")));
+    if (wanted !== -1) {
+      list.children[wanted]?.scrollIntoView({ block: "center" });
+      if (params.has("register")) openRegisterModal(events[wanted]);
+    }
   } catch (err) {
     console.error("[events] list failed", err);
     showError(list, "Couldn't load events.", renderEventsList);

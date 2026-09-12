@@ -151,8 +151,13 @@
         </div>
       </article>
 
-      <!-- 02 — SPAW: Talent Quest (it comes first: the Quest is the day before the concert) -->
-      <article class="hero-slide" data-hero-slide
+      <!-- 02 — SPAW: Talent Quest (it comes first: the Quest is the day before the concert).
+           Both SPAW slides carry two layouts: .hero__desk for wide screens
+           and, for phones, .hero__phone beside .hero-side: the name spelt
+           out large, a Register button, a short write-up and "See more",
+           with her portrait at the side. responsive.css picks one. The
+           sheets "See more" opens follow the hero. -->
+      <article class="hero-slide hero-slide--spaw" data-hero-slide
                data-hero-image="assets/images/spaw-talent.svg"
                data-hero-image-alt="Symphony of Praise and Worship Talent Quest artwork: a spotlight finding a microphone inside concentric rings"
                data-hero-focus="center"
@@ -161,13 +166,18 @@
                aria-label="Slide 2 of 3: Symphony of Praise and Worship Talent Quest">
         <div class="hero-slide__slats" data-hero-slats></div>
         <div class="hero-slide__scrim"></div>
+        <div class="hero-side" aria-hidden="true">
+          <div class="hero-side__photo" style="--side-focus: 50% 18%"><img src="assets/images/artist-portrait.jpg" alt="" loading="lazy" decoding="async"></div>
+          <span class="hero-side__mark" data-hero-anim="4">2026</span>
+          <p class="hero-side__caption" data-hero-anim="3"><span>SPAW Talent Quest with Dr AjokeSings</span><em>Lend a voice.</em></p>
+        </div>
         <div class="hero__content">
-          <div class="hero__title-block">
+          <div class="hero__title-block hero__desk">
             <p class="hero__eyebrow" data-hero-anim="1">Symphony of Praise &amp; Worship &middot; Talent Quest</p>
             <h2 class="hero__title display" data-hero-anim="2">We're listening for <em>your voice.</em></h2>
             <p class="hero__lede" data-hero-anim="3">Funded studio time toward one original recording, and a place on the Symphony stage in front of a full house. Four tracks. One cohort.</p>
           </div>
-          <div class="hero__meta" data-hero-anim="4">
+          <div class="hero__meta hero__desk" data-hero-anim="4">
             <div class="hero__now-playing">
               <span class="dot" aria-hidden="true"></span>
               Applications open
@@ -179,26 +189,53 @@
             </dl>
             <a href="symphony" class="btn btn-solid" data-magnetic>Apply to Symphony</a>
           </div>
+          <div class="hero__phone">
+            <h2 class="hero__spaw" data-hero-anim="1">
+              <span class="hero__spaw-name">Symphony of Praise<br> and Worship</span>
+              <em class="hero__spaw-event">(SPAW) Talent Quest</em>
+              <span class="hero__spaw-with">with Dr AjokeSings</span>
+            </h2>
+            <a href="symphony#apply" class="btn btn-solid hero__register" data-hero-anim="2">Register here</a>
+            <p class="hero__phone-text" data-hero-anim="3">The voices it finds get funded studio time for an original song, a proper release and a place on the SPAW Global Concert stage.</p>
+            <p class="hero__phone-when" data-hero-anim="3">Fri 27 Nov 2026 &middot; Regal Hall, Lagos</p>
+            <a href="symphony#quest" class="hero__more" data-hero-more="spaw-more-quest" data-hero-anim="4">See more <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
+          </div>
         </div>
       </article>
 
-      <!-- 03 — SPAW: The Concert -->
-      <article class="hero-slide" data-hero-slide
+      <!-- 03 — SPAW Global Concert -->
+      <article class="hero-slide hero-slide--spaw" data-hero-slide
                data-hero-image="assets/images/spaw-concert.svg"
-               data-hero-image-alt="Symphony of Praise and Worship concert artwork: stage beams over a congregation with raised hands"
+               data-hero-image-alt="SPAW Global Concert artwork: stage beams over a congregation with raised hands"
                data-hero-focus="center"
                data-hero-tone="graphic"
                aria-roledescription="slide"
-               aria-label="Slide 3 of 3: Symphony of Praise and Worship, the concert">
+               aria-label="Slide 3 of 3: SPAW Global Concert with Dr AjokeSings">
         <div class="hero-slide__slats" data-hero-slats></div>
         <div class="hero-slide__scrim"></div>
+        <div class="hero-side" aria-hidden="true">
+          <div class="hero-side__photo" style="--side-focus: 50% 30%"><img src="assets/images/symphony-hero.jpg" alt="" loading="lazy" decoding="async"></div>
+          <span class="hero-side__mark" data-hero-anim="4">2026</span>
+          <p class="hero-side__caption" data-hero-anim="3"><span>SPAW Global Concert with Dr AjokeSings</span><em>A global symphony of praise and worship.</em></p>
+        </div>
         <div class="hero__content">
-          <div class="hero__title-block">
-            <p class="hero__eyebrow" data-hero-anim="1">Symphony of Praise &amp; Worship &middot; The Concert</p>
+          <div class="hero__title-block hero__desk">
+            <p class="hero__eyebrow" data-hero-anim="1">Symphony of Praise &amp; Worship &middot; Global Concert</p>
             <h2 class="hero__title display" data-hero-anim="2">A night the city <em>sings back.</em></h2>
             <p class="hero__lede" data-hero-anim="3">Eight hundred voices, a fourteen-piece house band, and one long room with no stage &mdash; only an altar.</p>
           </div>
-          <div class="hero__meta" data-hero-anim="4">
+          <div class="hero__phone">
+            <h2 class="hero__spaw" data-hero-anim="1">
+              <span class="hero__spaw-name">Symphony of Praise<br> and Worship</span>
+              <em class="hero__spaw-event">(SPAW) Global Concert</em>
+              <span class="hero__spaw-with">with Dr AjokeSings</span>
+            </h2>
+            <a href="events?register=event-004" class="btn btn-solid hero__register" data-hero-anim="2">Register here</a>
+            <p class="hero__phone-text" data-hero-anim="3">Dr AjokeSings, Nigerian gospel music minister, hosts the SPAW Global Concert: a night of praise and worship, free to attend.</p>
+            <p class="hero__phone-when" data-hero-anim="3">Sat 28 Nov 2026 &middot; Regal Hall, Lagos</p>
+            <a href="symphony#concert" class="hero__more" data-hero-more="spaw-more-concert" data-hero-anim="4">See more <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
+          </div>
+          <div class="hero__meta hero__desk" data-hero-anim="4">
             <div class="hero__now-playing">
               <span class="dot" aria-hidden="true"></span>
               Tickets open
@@ -242,7 +279,7 @@
           <button type="button" data-hero-goto="2">
             <span class="hero__rail-num">03</span>
             <span class="hero__rail-track" aria-hidden="true"><span class="hero__rail-fill"></span></span>
-            <span class="hero__rail-label">SPAW Concert</span>
+            <span class="hero__rail-label">SPAW Global Concert</span>
           </button>
         </li>
       </ol>
@@ -265,6 +302,59 @@
 
     <p class="sr-only" role="status" aria-live="polite" data-hero-live></p>
   </section>
+
+  <!-- ============================= SPAW "SEE MORE" SHEETS =============================
+       Opened by "See more" on the SPAW slides (phones; hero.js). Kept outside
+       the hero so a swipe or an arrow key inside an open sheet never changes
+       the slide. Without JS, "See more" is a plain link to the Symphony page. -->
+  <dialog class="spaw-sheet" id="spaw-more-quest" aria-labelledby="spaw-more-quest-title" data-hero-sheet>
+    <div class="spaw-sheet__inner">
+      <button class="spaw-sheet__close" type="button" data-sheet-close aria-label="Close"><svg aria-hidden="true"><use href="#icon-close"/></svg></button>
+      <p class="spaw-sheet__eyebrow">Symphony of Praise and Worship</p>
+      <h2 class="spaw-sheet__title" id="spaw-more-quest-title"><em>(SPAW) Talent Quest</em> <span>with Dr AjokeSings</span></h2>
+      <p class="spaw-sheet__tagline">Lend a voice.</p>
+      <p class="spaw-sheet__text">The Talent Quest is how new voices reach the SPAW stage. Vocalists, songwriters, instrumentalists and producers apply with their own material, and the Quest itself is held live at Regal Hall, Daystar Christian Center, the day before the SPAW Global Concert. Every applicant hears back, whichever way the answer goes.</p>
+      <ul class="spaw-sheet__gives" aria-label="What the Quest gives">
+        <li><strong>Funded studio time</strong>Studio days toward one original recording.</li>
+        <li><strong>The SPAW stage</strong>A performance slot at the SPAW Global Concert.</li>
+        <li><strong>Released properly</strong>Mixed, mastered and released on the streaming platforms under your own name.</li>
+        <li><strong>Photography and artwork</strong>A photo and video session, plus cover artwork.</li>
+      </ul>
+      <dl class="spaw-sheet__facts">
+        <div><dt>Date</dt><dd>Friday 27 November 2026</dd></div>
+        <div><dt>Time</dt><dd>To be announced</dd></div>
+        <div><dt>Venue</dt><dd>Regal Hall, Daystar Christian Center, Oregun, Ikeja, Lagos</dd></div>
+        <div><dt>Applications close</dt><dd>1 November 2026</dd></div>
+      </dl>
+      <div class="spaw-sheet__actions">
+        <a href="symphony#apply" class="btn btn-solid hero__register">Register here</a>
+        <a href="symphony#quest" class="spaw-sheet__link">Full details on the Symphony page <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="spaw-sheet" id="spaw-more-concert" aria-labelledby="spaw-more-concert-title" data-hero-sheet>
+    <div class="spaw-sheet__inner">
+      <button class="spaw-sheet__close" type="button" data-sheet-close aria-label="Close"><svg aria-hidden="true"><use href="#icon-close"/></svg></button>
+      <p class="spaw-sheet__eyebrow">Symphony of Praise and Worship</p>
+      <h2 class="spaw-sheet__title" id="spaw-more-concert-title"><em>(SPAW) Global Concert</em> <span>with Dr AjokeSings</span></h2>
+      <p class="spaw-sheet__tagline">A global symphony of praise and worship.</p>
+      <!-- A stand-in until the client sends their own write-up; the Symphony
+           page shows the same paragraph (DB.symphony.concert.description in
+           js/data.js), so change the two together. -->
+      <p class="spaw-sheet__text">Dr AjokeSings, Nigerian gospel music minister, hosts the SPAW Global Concert. On Saturday 28 November 2026 she leads a night of praise and worship at Regal Hall, Daystar Christian Center, Oregun, Ikeja, Lagos, joined by the new voices found at the SPAW Talent Quest the day before. Entry is free; registration is required.</p>
+      <dl class="spaw-sheet__facts">
+        <div><dt>Date</dt><dd>Saturday 28 November 2026</dd></div>
+        <div><dt>Time</dt><dd>To be announced</dd></div>
+        <div><dt>Venue</dt><dd>Regal Hall, Daystar Christian Center, Oregun, Ikeja, Lagos</dd></div>
+        <div><dt>Admission</dt><dd>Free entry, registration required</dd></div>
+      </dl>
+      <div class="spaw-sheet__actions">
+        <a href="events?register=event-004" class="btn btn-solid hero__register">Register here</a>
+        <a href="symphony#concert" class="spaw-sheet__link">Full details on the Symphony page <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
+      </div>
+    </div>
+  </dialog>
   <!-- ============================= ARTIST STATEMENT ============================= -->
   <section class="section statement section--light" aria-label="Artist statement">
     <div class="wrap">
@@ -412,7 +502,7 @@
       <div class="symphony-banner__dates" data-reveal="fade-up">
         <div><strong>Nov 1</strong>Applications close</div>
         <div><strong>Nov 27</strong>SPAW Talent Quest</div>
-        <div><strong>Nov 28</strong>SPAW Concert</div>
+        <div><strong>Nov 28</strong>SPAW Global Concert</div>
       </div>
     </div>
   </section>

@@ -305,7 +305,7 @@ const DB = {
 
     concert: {
       eventId: "event-004",
-      name: "Symphony of Praise & Worship — The Concert",
+      name: "SPAW Global Concert with Dr AjokeSings",
       date: "2026-11-28",
       doors: null,
       start: null,
@@ -313,7 +313,10 @@ const DB = {
       city: "Oregun, Ikeja, Lagos",
       capacity: 800,
       admission: "Free entry — registration required",
-      description: "One long room, a fourteen-piece house band, and eight hundred people who came to sing rather than to watch. The set runs without an interval, moving from the Covenant material through to the new songs, and the Talent Quest finalists open the night on the same stage and the same band.",
+      // A stand-in until the client sends their own write-up. The "See more"
+      // sheet on the homepage's concert slide (index.html) carries the same
+      // paragraph, so change the two together.
+      description: "Dr AjokeSings, Nigerian gospel music minister, hosts the SPAW Global Concert. On Saturday 28 November 2026 she leads a night of praise and worship at Regal Hall, Daystar Christian Center, Oregun, Ikeja, Lagos, joined by the new voices found at the SPAW Talent Quest the day before. Entry is free; registration is required.",
       highlights: [
         { title: "The house band", body: "Fourteen pieces — strings, horns, talking drum, and the rhythm section that cut Covenant live in Lagos." },
         { title: "One continuous set", body: "No interval and no support slot in the usual sense. The room stays in it from the first note to the last." },
@@ -328,7 +331,7 @@ const DB = {
       description: "Four tracks, one cohort, and one clear prize: your own recording, finished properly, and a place on the Symphony stage in front of a full house. The Quest is held live at Regal Hall, Daystar Christian Center, the day before the concert, and every applicant hears back, whichever way the answer goes.",
       benefits: [
         { title: "Funded studio time", body: "Studio days toward one original recording, cut with the Symphony house team in Lagos." },
-        { title: "The Symphony stage", body: "A performance slot at the Symphony concert, backed by the full fourteen-piece band." },
+        { title: "The Symphony stage", body: "A performance slot at the SPAW Global Concert, backed by the full fourteen-piece band." },
         { title: "Released properly", body: "Your finished recording mixed, mastered, and released across the streaming platforms under your own name." },
         { title: "Photography & artwork", body: "A photo and video session plus cover artwork, so the song arrives looking like itself." },
       ],
@@ -379,7 +382,7 @@ const DB = {
     },
     {
       id: "event-004",
-      name: "Symphony of Praise & Worship — The Concert",
+      name: "SPAW Global Concert with Dr AjokeSings",
       venue: "Regal Hall, Daystar Christian Center",
       city: "Oregun, Ikeja, Lagos",
       date: "2026-11-28",
@@ -619,7 +622,7 @@ const api = {
   // SPAW is Talent Quest; a performance at SPAW is the concert.
   _videoCategory(title) {
     if (/audition|interview|talent quest/i.test(title)) return "Talent Quest";
-    if (/\bSPAW\b|symphony of praise/i.test(title)) return "SPAW Concert";
+    if (/\bSPAW\b|symphony of praise/i.test(title)) return "SPAW Global Concert";
     if (/\blive\b|performance/i.test(title)) return "Live";
     return "Music";
   },

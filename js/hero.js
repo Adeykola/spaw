@@ -46,6 +46,7 @@
   let busy = false;
   let paused = reducedMotion;      // reduced motion never auto-advances
   let pausedByPointer = false;
+  let pausedBySheet = false;       // a SPAW "See more" sheet is open
   let started = false;
 
   /* -------------------------------------------------------------------
@@ -113,9 +114,12 @@
     sweep.classList.add("is-firing");
   }
 
+  // The SPAW slides hold a desktop and a phone headline; announce the one
+  // actually on screen.
   function slideLabel(slide) {
-    const title = slide.querySelector(".hero__title");
-    return title ? title.textContent.trim() : "";
+    const titles = Array.from(slide.querySelectorAll(".hero__title, .hero__spaw"));
+    const title = titles.find((t) => t.getClientRects().length) || titles[0];
+    return title ? title.textContent.replace(/\s+/g, " ").trim() : "";
   }
 
   /* -------------------------------------------------------------------
@@ -179,12 +183,12 @@
    * ----------------------------------------------------------------- */
   function schedule() {
     window.clearTimeout(timer);
-    if (paused || pausedByPointer || !started || slides.length < 2) return;
+    if (paused || pausedByPointer || pausedBySheet || !started || slides.length < 2) return;
     timer = window.setTimeout(next, AUTOPLAY_MS);
   }
 
   function syncPausedClass() {
-    root.classList.toggle("is-paused", paused || pausedByPointer);
+    root.classList.toggle("is-paused", paused || pausedByPointer || pausedBySheet);
   }
 
   function setPaused(value) {
@@ -273,11 +277,57 @@
     touchX = null;
   }, { passive: true });
 
+  /* ---- "See more" sheets (SPAW slides, phones) ----
+   * Each is a modal <dialog> kept outside the hero, so a swipe or an arrow
+   * key inside an open sheet never reaches the slideshow, which holds while
+   * one is open. Where <dialog> is unsupported the link is left alone and
+   * goes to the Symphony page, which is where its href points. */
+  const setSheetPause = (value) => {
+    pausedBySheet = value;
+    syncPausedClass();
+    schedule();
+  };
+  root.querySelectorAll("[data-hero-more]").forEach((link) => {
+    const sheet = document.getElementById(link.dataset.heroMore);
+    if (!sheet || typeof sheet.showModal !== "function") return;
+    link.setAttribute("aria-haspopup", "dialog");
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      setSheetPause(true);
+      sheet.showModal();
+    });
+  });
+  document.querySelectorAll("[data-hero-sheet]").forEach((sheet) => {
+    // Slides back down before it closes; reduced motion just closes.
+    const dismiss = () => {
+      if (!sheet.open || sheet.classList.contains("is-closing")) return;
+      if (reducedMotion) { sheet.close(); return; }
+      sheet.classList.add("is-closing");
+      window.setTimeout(() => sheet.close(), 280);
+    };
+    sheet.querySelector("[data-sheet-close]")?.addEventListener("click", dismiss);
+    // A tap on the dimmed page behind lands on the <dialog> itself.
+    sheet.addEventListener("click", (e) => { if (e.target === sheet) dismiss(); });
+    sheet.addEventListener("cancel", (e) => { e.preventDefault(); dismiss(); });
+    sheet.addEventListener("close", () => {
+      sheet.classList.remove("is-closing");
+      setSheetPause(false);
+    });
+  });
+
   let resizeTimer;
   window.addEventListener("resize", () => {
     window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(buildSlats, 220);
   });
+
+  // The portraits beside the SPAW slides on phones are lazy images, so a
+  // desktop never downloads them; a phone fetches them once the hero is
+  // running, so each is ready before its slide comes round.
+  function warmSidePhotos() {
+    if (!window.matchMedia("(max-width: 680px)").matches) return;
+    root.querySelectorAll(".hero-side img").forEach((img) => { new Image().src = img.src; });
+  }
 
   /* -------------------------------------------------------------------
    * Start — held until the cinematic intro finishes, so the first
@@ -290,6 +340,7 @@
     root.classList.add("is-live");
     restartRail(railItems[0]);
     setPaused(paused);
+    warmSidePhotos();
   }
 
   const intro = document.querySelector("[data-intro]");

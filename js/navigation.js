@@ -101,10 +101,27 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll, { passive: true });
 
-  /* ---- Mobile nav drawer ---- */
+  // Pages are linked without ".html" (clean URLs), but a visitor can still
+  // land on /contact.html or /index.html, so paths are compared with those
+  // endings, and any trailing slash, taken off.
+  const pagePath = (p) => p.replace(/\.html$/, "").replace(/\/index$/, "/").replace(/(.)\/$/, "$1");
+
+  /* ---- Mobile nav drawer ----
+   * Slides in from the right, where the menu button sits (main.css). Each
+   * item gets its place in the list as --i, which staggers them in one
+   * after another, and the page you are on is marked, as the desktop nav
+   * marks it, with aria-current. */
   const toggle = document.querySelector("[data-menu-toggle]");
   const mobileNav = document.querySelector("[data-mobile-nav]");
   if (toggle && mobileNav) {
+    const here = pagePath(window.location.pathname);
+    mobileNav.querySelectorAll(".mobile-nav__list li").forEach((li, i) => {
+      li.style.setProperty("--i", String(i));
+      const link = li.querySelector("a[href]");
+      if (link && pagePath(new URL(link.getAttribute("href"), window.location.href).pathname) === here) {
+        link.setAttribute("aria-current", "page");
+      }
+    });
     const closeMenu = () => {
       toggle.setAttribute("aria-expanded", "false");
       mobileNav.classList.remove("is-open");
@@ -160,11 +177,6 @@
       target.addEventListener("blur", () => target.removeAttribute("tabindex"), { once: true });
     }
   }
-
-  // Pages are linked without ".html" (clean URLs), but a visitor can still
-  // land on /contact.html or /index.html, so paths are compared with those
-  // endings, and any trailing slash, taken off.
-  const pagePath = (p) => p.replace(/\.html$/, "").replace(/\/index$/, "/").replace(/(.)\/$/, "$1");
 
   document.addEventListener("click", (e) => {
     const link = e.target.closest('a[href*="#"]');

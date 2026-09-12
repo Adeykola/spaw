@@ -36,7 +36,7 @@ async function renderSymphonyInfo() {
       datesEl.replaceChildren(
         el("div", {}, [el("strong", { text: fmt(info.applicationCloses) }), el("span", { text: "Applications close" })]),
         el("div", {}, [el("strong", { text: fmt(info.questDate) }), el("span", { text: "Talent Quest" })]),
-        el("div", {}, [el("strong", { text: fmt(info.concert.date) }), el("span", { text: "The Concert" })])
+        el("div", {}, [el("strong", { text: fmt(info.concert.date) }), el("span", { text: "Global Concert" })])
       );
     }
 
@@ -123,7 +123,7 @@ function renderQuest(quest, info, fmt) {
       ["Applications open", fmt(info.applicationOpens)],
       ["Applications close", fmt(info.applicationCloses)],
       ["SPAW Talent Quest", fmt(info.questDate)],
-      ["SPAW Concert", fmt(info.concert.date)],
+      ["SPAW Global Concert", fmt(info.concert.date)],
     ];
     datesEl.replaceChildren(
       ...rows.map(([label, value]) =>
