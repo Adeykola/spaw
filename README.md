@@ -26,7 +26,7 @@ Then visit the address it prints. When hosting, GitHub Pages and Netlify map cle
 | `events.html` | Full calendar, registration with QR code and `.ics` download |
 | `about.html` | Story, timeline, principles, recognition |
 | `contact.html` | Contact and booking as one form with two modes |
-| `admin.html` | Login-gated dashboard: analytics, CRUD, registrations, enquiries, applicants, check-in |
+| `admin.html` | The admin: sign-in with roles; Pages and "Edit this page" for every word, link and picture; header, menus and footer; drafts with preview, publishing and history; media library; people & roles; activity log; dashboard and inbox screens |
 
 ## Architecture
 
@@ -37,10 +37,20 @@ Then visit the address it prints. When hosting, GitHub Pages and Netlify map cle
 - **Progressive enhancement throughout.** GSAP and the QR library are both optional — if either CDN fails the page still works. The intro film, hero slideshow, and all scroll animation respect `prefers-reduced-motion`.
 - **Design system** lives in `css/main.css` as custom properties: warm near-black, warm white, one wine red used sparingly, a fluid type scale pairing Instrument Serif with Manrope.
 
+- **`js/backend.js`** is the one place the site talks to storage, in one of two modes. With [`js/config.js`](js/config.js) empty it runs in *demo mode* (everything in this browser's `localStorage`); with a Supabase project named there it runs *live* (content, logins and uploads in Supabase, guarded by the database's rules). Every admin screen uses the same methods either way.
+- **`js/content.js`** makes the public pages editable. The words stay in the HTML as the originals; on load it finds every editable word, link, picture and section, keys each one by page / section / position, and applies whatever has been published. Each edit remembers a fingerprint of the words it replaced, so if the code later changes those words the edit is held back for review instead of landing on the wrong line. Published collections (songs, events…) replace the matching part of `DB` before any page reads it.
+- **`js/editor.js`** ("Edit this page") loads only for signed-in admins: click words or pictures on any page to change them, hide sections, set the page's title and share picture, then save a draft or publish.
+- **The admin** is `admin-core.js` (sign-in, roles, the sidebar and shared toolkit), `admin-site.js` (Pages, Header/menus/footer, Publish & history, Media library), `admin-team.js` (People & roles, Activity log) and `admin.js` (the song, event and inbox screens that phase two moves onto the same system).
+
 ## Admin
 
-`admin.html`, prototype credentials `admin` / `symphony2026`. This is a demo gate to show the login → session → management journey, not production authentication.
+`/admin`. Three roles: **Owner** (everything, including people), **Editor** (edits and publishes the site) and **Team** (inbox, applicants, registrations, check-in).
+
+- **Demo mode** (no Supabase set in `js/config.js`): sign in with `admin` / `symphony2026`. Everything is kept in that browser only; visitors don't see it.
+- **Live**: follow [`supabase/README.md`](supabase/README.md). The Owner is set in the setup script, adds everyone else under People & roles, and each person signs in with their own email and password.
+
+Edits are drafts until published; *Preview* shows the site with drafts applied (only to a signed-in admin), and every publish is kept in *Publish & history*, where an earlier version can be brought back as drafts.
 
 ## Prototype boundaries
 
-Media in `assets/` is placeholder, streaming links are stubs, admin edits save to `localStorage` and do not yet feed the public pages, and the CRUD panels create and delete but do not update.
+Media in `assets/` is placeholder and streaming links are stubs. The song, album, video, event and artist screens, and the inbox screens, still keep their own lists in the browser: phase two of the admin moves them onto drafts, publishing and the database, with full editing.

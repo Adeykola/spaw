@@ -18,24 +18,50 @@
 </head>
 <body class="admin-body">
 
-<!-- ============================= LOGIN GATE ============================= -->
-<section class="admin-login" data-admin-login>
+<!-- ============================= SIGN IN ============================= -->
+<section class="admin-login" data-admin-login hidden>
   <div class="admin-login__card">
     <p class="admin-login__mark"><span class="sig sig--autoplay" aria-hidden="true"><span class="sig__text">DrAjoke<span class="sig__accent">Sings</span></span><span class="sig__nib"></span><svg class="sig__flourish" viewBox="0 0 240 18" preserveAspectRatio="none" focusable="false"><path class="sig__stroke" pathLength="1" d="M236 1.5 C 232 8, 218 12.5, 195 13.2 C 158 14.4, 116 10.2, 76 11.4 C 46 12.3, 21 14.8, 4 17"/><path class="sig__echo" pathLength="1" d="M236 1.5 C 232 8, 218 12.5, 195 13.2 C 158 14.4, 116 10.2, 76 11.4 C 46 12.3, 21 14.8, 4 17"/></svg></span><span class="sr-only">Dr AjokeSings</span><span class="admin-login__role">Admin</span></p>
-    <p class="admin-login__sub">Sign in to manage the site.</p>
-    <form data-admin-login-form novalidate>
-      <p class="form-error-banner" data-login-error role="alert"></p>
-      <div class="field">
-        <label for="admin-username">Username</label>
-        <input type="text" id="admin-username" autocomplete="username" value="admin">
-      </div>
-      <div class="field">
-        <label for="admin-password">Password</label>
-        <input type="password" id="admin-password" autocomplete="current-password">
-      </div>
-      <button type="submit" class="btn btn-solid" style="justify-content:center;">Sign in</button>
+
+    <form class="admin-auth" data-auth-form="signin" novalidate>
+      <p class="admin-login__sub">Sign in to manage the site.</p>
+      <p class="admin-auth__note" data-auth-note role="alert"></p>
+      <div class="field"><label for="signin-email">Email</label><input type="text" id="signin-email" name="email" autocomplete="username" inputmode="email" required></div>
+      <div class="field"><label for="signin-password">Password</label><input type="password" id="signin-password" name="password" autocomplete="current-password" required></div>
+      <button type="submit" class="btn btn-solid">Sign in</button>
+      <p class="admin-auth__links">
+        <button type="button" data-auth-switch="signup">First time here? Create your password</button>
+        <button type="button" data-auth-switch="reset">Forgot your password?</button>
+      </p>
     </form>
-    <p class="admin-login__hint">Prototype credentials — username <strong>admin</strong>, password <strong>symphony2026</strong>. This is a demo gate only, not production authentication.</p>
+
+    <form class="admin-auth" data-auth-form="signup" novalidate hidden>
+      <p class="admin-login__sub">First time here? Use the email the site's Owner added for you, and choose a password.</p>
+      <p class="admin-auth__note" data-auth-note role="alert"></p>
+      <div class="field"><label for="signup-email">Email</label><input type="text" id="signup-email" name="email" autocomplete="username" inputmode="email" required></div>
+      <div class="field"><label for="signup-password">Choose a password</label><input type="password" id="signup-password" name="password" autocomplete="new-password" minlength="8" required></div>
+      <div class="field"><label for="signup-confirm">Type it again</label><input type="password" id="signup-confirm" name="confirm" autocomplete="new-password" minlength="8" required></div>
+      <button type="submit" class="btn btn-solid">Create password</button>
+      <p class="admin-auth__links"><button type="button" data-auth-switch="signin">Back to sign in</button></p>
+    </form>
+
+    <form class="admin-auth" data-auth-form="reset" novalidate hidden>
+      <p class="admin-login__sub">Enter your email and we'll send a link to choose a new password.</p>
+      <p class="admin-auth__note" data-auth-note role="alert"></p>
+      <div class="field"><label for="reset-email">Email</label><input type="text" id="reset-email" name="email" autocomplete="username" inputmode="email" required></div>
+      <button type="submit" class="btn btn-solid">Send the link</button>
+      <p class="admin-auth__links"><button type="button" data-auth-switch="signin">Back to sign in</button></p>
+    </form>
+
+    <form class="admin-auth" data-auth-form="recover" novalidate hidden>
+      <p class="admin-login__sub">Choose a new password.</p>
+      <p class="admin-auth__note" data-auth-note role="alert"></p>
+      <div class="field"><label for="recover-password">New password</label><input type="password" id="recover-password" name="password" autocomplete="new-password" minlength="8" required></div>
+      <div class="field"><label for="recover-confirm">Type it again</label><input type="password" id="recover-confirm" name="confirm" autocomplete="new-password" minlength="8" required></div>
+      <button type="submit" class="btn btn-solid">Save the new password</button>
+    </form>
+
+    <p class="admin-login__hint" data-demo-hint hidden>Demo mode: this site isn't connected to Supabase yet, so everything stays in this browser. Sign in with <strong>admin</strong> and <strong>symphony2026</strong>.</p>
   </div>
 </section>
 
@@ -43,38 +69,27 @@
 <div class="admin-shell" data-admin-shell hidden>
   <aside class="admin-sidebar">
     <p class="admin-sidebar__brand"><span class="sig sig--autoplay" aria-hidden="true"><span class="sig__text">DrAjoke<span class="sig__accent">Sings</span></span><span class="sig__nib"></span><svg class="sig__flourish" viewBox="0 0 240 18" preserveAspectRatio="none" focusable="false"><path class="sig__stroke" pathLength="1" d="M236 1.5 C 232 8, 218 12.5, 195 13.2 C 158 14.4, 116 10.2, 76 11.4 C 46 12.3, 21 14.8, 4 17"/><path class="sig__echo" pathLength="1" d="M236 1.5 C 232 8, 218 12.5, 195 13.2 C 158 14.4, 116 10.2, 76 11.4 C 46 12.3, 21 14.8, 4 17"/></svg></span><span class="sr-only">Dr AjokeSings</span></p>
-    <nav class="admin-nav" aria-label="Admin sections">
-      <p class="admin-nav__group-label">Overview</p>
-      <button type="button" data-panel-link="dashboard" aria-current="true">Dashboard &amp; Analytics</button>
-
-      <p class="admin-nav__group-label">Content</p>
-      <button type="button" data-panel-link="music">Music</button>
-      <button type="button" data-panel-link="albums">Albums</button>
-      <button type="button" data-panel-link="videos">Videos</button>
-      <button type="button" data-panel-link="homepage">Homepage Content</button>
-      <button type="button" data-panel-link="bio">Artist Bio</button>
-      <button type="button" data-panel-link="ministry">Ministry Content</button>
-
-      <p class="admin-nav__group-label">Community</p>
-      <button type="button" data-panel-link="events">Events</button>
-      <button type="button" data-panel-link="registrations">Registrations</button>
-      <button type="button" data-panel-link="enquiries">Contact &amp; Bookings</button>
-      <button type="button" data-panel-link="talent">Talent Applicants</button>
-      <button type="button" data-panel-link="emerging">Emerging Artists</button>
-
-      <p class="admin-nav__group-label">Tools</p>
-      <button type="button" data-panel-link="checkin">Event Check-in</button>
-    </nav>
+    <nav class="admin-nav" aria-label="Admin sections" data-admin-nav></nav>
     <div class="admin-sidebar__foot">
-      <a href="./" style="color:var(--gray-on-dark);">&larr; View site</a><br>
-      <button type="button" data-admin-logout style="margin-top:0.5rem;">Sign out</button>
+      <p class="admin-me" data-admin-me></p>
+      <a href="./" class="admin-sidebar__link">&larr; View site</a>
+      <button type="button" class="admin-sidebar__link" data-admin-logout>Sign out</button>
     </div>
   </aside>
 
   <main class="admin-main">
+    <p class="admin-mode-banner" data-mode-banner hidden></p>
+
+    <!-- Website screens (admin-site.js, admin-team.js render these) -->
+    <section class="admin-panel" data-panel="pages" hidden></section>
+    <section class="admin-panel" data-panel="site" hidden></section>
+    <section class="admin-panel" data-panel="publish" hidden></section>
+    <section class="admin-panel" data-panel="media" hidden></section>
+    <section class="admin-panel" data-panel="people" hidden></section>
+    <section class="admin-panel" data-panel="activity" hidden></section>
 
     <!-- Dashboard / Analytics -->
-    <section class="admin-panel" data-panel="dashboard">
+    <section class="admin-panel" data-panel="dashboard" hidden>
       <div class="admin-panel__head">
         <div><h1 class="admin-panel__title display">Dashboard</h1><p class="admin-panel__sub">Visitors, engagement, and event health at a glance.</p></div>
       </div>
@@ -138,63 +153,9 @@
           <form data-crud-form>
             <p class="form-error-banner" data-crud-error></p>
             <div class="field"><label>Title *</label><input type="text" name="title" required></div>
-            <div class="field"><label>Category *</label><input type="text" name="category" placeholder="Live Performance" required></div>
-            <div class="field"><label>Duration (seconds) *</label><input type="number" name="duration" min="1" required></div>
-            <div class="field"><label>Date *</label><input type="date" name="date" required></div>
+            <div class="field"><label>YouTube ID *</label><input type="text" name="youtubeId" required></div>
+            <div class="field"><label>Published *</label><input type="date" name="published" required></div>
             <button type="submit" class="btn btn-solid">Add video</button>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- Homepage content -->
-    <section class="admin-panel" data-panel="homepage" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Homepage Content</h1><p class="admin-panel__sub">Edit the hero copy visitors see first.</p></div></div>
-      <div class="admin-card" style="max-width: 560px;">
-        <form data-homepage-form>
-          <div class="field"><label for="hp-eyebrow">Hero eyebrow</label><input type="text" id="hp-eyebrow"></div>
-          <div class="field"><label for="hp-title">Hero title</label><input type="text" id="hp-title"></div>
-          <div class="field"><label for="hp-song">Now-playing song label</label><input type="text" id="hp-song"></div>
-          <div class="form-submit-row"><button type="submit" class="btn btn-solid">Save changes</button><p class="field-hint" data-save-note></p></div>
-        </form>
-      </div>
-    </section>
-
-    <!-- Artist bio -->
-    <section class="admin-panel" data-panel="bio" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Artist Bio</h1><p class="admin-panel__sub">Edit the About / artist statement content.</p></div></div>
-      <div class="admin-card" style="max-width: 560px;">
-        <form data-bio-form>
-          <div class="field"><label for="bio-text">Biography</label><textarea id="bio-text" style="min-height:140px;"></textarea></div>
-          <div class="field"><label for="bio-quote">Pull quote</label><textarea id="bio-quote"></textarea></div>
-          <div class="form-grid">
-            <div class="field"><label for="bio-stat1">Years in ministry</label><input type="text" id="bio-stat1"></div>
-            <div class="field"><label for="bio-stat2">Original songs</label><input type="text" id="bio-stat2"></div>
-            <div class="field field--full"><label for="bio-stat3">Nations reached</label><input type="text" id="bio-stat3"></div>
-          </div>
-          <div class="form-submit-row"><button type="submit" class="btn btn-solid">Save changes</button><p class="field-hint" data-save-note></p></div>
-        </form>
-      </div>
-    </section>
-
-    <!-- Ministry content -->
-    <section class="admin-panel" data-panel="ministry" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Ministry Content</h1><p class="admin-panel__sub">Mission statement and downloadable resources.</p></div></div>
-      <div class="admin-card" style="max-width: 640px; margin-bottom: var(--space-l);">
-        <form data-ministry-form>
-          <div class="field"><label for="ministry-mission">Mission statement</label><textarea id="ministry-mission" style="min-height:110px;"></textarea></div>
-          <div class="form-submit-row"><button type="submit" class="btn btn-solid">Save changes</button><p class="field-hint" data-save-note></p></div>
-        </form>
-      </div>
-      <div class="admin-layout">
-        <div data-resource-table></div>
-        <div class="admin-card">
-          <p class="admin-card__title">Add a resource</p>
-          <form data-resource-form>
-            <div class="field"><label for="res-title">Title *</label><input type="text" id="res-title" required></div>
-            <div class="field"><label for="res-type">Type</label><input type="text" id="res-type" placeholder="PDF"></div>
-            <div class="field"><label for="res-size">File size</label><input type="text" id="res-size" placeholder="1.2 MB"></div>
-            <button type="submit" class="btn btn-solid">Add resource</button>
           </form>
         </div>
       </div>
@@ -302,9 +263,17 @@
   </main>
 </div>
 
+<div class="admin-toasts" data-toasts></div>
+
+<script src="js/config.js"></script>
 <script src="js/data.js"></script>
+<script src="js/backend.js"></script>
+<script src="js/content.js"></script>
 <script src="js/app.js"></script>
 <script src="js/analytics.js"></script>
+<script src="js/admin-core.js"></script>
 <script src="js/admin.js"></script>
+<script src="js/admin-site.js"></script>
+<script src="js/admin-team.js"></script>
 </body>
 </html>

@@ -1,91 +1,15 @@
 /**
  * admin.js
  * ----------------------------------------------------------------------
- * Drives admin.html end to end: prototype login -> sidebar-routed panels
- * -> content management backed by localStorage (via Store from data.js).
- * Every collection panel (Music/Albums/Videos/Emerging/Events) shares one
- * small CRUD engine so the pattern stays consistent and easy to extend
- * when a real backend replaces Store.
+ * The admin screens that came before the content system: the song,
+ * album, video, event and artist lists, and the inbox screens
+ * (registrations, enquiries, applicants, check-in). The lists still keep
+ * their own copy in this browser; phase two of the admin moves them onto
+ * the same drafts, publishing and database as the Pages screen.
+ * admin-core.js signs people in and shows these screens; they register
+ * themselves at the bottom of this file.
  * ----------------------------------------------------------------------
  */
-document.addEventListener("DOMContentLoaded", async () => {
-  wireLogin();
-  const session = await api.getAdminSession();
-  if (session) enterShell();
-});
-
-/* ---------------------------------------------------------------------
- * Auth gate
- * ------------------------------------------------------------------- */
-function wireLogin() {
-  const form = document.querySelector("[data-admin-login-form]");
-  if (!form) return;
-  const errorEl = form.querySelector("[data-login-error]");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const submitBtn = form.querySelector("button[type='submit']");
-    const username = form.querySelector("#admin-username").value;
-    const password = form.querySelector("#admin-password").value;
-    errorEl.textContent = "";
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Signing in\u2026";
-
-    try {
-      await api.adminLogin(username, password);
-      enterShell();
-    } catch (err) {
-      errorEl.textContent = err.message;
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Sign in";
-    }
-  });
-
-  document.querySelector("[data-admin-logout]")?.addEventListener("click", () => {
-    api.adminLogout();
-    window.location.reload();
-  });
-}
-
-function enterShell() {
-  document.querySelector("[data-admin-login]")?.setAttribute("hidden", "");
-  const shell = document.querySelector("[data-admin-shell]");
-  if (shell) shell.hidden = false;
-  wireSidebar();
-  activatePanel("dashboard");
-}
-
-/* ---------------------------------------------------------------------
- * Sidebar routing
- * ------------------------------------------------------------------- */
-function wireSidebar() {
-  document.querySelectorAll("[data-panel-link]").forEach((btn) => {
-    btn.addEventListener("click", () => activatePanel(btn.dataset.panelLink));
-  });
-}
-
-const panelRenderers = {
-  dashboard: () => window.renderAnalyticsDashboard?.(),
-  music: () => renderCrudPanel(musicCrudConfig),
-  albums: () => renderCrudPanel(albumsCrudConfig),
-  videos: () => renderCrudPanel(videosCrudConfig),
-  emerging: () => renderCrudPanel(emergingCrudConfig),
-  events: () => renderCrudPanel(eventsCrudConfig),
-  homepage: renderHomepagePanel,
-  bio: renderBioPanel,
-  ministry: renderMinistryAdminPanel,
-  registrations: renderRegistrationsPanel,
-  enquiries: renderEnquiriesPanel,
-  talent: renderTalentPanel,
-  checkin: wireCheckinPanel,
-};
-
-function activatePanel(name) {
-  document.querySelectorAll("[data-panel-link]").forEach((b) => b.setAttribute("aria-current", String(b.dataset.panelLink === name)));
-  document.querySelectorAll(".admin-panel").forEach((p) => { p.hidden = p.dataset.panel !== name; });
-  panelRenderers[name]?.();
-}
 
 /* ---------------------------------------------------------------------
  * Table builder
@@ -159,7 +83,7 @@ const musicCrudConfig = {
   panelKey: "music", storageKey: "tracks",
   seed: () => DB.tracks,
   columns: ["Title", "Album", "Duration", "Released", "Type", ""],
-  toRow: (t) => [t.title, t.albumId || "Single", t.duration ? `${Math.floor(t.duration / 60)}:${String(t.duration % 60).padStart(2, "0")}` : "\u2014", t.releaseDate || "\u2014", t.isSingle ? "Single" : "Album track"],
+  toRow: (t) => [t.title, t.albumId || "Single", t.duration ? `${Math.floor(t.duration / 60)}:${String(t.duration % 60).padStart(2, "0")}` : "—", t.releaseDate || "—", t.isSingle ? "Single" : "Album track"],
   fields: [
     { key: "title", type: "text", required: true },
     { key: "artist", type: "text" },
@@ -224,121 +148,6 @@ const eventsCrudConfig = {
 };
 
 /* ---------------------------------------------------------------------
- * Homepage content (single-object form)
- * ------------------------------------------------------------------- */
-function renderHomepagePanel() {
-  const panel = document.querySelector('[data-panel="homepage"]');
-  if (!panel) return;
-  const form = panel.querySelector("[data-homepage-form]");
-  if (!form || form.dataset.wired) return;
-  form.dataset.wired = "true";
-
-  const current = Store.read("admin:homepageContent", {
-    heroEyebrow: "Worship Minister \u00b7 Recording Artist \u00b7 Lagos, Nigeria",
-    heroTitle: "Worship, carried by voice.",
-    nowPlayingSong: "Alagbara",
-  });
-  form.querySelector("#hp-eyebrow").value = current.heroEyebrow;
-  form.querySelector("#hp-title").value = current.heroTitle;
-  form.querySelector("#hp-song").value = current.nowPlayingSong;
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const updated = {
-      heroEyebrow: form.querySelector("#hp-eyebrow").value.trim(),
-      heroTitle: form.querySelector("#hp-title").value.trim(),
-      nowPlayingSong: form.querySelector("#hp-song").value.trim(),
-    };
-    Store.write("admin:homepageContent", updated);
-    flashSaved(form);
-  });
-}
-
-function renderBioPanel() {
-  const panel = document.querySelector('[data-panel="bio"]');
-  if (!panel) return;
-  const form = panel.querySelector("[data-bio-form]");
-  if (!form || form.dataset.wired) return;
-  form.dataset.wired = "true";
-
-  const artist = DB.artists[0];
-  const current = Store.read("admin:bio", { bio: artist.bio, quote: artist.quote, stat1: artist.stats[0].value, stat2: artist.stats[1].value, stat3: artist.stats[2].value });
-  form.querySelector("#bio-text").value = current.bio;
-  form.querySelector("#bio-quote").value = current.quote;
-  form.querySelector("#bio-stat1").value = current.stat1;
-  form.querySelector("#bio-stat2").value = current.stat2;
-  form.querySelector("#bio-stat3").value = current.stat3;
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    Store.write("admin:bio", {
-      bio: form.querySelector("#bio-text").value.trim(),
-      quote: form.querySelector("#bio-quote").value.trim(),
-      stat1: form.querySelector("#bio-stat1").value.trim(),
-      stat2: form.querySelector("#bio-stat2").value.trim(),
-      stat3: form.querySelector("#bio-stat3").value.trim(),
-    });
-    flashSaved(form);
-  });
-}
-
-function renderMinistryAdminPanel() {
-  const panel = document.querySelector('[data-panel="ministry"]');
-  if (!panel) return;
-  const form = panel.querySelector("[data-ministry-form]");
-  const resourceForm = panel.querySelector("[data-resource-form]");
-  const resourceTable = panel.querySelector("[data-resource-table]");
-
-  const current = Store.read("admin:ministry", { missionStatement: DB.ministry.missionStatement, resources: DB.ministry.resources });
-
-  if (form && !form.dataset.wired) {
-    form.dataset.wired = "true";
-    form.querySelector("#ministry-mission").value = current.missionStatement;
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      current.missionStatement = form.querySelector("#ministry-mission").value.trim();
-      Store.write("admin:ministry", current);
-      flashSaved(form);
-    });
-  }
-
-  function drawResources() {
-    if (!resourceTable) return;
-    if (!current.resources.length) { showEmpty(resourceTable, "No resources yet."); return; }
-    const rows = current.resources.map((r, idx) => {
-      const delBtn = el("button", { class: "icon-btn", type: "button", text: "Remove" });
-      delBtn.addEventListener("click", () => { current.resources.splice(idx, 1); Store.write("admin:ministry", current); drawResources(); });
-      return [r.title, r.type, r.size, delBtn];
-    });
-    resourceTable.replaceChildren(buildTable(["Title", "Type", "Size", ""], rows));
-  }
-  drawResources();
-
-  if (resourceForm && !resourceForm.dataset.wired) {
-    resourceForm.dataset.wired = "true";
-    resourceForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const title = resourceForm.querySelector("#res-title").value.trim();
-      const type = resourceForm.querySelector("#res-type").value.trim();
-      const size = resourceForm.querySelector("#res-size").value.trim();
-      if (!title) return;
-      current.resources.push({ id: genId("RES"), title, type: type || "PDF", size: size || "\u2014" });
-      Store.write("admin:ministry", current);
-      resourceForm.reset();
-      drawResources();
-    });
-  }
-}
-
-function flashSaved(form) {
-  const note = form.querySelector("[data-save-note]");
-  if (!note) return;
-  note.textContent = "Saved.";
-  note.setAttribute("data-state", "success");
-  setTimeout(() => { note.textContent = ""; note.removeAttribute("data-state"); }, 2400);
-}
-
-/* ---------------------------------------------------------------------
  * Registrations
  * ------------------------------------------------------------------- */
 async function renderRegistrationsPanel() {
@@ -346,12 +155,12 @@ async function renderRegistrationsPanel() {
   if (!panel) return;
   const tableWrap = panel.querySelector("[data-registrations-table]");
   const searchInput = panel.querySelector("[data-registrations-search]");
-  showLoading(tableWrap, "Loading registrations\u2026");
+  showLoading(tableWrap, "Loading registrations…");
 
   try {
     const all = await api.getRegistrations();
 
-    function draw(query = "") {
+    const draw = (query = "") => {
       const q = query.toLowerCase();
       const filtered = q ? all.filter((r) => r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q)) : all;
       if (!filtered.length) { showEmpty(tableWrap, "No registrations match."); return; }
@@ -363,9 +172,9 @@ async function renderRegistrationsPanel() {
           el("span", { class: `status-pill ${r.checkedIn ? "status-pill--checked" : "status-pill--pending"}`, text: r.checkedIn ? "Checked in" : "Pending" }),
         ]);
       tableWrap.replaceChildren(buildTable(["Name", "Email", "Event", "Registered", "Status"], rows));
-    }
-    draw();
-    searchInput?.addEventListener("input", (e) => draw(e.target.value));
+    };
+    draw(searchInput ? searchInput.value : "");
+    if (searchInput) searchInput.oninput = (e) => draw(e.target.value);
   } catch (err) {
     console.error("[admin] registrations failed", err);
     showError(tableWrap, "Couldn't load registrations.", renderRegistrationsPanel);
@@ -412,24 +221,7 @@ async function renderEnquiriesPanel() {
 
     const sorted = [...enquiries].sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
 
-    const rows = sorted.map((e) => {
-      const viewBtn = el("button", { class: "icon-btn", type: "button", text: "View" });
-      viewBtn.addEventListener("click", () => showEnquiryDetail(e));
-      return [
-        e.name,
-        e.subject,
-        el("span", {
-          class: `status-pill ${e.type === "booking" ? "status-pill--received" : "status-pill--pending"}`,
-          text: e.type === "booking" ? "Booking" : "Message",
-        }),
-        e.type === "booking" && e.eventDate ? e.eventDate : "—",
-        new Date(e.submittedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
-        viewBtn,
-      ];
-    });
-    tableWrap.replaceChildren(buildTable(["Name", "Subject", "Type", "Event date", "Received", ""], rows));
-
-    function showEnquiryDetail(e) {
+    const showEnquiryDetail = (e) => {
       const pairs = [
         ["Reference", e.id],
         ["Name", e.name],
@@ -469,8 +261,24 @@ async function renderEnquiriesPanel() {
       });
 
       detail.replaceChildren(list, el("div", { style: "margin-top: var(--space-m);" }, [replyBtn]));
-    }
+    };
 
+    const rows = sorted.map((e) => {
+      const viewBtn = el("button", { class: "icon-btn", type: "button", text: "View" });
+      viewBtn.addEventListener("click", () => showEnquiryDetail(e));
+      return [
+        e.name,
+        e.subject,
+        el("span", {
+          class: `status-pill ${e.type === "booking" ? "status-pill--received" : "status-pill--pending"}`,
+          text: e.type === "booking" ? "Booking" : "Message",
+        }),
+        e.type === "booking" && e.eventDate ? e.eventDate : "—",
+        new Date(e.submittedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+        viewBtn,
+      ];
+    });
+    tableWrap.replaceChildren(buildTable(["Name", "Subject", "Type", "Event date", "Received", ""], rows));
     showEnquiryDetail(sorted[0]);
   } catch (err) {
     console.error("[admin] enquiries failed", err);
@@ -486,11 +294,26 @@ async function renderTalentPanel() {
   if (!panel) return;
   const tableWrap = panel.querySelector("[data-talent-table]");
   const detail = panel.querySelector("[data-talent-detail]");
-  showLoading(tableWrap, "Loading applicants\u2026");
+  showLoading(tableWrap, "Loading applicants…");
 
   try {
     const applications = await api.getTalentApplications();
     if (!applications.length) { showEmpty(tableWrap, "No Symphony applications yet."); return; }
+
+    const showApplicantDetail = (a) => {
+      detail.replaceChildren(
+        el("dl", {}, [
+          el("dt", { text: "Full name" }), el("dd", { text: a.fullName }),
+          el("dt", { text: "Contact" }), el("dd", { text: `${a.email} · ${a.phone}` }),
+          el("dt", { text: "Location" }), el("dd", { text: a.location }),
+          el("dt", { text: "Track" }), el("dd", { text: a.track }),
+          el("dt", { text: "Bio" }), el("dd", { text: a.bio }),
+          el("dt", { text: "Social" }), el("dd", { text: a.socialLink || "—" }),
+          el("dt", { text: "Portfolio" }), el("dd", { text: a.projectLink || "—" }),
+          el("dt", { text: "Application ID" }), el("dd", { text: a.id }),
+        ])
+      );
+    };
 
     const rows = applications.map((a) => {
       const viewBtn = el("button", { class: "icon-btn", type: "button", text: "View" });
@@ -498,21 +321,6 @@ async function renderTalentPanel() {
       return [a.fullName, a.email, a.track, new Date(a.submittedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" }), el("span", { class: "status-pill status-pill--received", text: a.status }), viewBtn];
     });
     tableWrap.replaceChildren(buildTable(["Name", "Email", "Track", "Submitted", "Status", ""], rows));
-
-    function showApplicantDetail(a) {
-      detail.replaceChildren(
-        el("dl", {}, [
-          el("dt", { text: "Full name" }), el("dd", { text: a.fullName }),
-          el("dt", { text: "Contact" }), el("dd", { text: `${a.email} \u00b7 ${a.phone}` }),
-          el("dt", { text: "Location" }), el("dd", { text: a.location }),
-          el("dt", { text: "Track" }), el("dd", { text: a.track }),
-          el("dt", { text: "Bio" }), el("dd", { text: a.bio }),
-          el("dt", { text: "Social" }), el("dd", { text: a.socialLink || "\u2014" }),
-          el("dt", { text: "Portfolio" }), el("dd", { text: a.projectLink || "\u2014" }),
-          el("dt", { text: "Application ID" }), el("dd", { text: a.id }),
-        ])
-      );
-    }
     if (applications[0]) showApplicantDetail(applications[0]);
   } catch (err) {
     console.error("[admin] talent panel failed", err);
@@ -547,14 +355,14 @@ function wireCheckinPanel() {
     if (!id) return;
     const submitBtn = form.querySelector("button[type='submit']");
     submitBtn.disabled = true;
-    submitBtn.textContent = "Verifying\u2026";
+    submitBtn.textContent = "Verifying…";
 
     try {
       const reg = await api.checkInRegistration(id);
       result.dataset.visible = "true";
       result.dataset.outcome = "success";
       result.replaceChildren(
-        el("p", { text: `\u2713 ${reg.name} checked in for ${reg.eventName}.` }),
+        el("p", { text: `✓ ${reg.name} checked in for ${reg.eventName}.` }),
         el("p", { class: "field-hint", text: `Recorded at ${new Date(reg.checkedInAt).toLocaleTimeString()}` })
       );
       form.reset();
@@ -568,3 +376,17 @@ function wireCheckinPanel() {
     }
   });
 }
+
+/* ---------------------------------------------------------------------
+ * Hand the screens to the admin frame (admin-core.js)
+ * ------------------------------------------------------------------- */
+Admin.register("dashboard", { render: () => window.renderAnalyticsDashboard && window.renderAnalyticsDashboard() });
+Admin.register("music", { render: () => renderCrudPanel(musicCrudConfig) });
+Admin.register("albums", { render: () => renderCrudPanel(albumsCrudConfig) });
+Admin.register("videos", { render: () => renderCrudPanel(videosCrudConfig) });
+Admin.register("events", { render: () => renderCrudPanel(eventsCrudConfig) });
+Admin.register("emerging", { render: () => renderCrudPanel(emergingCrudConfig) });
+Admin.register("registrations", { render: renderRegistrationsPanel });
+Admin.register("enquiries", { render: renderEnquiriesPanel });
+Admin.register("talent", { render: renderTalentPanel });
+Admin.register("checkin", { render: wireCheckinPanel });

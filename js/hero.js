@@ -321,6 +321,26 @@
     resizeTimer = window.setTimeout(buildSlats, 220);
   });
 
+  // The admin can change a slide's background (content.js): rebuild that
+  // slide's slats from the new picture.
+  root.addEventListener("content:hero-image", (e) => {
+    const holder = e.target.querySelector && e.target.querySelector("[data-hero-slats]");
+    if (holder) delete holder.dataset.built;
+    buildSlats();
+  });
+
+  // While the page is being edited ("Edit this page"), the slideshow
+  // holds still; afterwards it goes back to whatever it was doing.
+  let pausedBeforeEdit = null;
+  document.addEventListener("editor:start", () => {
+    if (pausedBeforeEdit === null) pausedBeforeEdit = paused;
+    setPaused(true);
+  });
+  document.addEventListener("editor:end", () => {
+    if (pausedBeforeEdit !== null) setPaused(pausedBeforeEdit);
+    pausedBeforeEdit = null;
+  });
+
   // The portraits beside the SPAW slides on phones are lazy images, so a
   // desktop never downloads them; a phone fetches them once the hero is
   // running, so each is ready before its slide comes round.

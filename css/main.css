@@ -80,6 +80,11 @@ body {
   overflow-x: clip;
 }
 body.no-scroll { overflow: hidden; height: 100svh; }
+/* Live mode, first visit: the page waits (a second at most, see
+   content.js) for the published words instead of showing the built-in
+   ones and swapping them. */
+.is-content-loading main,
+.is-content-loading .site-footer { opacity: 0; }
 img, picture, video { display: block; max-width: 100%; }
 input, button, textarea, select { font: inherit; color: inherit; }
 button { background: none; border: none; cursor: pointer; }

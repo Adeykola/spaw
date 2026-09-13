@@ -1,0 +1,258 @@
+/* ==========================================================================
+   "Edit this page" — the on-page editor (js/editor.js)
+   Loaded only for signed-in admins, so visitors never download it. Every
+   rule is namespaced .edit-* or scoped to html.is-editing.
+   ========================================================================== */
+
+.edit-ui,
+.edit-ui * { box-sizing: border-box; }
+.edit-ui {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* ---- Buttons ---- */
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s;
+}
+.edit-btn:hover { border-color: currentColor; }
+.edit-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.edit-btn[disabled] { opacity: 0.4; cursor: default; }
+.edit-btn.is-primary { background: var(--red); border-color: var(--red); color: var(--paper); }
+.edit-btn.is-primary:hover { background: var(--red-bright); border-color: var(--red-bright); }
+.edit-btn.is-danger { color: var(--red); border-color: color-mix(in srgb, var(--red) 55%, transparent); }
+.edit-btn--em { font-family: var(--font-display); font-size: 16px; font-style: italic; font-weight: 400; color: var(--red); }
+.edit-btn--b { font-weight: 800; }
+
+/* ---- Dock (not editing) ---- */
+.edit-dock {
+  position: fixed;
+  left: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 2000;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100vw - 32px);
+}
+.edit-dock[hidden] { display: none; }
+.edit-dock .edit-btn {
+  border-radius: 999px;
+  padding: 9px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  border-color: color-mix(in srgb, var(--gold) 70%, transparent);
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.7);
+  font-size: 13px;
+  text-decoration: none;
+}
+.edit-dock .edit-dock__main { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+.edit-dock__short { display: none; }
+@media (max-width: 680px) {
+  .edit-dock { left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); flex-wrap: nowrap; }
+  .edit-dock .edit-btn { padding: 7px 11px; font-size: 12px; }
+  .edit-dock__long { display: none; }
+  .edit-dock__short { display: inline; }
+}
+
+/* ---- The editing bar ---- */
+.edit-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink);
+  color: var(--paper);
+  border-top: 2px solid var(--gold);
+  box-shadow: 0 -12px 30px -18px rgba(0, 0, 0, 0.8);
+}
+html.is-editing body { padding-bottom: 96px; }
+.edit-bar__info { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; min-width: 0; }
+.edit-bar__status { color: var(--gray-on-dark); }
+.edit-bar__status.is-unsaved { color: var(--gold); font-weight: 700; }
+.edit-bar__hint { width: 100%; color: var(--gray-on-dark); font-size: 12px; }
+.edit-bar__actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ---- Editable pieces ---- */
+html.is-editing [data-edit-field] {
+  cursor: text;
+  outline: 1px dashed transparent;
+  outline-offset: 3px;
+  transition: outline-color 0.15s;
+}
+html.is-editing [data-edit-field]:hover { outline-color: var(--gold); }
+html.is-editing img[data-edit-field] { cursor: pointer; }
+html.is-editing [data-edit-state="changed"] { outline: 1px solid var(--gold); }
+.edit-live {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: 1px;
+  caret-color: var(--gold);
+  cursor: text;
+  min-width: 1ch;
+}
+.edit-live:focus { outline: 2px solid var(--gold); }
+
+/* Everything shown and still while editing: scroll reveals are revealed,
+   magnetic buttons stop following the pointer. */
+html.is-editing [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  visibility: visible !important;
+}
+html.is-editing [data-magnetic] { transform: none !important; }
+
+/* ---- Sections ---- */
+.edit-section-bar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+  padding: 4px 4px 4px 12px;
+  border: 1px solid color-mix(in srgb, var(--gold) 60%, transparent);
+  border-radius: 999px;
+  background: rgba(10, 9, 8, 0.86);
+  color: var(--paper);
+  font-size: 12px;
+}
+.edit-section-bar > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.edit-section-bar .edit-btn { padding: 4px 10px; border-radius: 999px; border: 0; background: var(--paper); color: var(--ink); font-size: 12px; }
+.edit-section-bar.is-hidden { border-color: var(--red-bright); }
+.edit-section-bar.is-hidden .edit-btn { background: var(--red-bright); color: var(--paper); }
+/* The first section sits under the fixed header. */
+.hero > .edit-section-bar,
+.page-hero > .edit-section-bar,
+main > section:first-child > .edit-section-bar { top: calc(var(--nav-h) + 12px); }
+html.is-editing .is-edit-hidden {
+  background-image: repeating-linear-gradient(135deg, rgba(214, 58, 52, 0.1) 0 12px, transparent 12px 24px);
+}
+html.is-editing .is-edit-hidden > :not(.edit-section-bar) { opacity: 0.35; filter: grayscale(0.7); }
+
+.edit-hero-bg {
+  position: absolute;
+  top: calc(var(--nav-h) + 12px);
+  right: 16px;
+  z-index: 60;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  border-color: color-mix(in srgb, var(--gold) 70%, transparent);
+  font-size: 12px;
+}
+
+/* ---- Floating panel ---- */
+.edit-panel {
+  position: fixed;
+  z-index: 2100;
+  display: grid;
+  gap: 10px;
+  width: min(360px, calc(100vw - 20px));
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--paper-line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 22px 60px -14px rgba(0, 0, 0, 0.6);
+}
+.edit-panel .edit-btn { border-color: var(--paper-line); }
+.edit-panel .edit-btn.is-primary { border-color: var(--red); }
+.edit-panel__label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-on-light); }
+.edit-panel__row { display: flex; flex-wrap: wrap; gap: 6px; }
+.edit-panel__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.edit-panel__thumb { width: 100%; max-height: 180px; object-fit: contain; border-radius: 3px; background: var(--paper-dim); }
+.edit-panel__thumb[hidden] { display: none; }
+.edit-panel__status { min-height: 1em; font-size: 12px; color: var(--gray-on-light); }
+
+.edit-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--paper-line);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+.edit-input:focus { outline: 2px solid var(--gold); outline-offset: 0; border-color: var(--gold); }
+.edit-field { display: grid; gap: 4px; }
+.edit-field > span { font-size: 12px; font-weight: 700; }
+.edit-field small { font-size: 12px; color: var(--gray-on-light); }
+
+/* ---- Dialog ---- */
+.edit-dialog {
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 22px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.6);
+}
+.edit-dialog::backdrop { background: rgba(10, 9, 8, 0.6); }
+.edit-dialog h2 { margin-bottom: 12px; font-family: var(--font-display); font-size: 26px; font-weight: 400; line-height: 1.1; }
+.edit-dialog__body { display: grid; gap: 12px; color: #2a2621; }
+.edit-dialog__body ul { padding-left: 18px; list-style: disc; }
+.edit-dialog__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.edit-dialog .edit-btn { border-color: var(--paper-line); }
+.edit-dialog .edit-btn.is-primary { border-color: var(--red); }
+
+/* ---- Toast ---- */
+.edit-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 110px;
+  z-index: 2200;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+.edit-toast.is-in { opacity: 1; transform: translate(-50%, 0); }
+.edit-toast.is-error { border-color: var(--red-bright); }
+.edit-toast.is-success { border-color: #3c9d5d; }
+
+@media (max-width: 680px) {
+  .edit-bar { padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .edit-bar__hint { display: none; }
+  .edit-bar .edit-btn { padding: 7px 9px; font-size: 13px; }
+  html.is-editing body { padding-bottom: 120px; }
+  .edit-toast { border-radius: 10px; bottom: 140px; }
+}

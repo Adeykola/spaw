@@ -467,7 +467,10 @@ function escapeForSearch(str) {
  * demonstrably handles error states, not just the happy path.
  * -------------------------------------------------------------------- */
 const api = {
-  _delay(ms = 380) {
+  // Published admin content has to be merged into DB (content.js) before
+  // anything reads it, and every read passes through here first.
+  async _delay(ms = 380) {
+    if (window.ContentReady) await window.ContentReady;
     return new Promise((resolve) => setTimeout(resolve, ms));
   },
 
