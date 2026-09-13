@@ -119,7 +119,7 @@
   <section
     class="hero hero--slider"
     data-hero
-    data-hero-slider
+    data-hero-slider data-track-section="Hero"
     aria-roledescription="carousel"
     aria-label="Featured highlights">
 
@@ -356,7 +356,7 @@
     </div>
   </dialog>
   <!-- ============================= ARTIST STATEMENT ============================= -->
-  <section class="section statement section--light" aria-label="Artist statement">
+  <section class="section statement section--light" aria-label="Artist statement" data-track-section="Story">
     <div class="wrap">
       <p class="statement__quote display" data-reveal="fade-up">&ldquo;I don't perform worship. I open a door and stand out of the way.&rdquo;</p>
       <div class="statement__side" data-reveal="fade-up">
@@ -372,7 +372,7 @@
   </section>
 
   <!-- ============================= FEATURED SONG ============================= -->
-  <section class="section featured-song" data-featured-song aria-label="Featured song">
+  <section class="section featured-song" data-featured-song aria-label="Featured song" data-track-section="Featured song">
     <div class="wrap" data-fs-body>
       <div class="featured-song__art" data-reveal="scale">
         <img data-fs-art src="" alt="" width="640" height="640" loading="lazy">
@@ -408,7 +408,7 @@
   </section>
 
   <!-- ============================= FEATURED ALBUM ============================= -->
-  <section class="featured-album" data-featured-album aria-label="Featured album">
+  <section class="featured-album" data-featured-album aria-label="Featured album" data-track-section="Featured album">
     <div class="featured-album__bg">
       <img data-album-bg src="" alt="" loading="lazy">
     </div>
@@ -424,7 +424,7 @@
   </section>
 
   <!-- ============================= CATALOGUE STRIP ============================= -->
-  <section class="catalogue" data-catalogue aria-label="Music catalogue">
+  <section class="catalogue" data-catalogue aria-label="Music catalogue" data-track-section="Catalogue">
     <div class="wrap">
       <div class="catalogue__head">
         <div>
@@ -440,7 +440,7 @@
   </section>
 
   <!-- ============================= VIDEO EXPERIENCE (newest YouTube upload, see app.js) ============================= -->
-  <section class="section" style="padding-block: 0;" aria-label="Latest video">
+  <section class="section" style="padding-block: 0;" aria-label="Latest video" data-track-section="Latest video">
     <div class="video-feature">
       <a
         class="video-feature__frame"
@@ -473,7 +473,7 @@
   </div>
 
   <!-- ============================= MINISTRY MISSION (pinned) ============================= -->
-  <section class="ministry-mission" aria-label="Ministry mission">
+  <section class="ministry-mission" aria-label="Ministry mission" data-track-section="Ministry">
     <div class="ministry-mission__pin" data-ministry-pin>
       <div>
         <p class="mask-line"><span>This is not a stage.</span></p>
@@ -490,7 +490,7 @@
   </section>
 
   <!-- ============================= SYMPHONY BANNER ============================= -->
-  <section class="symphony-banner" aria-label="Symphony of Praise and Worship">
+  <section class="symphony-banner" aria-label="Symphony of Praise and Worship" data-track-section="Symphony">
     <p class="marquee" data-marquee aria-hidden="true">Symphony of Praise &amp; Worship &nbsp;&middot;&nbsp; Symphony of Praise &amp; Worship &nbsp;&middot;&nbsp; Symphony of Praise &amp; Worship &nbsp;&middot;&nbsp;</p>
     <div class="wrap">
       <div data-reveal="fade-up">
@@ -508,7 +508,7 @@
   </section>
 
   <!-- ============================= EMERGING ARTISTS ============================= -->
-  <section class="section emerging" aria-label="Emerging artists">
+  <section class="section emerging" aria-label="Emerging artists" data-track-section="Emerging artists">
     <div class="wrap">
       <div class="emerging__head">
         <div>
@@ -522,7 +522,7 @@
   </section>
 
   <!-- ============================= EVENTS ============================= -->
-  <section class="events" aria-label="Upcoming events">
+  <section class="events" aria-label="Upcoming events" data-track-section="Events">
     <div class="wrap">
       <div class="events__head">
         <div>
@@ -536,7 +536,7 @@
   </section>
 
   <!-- ============================= BOOKING CTA ============================= -->
-  <section class="booking-cta" aria-label="Booking">
+  <section class="booking-cta" aria-label="Booking" data-track-section="Booking">
     <div class="wrap">
       <h2 class="booking-cta__title display">Bring this ministry to your platform.</h2>
       <a href="contact#booking" class="btn btn-ghost" data-magnetic>Start a booking request</a>
@@ -544,7 +544,7 @@
   </section>
 
   <!-- ============================= NEWSLETTER ============================= -->
-  <section class="section newsletter" aria-label="Join the community">
+  <section class="section newsletter" aria-label="Join the community" data-track-section="Newsletter">
     <div class="wrap">
       <div data-reveal="fade-up">
         <h2 class="newsletter__title display">Stay close to the sound.</h2>
@@ -614,6 +614,7 @@
 <script src="js/data.js" defer></script>
 <script src="js/backend.js" defer></script>
 <script src="js/content.js" defer></script>
+<script src="js/track.js" defer></script>
 <script src="js/player.js" defer></script>
 <script src="js/intro.js" defer></script>
 <script src="js/hero.js" defer></script>

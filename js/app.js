@@ -107,7 +107,7 @@ async function renderFeaturedSong() {
     linksWrap.replaceChildren(
       ...Object.entries(track.links)
         .filter(([, url]) => url)
-        .map(([platform, url]) => el("a", { href: url, text: platformLabel(platform), target: "_blank", rel: "noopener" }))
+        .map(([platform, url]) => el("a", { href: url, text: platformLabel(platform), target: "_blank", rel: "noopener", "data-stream": platformLabel(platform), "data-song": track.title }))
     );
 
     const playerRoot = section.querySelector("[data-player]");
@@ -254,6 +254,7 @@ function wireYouTubeModal(modal) {
     modal.classList.add("is-open");
     document.body.classList.add("no-scroll");
     closeBtn.focus();
+    if (window.Track) Track.event("video", { label: video.title, props: { id: video.youtubeId } });
   }
 
   function close() {
@@ -357,9 +358,11 @@ async function renderEvents() {
     list.replaceChildren(
       ...events.map((e) => {
         const { day, month } = formatEventDate(e.date);
+        const state = api.eventState(e);
         const link = el("a", {
           class: "event-row",
           href: `events?id=${encodeURIComponent(e.id)}`,
+          "data-cta": `Event: ${e.name}`,
         }, [
           el("div", { class: "event-row__date", text: day }, [
             el("span", { text: month.toUpperCase() }),
@@ -369,7 +372,7 @@ async function renderEvents() {
             el("p", { class: "event-row__venue", text: e.venue }),
           ]),
           el("p", { class: "event-row__city", text: e.city }),
-          el("span", { class: "event-row__cta btn-line", text: "Register" }),
+          el("span", { class: "event-row__cta btn-line", text: state.open ? "Register" : state.label }),
         ]);
         return link;
       })

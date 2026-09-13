@@ -730,7 +730,9 @@ const api = {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) throw new Error("That email address doesn't look right.");
     if (!payload.agreedToTerms) throw new Error("You need to agree to the terms to submit your application.");
     if (!this.applicationsOpen()) throw new Error("Applications for this Talent Quest are closed.");
-    return Backend.forms.submitApplication(payload, files);
+    const application = await Backend.forms.submitApplication(payload, files);
+    if (window.Track) Track.event("applied", { label: payload.track });
+    return application;
   },
 
   async getTalentApplications() {
@@ -748,23 +750,46 @@ const api = {
     return events.map((e) => ({ ...e, registered: (live ? 0 : (e.registered || 0)) + (counts[e.id] || 0) }));
   },
 
+  // Where an event stands for registration. The database checks the same
+  // things when someone registers (register_for_event, setup-3.sql); dates
+  // are Lagos dates.
+  eventState(e) {
+    const today = new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
+    const lastDay = e.endDate || e.date;
+    if (e.visible === false) return { open: false, label: "Not announced yet", reason: "This event isn't open for registration." };
+    if (e.status === "cancelled") return { open: false, label: "Cancelled", reason: "This event has been cancelled." };
+    if (e.status === "postponed") return { open: false, label: "Postponed", reason: "This event has been postponed. Registration reopens with the new date." };
+    if (lastDay && lastDay < today) return { open: false, label: "Event over", reason: "This event has already taken place." };
+    if (e.registrationOpen === false) return { open: false, label: "Registration closed", reason: "Registration for this event is closed." };
+    if (e.registrationCloses && today > e.registrationCloses) {
+      const on = new Date(`${e.registrationCloses}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      return { open: false, label: "Registration closed", reason: `Registration for this event closed on ${on}.` };
+    }
+    return { open: true, label: "Register", reason: "" };
+  },
+
+  // Events the admin hasn't announced yet ("Show on the website" off) stay off the site.
+  _shownEvents() {
+    return DB.events.filter((e) => e.visible !== false);
+  },
+
   async getUpcomingEvents(limit = 3) {
     await this._delay(300);
     const now = Date.now();
-    return DB.events
-      .filter((e) => new Date(`${e.date}T${e.time || "00:00"}:00`).getTime() >= now - 86400000)
+    return this._shownEvents()
+      .filter((e) => new Date(`${e.endDate || e.date}T${e.endTime || e.time || "00:00"}:00`).getTime() >= now - 86400000)
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .slice(0, limit);
   },
 
   async getAllEvents() {
     await this._delay(320);
-    return this._withCounts([...DB.events].sort((a, b) => new Date(a.date) - new Date(b.date)));
+    return this._withCounts([...this._shownEvents()].sort((a, b) => new Date(a.date) - new Date(b.date)));
   },
 
   async getEventById(id) {
     await this._delay(280);
-    const event = DB.events.find((e) => e.id === id);
+    const event = this._shownEvents().find((e) => e.id === id);
     if (!event) throw new Error("That event couldn't be found.");
     const [counted] = await this._withCounts([event]);
     return { ...counted, liveRegistered: counted.registered };
@@ -772,13 +797,16 @@ const api = {
 
   async registerForEvent(eventId, attendee) {
     await this._delay(300);
-    const [event] = await this._withCounts(DB.events.filter((e) => e.id === eventId));
+    const [event] = await this._withCounts(this._shownEvents().filter((e) => e.id === eventId));
     if (!event) throw new Error("That event couldn't be found.");
     if (!attendee.name || !attendee.name.trim()) throw new Error("Enter your full name.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email || "")) throw new Error("That email address doesn't look right.");
-    if (event.registrationOpen === false) throw new Error("Registration for this event is closed.");
+    const state = this.eventState(event);
+    if (!state.open) throw new Error(state.reason);
     if (event.capacity && event.registered >= event.capacity) throw new Error("This event is full.");
-    return Backend.forms.registerForEvent(event, attendee);
+    const registration = await Backend.forms.registerForEvent(event, attendee);
+    if (window.Track) Track.event("registered", { label: event.name, props: { id: event.id } });
+    return registration;
   },
 
   async getRegistrations(eventId = null) {
@@ -796,7 +824,9 @@ const api = {
   async subscribeNewsletter(email, source = document.title.split(" — ")[0]) {
     await this._delay(200);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("That email address doesn't look right.");
-    return Backend.forms.subscribe(email, source);
+    const result = await Backend.forms.subscribe(email, source);
+    if (window.Track) Track.event("newsletter", { label: source });
+    return result;
   },
 
   /* ---- Contact & booking enquiries ----
@@ -829,7 +859,10 @@ const api = {
       throw err;
     }
 
-    return Backend.forms.submitEnquiry(payload);
+    const enquiry = await Backend.forms.submitEnquiry(payload);
+    const booking = payload.type === "booking";
+    if (window.Track) Track.event(booking ? "booking" : "enquiry", { label: booking ? payload.eventType || "Booking" : "Message" });
+    return enquiry;
   },
 
   async getEnquiries(type = null) {

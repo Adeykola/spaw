@@ -121,6 +121,15 @@ function wireContactForm() {
     });
   });
 
+  // Choosing "booking", or typing while it's chosen, counts as starting a
+  // booking request (the analytics' step-by-step view).
+  let bookingStarted = false;
+  form.addEventListener("input", () => {
+    if (bookingStarted || currentMode() !== "booking") return;
+    bookingStarted = true;
+    if (window.Track) Track.event("booking_start", { label: "Booking" });
+  });
+
   // Deep link: contact.html#booking opens on the booking door.
   function syncFromHash() {
     if (window.location.hash !== "#booking") return;

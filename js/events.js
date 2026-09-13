@@ -20,6 +20,23 @@ function formatFullDate(dateStr, time) {
   return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
+// One day, or the span of an event over several.
+function formatEventDays(e) {
+  const start = formatFullDate(e.date);
+  return e.endDate && e.endDate !== e.date ? `${start} – ${formatFullDate(e.endDate)}` : start;
+}
+
+function formatEventTimes(e) {
+  if (!e.time) return "Time to be announced";
+  return e.endTime ? `${e.time}–${e.endTime}` : e.time;
+}
+
+function admissionText(e) {
+  if (e.admission === "ticketed") return e.price ? `Tickets: ${e.price}` : "Ticketed";
+  if (e.admission === "free") return e.price || "Free entry";
+  return e.price || "";
+}
+
 async function renderEventsList() {
   const list = document.querySelector("[data-events-full-list]");
   if (!list) return;
@@ -31,32 +48,47 @@ async function renderEventsList() {
 
     list.replaceChildren(
       ...events.map((e) => {
-        const pct = e.capacity ? Math.min(100, Math.round((e.registered / e.capacity) * 100)) : 0;
-        const past = new Date(`${e.date}T23:59:59`).getTime() < Date.now();
-        const closed = e.registrationOpen === false || past;
-        const full = !closed && e.capacity && e.registered >= e.capacity;
-        e.canRegister = !closed && !full;
+        // Open, full, or why not (cancelled, postponed, over, closed): api.eventState.
+        const state = api.eventState(e);
+        const full = state.open && e.capacity && e.registered >= e.capacity;
+        e.canRegister = state.open && !full;
         const registerBtn = el("button", {
           class: "btn btn-solid",
           type: "button",
-          text: past ? "Event over" : closed ? "Registration closed" : full ? "Full" : "Register",
+          text: !state.open ? state.label : full ? "Full" : "Register",
           disabled: !e.canRegister,
         });
         registerBtn.addEventListener("click", () => openRegisterModal(e));
+        const actions = [registerBtn];
+        if (e.ticketUrl && e.status !== "cancelled") {
+          actions.push(el("a", { class: "btn btn-line", href: e.ticketUrl, target: "_blank", rel: "noopener", text: "Get tickets", "data-cta": `Get tickets: ${e.name}` }));
+        }
 
-        return el("article", { class: "event-full-row" }, [
-          el("img", { class: "event-full-row__img", src: e.image, alt: "", loading: "lazy" }),
+        const pct = e.capacity ? Math.min(100, Math.round((e.registered / e.capacity) * 100)) : 0;
+        const flags = [
+          e.status === "cancelled" || e.status === "postponed"
+            ? el("span", { class: `event-flag event-flag--${e.status}`, text: e.status === "cancelled" ? "Cancelled" : "Postponed" }) : null,
+          e.category ? el("span", { class: "event-flag", text: e.category }) : null,
+        ].filter(Boolean);
+        const venue = el("p", { class: "event-full-row__venue", text: [e.venue, e.address, e.city].filter(Boolean).join(", ") });
+        if (e.mapUrl) venue.append(" \u00b7 ", el("a", { href: e.mapUrl, target: "_blank", rel: "noopener", text: "Map" }));
+        const admission = admissionText(e);
+
+        return el("article", { class: `event-full-row${e.status === "cancelled" ? " is-cancelled" : ""}` }, [
+          el("img", { class: "event-full-row__img", src: e.image || "assets/images/ministry-hero.jpg", alt: "", loading: "lazy" }),
           el("div", {}, [
-            el("p", { class: "event-full-row__date", text: `${formatFullDate(e.date, e.time)} \u00b7 ${e.time || "Time to be announced"}` }),
+            el("p", { class: "event-full-row__date", text: `${formatEventDays(e)} \u00b7 ${formatEventTimes(e)}` }),
+            flags.length ? el("div", { class: "event-flags" }, flags) : null,
             el("h3", { class: "event-full-row__title display", text: e.name }),
-            el("p", { class: "event-full-row__venue", text: `${e.venue}, ${e.city}` }),
+            venue,
+            admission ? el("p", { class: "event-full-row__admission", text: admission }) : null,
             el("p", { class: "event-full-row__desc", text: e.description }),
-            el("div", { class: "event-full-row__capacity" }, [
+            e.capacity && state.open ? el("div", { class: "event-full-row__capacity" }, [
               el("span", { text: `${e.registered} of ${e.capacity} registered` }),
               el("div", { class: "capacity-bar" }, [el("div", { class: "capacity-bar__fill", style: `width:${pct}%` })]),
-            ]),
-          ]),
-          registerBtn,
+            ]) : null,
+          ].filter(Boolean)),
+          el("div", { class: "event-full-row__actions" }, actions),
         ]);
       })
     );
@@ -78,6 +110,7 @@ async function renderEventsList() {
 
 function openRegisterModal(event) {
   selectedEvent = event;
+  if (window.Track) Track.event("register_open", { label: event.name, props: { id: event.id } });
   const modal = document.querySelector("[data-register-modal]");
   if (!modal) return;
   modal.querySelector("[data-register-event-name]").textContent = event.name;
@@ -107,10 +140,11 @@ function buildIcs(event, registration) {
   let when;
   if (event.time) {
     const start = new Date(`${event.date}T${event.time}:00`);
-    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+    const until = event.endTime ? new Date(`${event.endDate || event.date}T${event.endTime}:00`) : null;
+    const end = until && until > start ? until : new Date(start.getTime() + 2 * 60 * 60 * 1000);
     when = [`DTSTART:${fmt(start)}`, `DTEND:${fmt(end)}`];
   } else {
-    const dayAfter = new Date(`${event.date}T00:00:00Z`);
+    const dayAfter = new Date(`${event.endDate || event.date}T00:00:00Z`);
     dayAfter.setUTCDate(dayAfter.getUTCDate() + 1);
     const ymd = (s) => s.slice(0, 10).replace(/-/g, "");
     when = [`DTSTART;VALUE=DATE:${ymd(event.date)}`, `DTEND;VALUE=DATE:${ymd(dayAfter.toISOString())}`];
@@ -124,7 +158,7 @@ function buildIcs(event, registration) {
     `DTSTAMP:${fmt(new Date())}`,
     ...when,
     `SUMMARY:${event.name}`,
-    `LOCATION:${event.venue}, ${event.city}`,
+    `LOCATION:${[event.venue, event.address, event.city].filter(Boolean).join(", ")}`,
     `DESCRIPTION:${event.description}`,
     "END:VEVENT",
     "END:VCALENDAR",

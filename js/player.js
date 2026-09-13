@@ -7,6 +7,43 @@
  * No dependencies, real fetch/error states, safe DOM writes only.
  * ----------------------------------------------------------------------
  */
+/**
+ * listenMeter — song plays, and how much of each song is heard, for the
+ * analytics (track.js). A play counts when a song starts; "heard" is how
+ * far into it the listener got, sent when it ends, another song starts,
+ * or the page is left.
+ */
+function listenMeter(audio, currentTrack) {
+  let track = null;
+  let furthest = 0;
+  let length = 0;
+  const report = () => {
+    if (!track) return;
+    const d = length || track.duration || 0;
+    if (d > 0 && window.Track) {
+      Track.event("heard", { label: track.title, value: Math.min(100, Math.round((furthest / d) * 100)), props: { id: track.id } });
+    }
+    track = null;
+  };
+  audio.addEventListener("playing", () => {
+    const t = currentTrack();
+    if (!t || t === track) return;
+    report();
+    track = t;
+    furthest = 0;
+    length = 0;
+    if (window.Track) Track.event("play", { label: t.title, props: { id: t.id } });
+  });
+  audio.addEventListener("timeupdate", () => {
+    if (!track) return;
+    furthest = Math.max(furthest, audio.currentTime || 0);
+    if (audio.duration && Number.isFinite(audio.duration)) length = audio.duration;
+  });
+  audio.addEventListener("ended", () => { furthest = length || furthest; report(); });
+  audio.addEventListener("loadstart", report); // another song is loading
+  window.addEventListener("pagehide", report);
+}
+
 class Player {
   /**
    * @param {HTMLElement} root - container with [data-player] wiring hooks
@@ -15,6 +52,7 @@ class Player {
     this.root = root;
     this.audio = new Audio();
     this.audio.preload = "metadata";
+    listenMeter(this.audio, () => this.track);
 
     this.els = {
       playBtn: root.querySelector("[data-player-play]"),
@@ -133,6 +171,7 @@ class PersistentPlayer {
     this.audio = new Audio();
     this.audio.preload = "metadata";
     this.audio.volume = 0.8;
+    listenMeter(this.audio, () => this.queue[this.index]);
     this.queue = [];
     this.index = -1;
 

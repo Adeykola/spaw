@@ -120,26 +120,66 @@
     },
     {
       id: "events", key: "events", title: "Events", kind: "list", itemName: "event", idPrefix: "event", labelKey: "name", preview: "events",
-      sub: "The calendar on the Events page and the homepage, and what people register for.",
+      sub: "Create and change events: the calendar on the Events page and the homepage, what people register for, and how many guests you expect. New events are drafts until you publish.",
       itemLabel: (e) => tidyText(e.name) || "Untitled event",
-      itemMeta: (e) => [day(e.date), e.registrationOpen === false ? "Registration closed" : ""].filter(Boolean).join(" · "),
-      newItem: () => ({ id: uid("event"), name: "", venue: "", city: "", date: today(), time: null, capacity: 100, registered: 0, description: "", image: "", ticketRequired: true, registrationOpen: true }),
+      itemMeta: (e) => [
+        day(e.date),
+        e.status === "cancelled" ? "Cancelled" : e.status === "postponed" ? "Postponed" : "",
+        e.visible === false ? "Not on the site yet" : "",
+        e.registrationOpen === false ? "Registration closed" : "",
+        Number(e.expectedGuests) ? `${Number(e.expectedGuests).toLocaleString("en-GB")} expected` : "",
+      ].filter(Boolean).join(" · "),
+      newItem: () => ({
+        id: uid("event"), name: "", category: "", status: null, visible: true,
+        date: today(), endDate: null, time: null, endTime: null,
+        venue: "", address: "", city: "", mapUrl: null,
+        admission: "free", price: "", ticketUrl: null,
+        capacity: 100, expectedGuests: null, registrationOpen: true, registrationCloses: null,
+        registered: 0, description: "", image: "", ticketRequired: true,
+      }),
       check: (work) => {
         if (work.some((e) => !tidyText(e.name))) return ["Every event needs a name."];
         if (work.some((e) => !e.date)) return ["Every event needs a date."];
+        const backwards = work.find((e) => e.endDate && e.date && e.endDate < e.date);
+        if (backwards) return [`“${tidyText(backwards.name)}” ends before it starts. Check its dates.`];
         return [];
       },
       itemNote: () => "Registrations stay with the event while its name changes; deleting an event keeps its registrations in the inbox.",
+      itemPanel: (e) => (Admin.eventInsight ? Admin.eventInsight(e) : null),
       fields: [
+        { type: "heading", label: "The event" },
         { key: "name", label: "Name", type: "text" },
-        { key: "date", label: "Date", type: "date" },
-        { key: "time", label: "Start time", type: "time", help: "Leave empty and the site says “Time to be announced”." },
-        { key: "venue", label: "Venue", type: "text" },
-        { key: "city", label: "Area and city", type: "text" },
-        { key: "capacity", label: "Places", type: "number", help: "Registration stops when this many have registered." },
-        { key: "registrationOpen", label: "Registration open", type: "check", defaultOn: true, help: "Untick to stop new registrations; the event still shows." },
+        {
+          key: "category", label: "Kind of event", type: "select",
+          options: [{ value: "", label: "Choose…" }, ...["Concert", "Worship night", "Album listening", "Talent Quest", "Conference", "Workshop", "Church service", "Outreach", "Other"].map((k) => ({ value: k, label: k }))],
+        },
+        {
+          key: "status", label: "Status", type: "select",
+          options: [{ value: "", label: "Going ahead as planned" }, { value: "postponed", label: "Postponed" }, { value: "cancelled", label: "Cancelled" }],
+          help: "A postponed or cancelled event says so on the site and stops taking registrations.",
+        },
+        { key: "visible", label: "Show on the website", type: "check", defaultOn: true, help: "Untick to prepare an event before announcing it." },
         { key: "description", label: "Description", type: "textarea", rows: 3 },
         { key: "image", label: "Picture", type: "image" },
+        { type: "heading", label: "When" },
+        { key: "date", label: "Date", type: "date" },
+        { key: "endDate", label: "Last day (for an event over several days)", type: "date" },
+        { key: "time", label: "Starts at", type: "time", help: "Leave empty and the site says “Time to be announced”." },
+        { key: "endTime", label: "Ends at", type: "time" },
+        { type: "heading", label: "Where" },
+        { key: "venue", label: "Venue", type: "text" },
+        { key: "address", label: "Street address", type: "text" },
+        { key: "city", label: "Area and city", type: "text" },
+        { key: "mapUrl", label: "Map link", type: "url", placeholder: "https://maps.app.goo.gl/…", help: "Shown as “Map” beside the venue." },
+        { type: "heading", label: "Entry and registration" },
+        { key: "admission", label: "Entry", type: "select", options: [{ value: "free", label: "Free" }, { value: "ticketed", label: "Ticketed" }] },
+        { key: "price", label: "Ticket prices", type: "text", placeholder: "₦5,000 regular · ₦20,000 VIP", help: "For a ticketed event." },
+        { key: "ticketUrl", label: "Where to buy tickets", type: "url", placeholder: "https://…", help: "Adds a “Get tickets” button." },
+        { key: "registrationOpen", label: "Registration open", type: "check", defaultOn: true, help: "Untick to stop new registrations; the event still shows." },
+        { key: "registrationCloses", label: "Registration closes after", type: "date", help: "Optional. After this day the site stops taking registrations by itself." },
+        { key: "capacity", label: "Places", type: "number", help: "Registration stops when this many have registered. Leave empty for no limit." },
+        { type: "heading", label: "Planning" },
+        { key: "expectedGuests", label: "Expected guests", type: "number", help: "How many you expect to come. Not shown on the site: the admin follows registrations against it, here, on the Dashboard and in the analytics." },
       ],
     },
     {
@@ -465,6 +505,9 @@
       const item = items[index];
       if (!item) { detail.replaceChildren(h("p", { class: "admin-empty", text: `Choose a ${def.itemName} on the left, or add one.` })); return; }
       const heading = h("h2", { class: "ce-detail__title", text: def.itemLabel(item) });
+      // The item's own panel (an event's registrations) follows the form.
+      let panelNode = null;
+      let panelTimer = null;
       const itemCtx = {
         ...ctx,
         redraw: drawItems,
@@ -475,6 +518,13 @@
             cur.querySelector(".ce-itembtn__label").textContent = def.itemLabel(item);
             const meta = cur.querySelector(".ce-itembtn__meta");
             if (meta && def.itemMeta) meta.textContent = def.itemMeta(item);
+          }
+          if (panelNode) {
+            clearTimeout(panelTimer);
+            panelTimer = setTimeout(() => {
+              const fresh = def.itemPanel(item);
+              if (fresh && panelNode.isConnected) { panelNode.replaceWith(fresh); panelNode = fresh; }
+            }, 500);
           }
           ctx.changed();
         },
@@ -514,6 +564,7 @@
           ]),
         ]),
         def.itemNote ? h("p", { class: "pe-card__note", text: def.itemNote(item) }) : null,
+        (panelNode = def.itemPanel ? def.itemPanel(item) : null),
         ...renderFields(def.fields, item, itemCtx),
       ].filter(Boolean));
     }
@@ -591,6 +642,8 @@
     };
 
     switch (f.type) {
+      case "heading":
+        return h("h3", { class: "ce-subhead", text: f.label });
       case "text":
       case "url":
       case "number":

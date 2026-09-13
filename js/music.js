@@ -34,13 +34,21 @@ function wireFilterBar() {
   const search = document.querySelector("[data-music-search]");
   if (!search) return;
   let debounceTimer;
+  let countTimer;
   search.addEventListener("input", (e) => {
     clearTimeout(debounceTimer);
+    clearTimeout(countTimer);
     const value = e.target.value;
     debounceTimer = setTimeout(() => {
       musicState.query = value;
       renderTrackList();
     }, 220);
+    // For the analytics: a search counts once the typing stops, with how
+    // many songs it found (none shows what people look for and don't find).
+    countTimer = setTimeout(() => {
+      const q = value.trim();
+      if (q.length >= 2 && window.Track) Track.event("search", { label: q.toLowerCase(), value: currentQueue.length });
+    }, 1500);
   });
 }
 
@@ -225,7 +233,7 @@ async function renderSongDetail() {
     const linksWrap = document.querySelector("[data-song-links]");
     if (linksWrap) {
       const links = Object.entries(track.links).filter(([, url]) => url);
-      linksWrap.replaceChildren(...links.map(([platform, url]) => el("a", { href: url, text: platformLabel(platform), target: "_blank", rel: "noopener" })));
+      linksWrap.replaceChildren(...links.map(([platform, url]) => el("a", { href: url, text: platformLabel(platform), target: "_blank", rel: "noopener", "data-stream": platformLabel(platform), "data-song": track.title })));
       linksWrap.closest("section").hidden = !links.length;
     }
   } catch (err) {

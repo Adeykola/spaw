@@ -218,6 +218,16 @@ function wireApplicationForm() {
   const form = document.querySelector("[data-application-form]");
   if (!form) return;
   const banner = form.querySelector("[data-form-error]");
+
+  // The first thing typed or chosen counts as starting an application
+  // (the analytics' step-by-step view: page, started, sent).
+  const started = () => {
+    form.removeEventListener("input", started);
+    form.removeEventListener("change", started);
+    if (window.Track) Track.event("apply_start", { label: "Talent Quest" });
+  };
+  form.addEventListener("input", started);
+  form.addEventListener("change", started);
   const submitBtn = form.querySelector("button[type='submit']");
   const confirmScreen = document.querySelector("[data-confirm-screen]");
 

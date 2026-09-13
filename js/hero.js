@@ -44,6 +44,7 @@
   let index = 0;
   let timer = null;
   let busy = false;
+  let sawSlide = () => {};         // counts a slide as seen (set up below)
   let paused = reducedMotion;      // reduced motion never auto-advances
   let pausedByPointer = false;
   let pausedBySheet = false;       // a SPAW "See more" sheet is open
@@ -165,6 +166,7 @@
     }
 
     index = target;
+    sawSlide(target);
 
     window.setTimeout(() => {
       outgoing.classList.remove("is-leaving");
@@ -221,6 +223,21 @@
     const btn = item.querySelector("button");
     if (btn) btn.setAttribute("aria-current", String(i === 0));
   });
+
+  // Each slide's name for the analytics (track.js counts views and taps):
+  // its label in the rail, without the number. A view counts once per page.
+  slides.forEach((slide, i) => {
+    const railBtn = railItems[i] && railItems[i].querySelector("button");
+    const name = (railBtn && railBtn.textContent) || slideLabel(slide) || `Slide ${i + 1}`;
+    slide.dataset.slideName = name.replace(/\s+/g, " ").replace(/^\s*\d+\s*/, "").trim();
+  });
+  const slidesSeen = new Set();
+  sawSlide = (i) => {
+    if (slidesSeen.has(i) || !window.Track) return;
+    slidesSeen.add(i);
+    Track.event("slide", { label: slides[i].dataset.slideName });
+  };
+  sawSlide(0);
 
   root.style.setProperty("--hero-dur", `${AUTOPLAY_MS}ms`);
   if (reducedMotion) root.classList.add("is-static");

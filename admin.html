@@ -69,7 +69,9 @@
 <div class="admin-shell" data-admin-shell hidden>
   <aside class="admin-sidebar">
     <p class="admin-sidebar__brand"><span class="sig sig--autoplay" aria-hidden="true"><span class="sig__text">DrAjoke<span class="sig__accent">Sings</span></span><span class="sig__nib"></span><svg class="sig__flourish" viewBox="0 0 240 18" preserveAspectRatio="none" focusable="false"><path class="sig__stroke" pathLength="1" d="M236 1.5 C 232 8, 218 12.5, 195 13.2 C 158 14.4, 116 10.2, 76 11.4 C 46 12.3, 21 14.8, 4 17"/><path class="sig__echo" pathLength="1" d="M236 1.5 C 232 8, 218 12.5, 195 13.2 C 158 14.4, 116 10.2, 76 11.4 C 46 12.3, 21 14.8, 4 17"/></svg></span><span class="sr-only">Dr AjokeSings</span></p>
-    <nav class="admin-nav" aria-label="Admin sections" data-admin-nav></nav>
+    <p class="admin-current" data-admin-current></p>
+    <button type="button" class="admin-nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="admin-nav">Menu</button>
+    <nav class="admin-nav" id="admin-nav" aria-label="Admin sections" data-admin-nav></nav>
     <div class="admin-sidebar__foot">
       <p class="admin-me" data-admin-me></p>
       <a href="./" class="admin-sidebar__link">&larr; View site</a>
@@ -80,23 +82,18 @@
   <main class="admin-main">
     <p class="admin-mode-banner" data-mode-banner hidden></p>
 
-    <!-- Dashboard: what needs attention (admin-inbox.js) above the analytics (analytics.js) -->
+    <!-- Dashboard: what needs attention (admin-inbox.js) above the last 30 days (admin-analytics.js) -->
     <section class="admin-panel" data-panel="dashboard" hidden>
       <div class="admin-panel__head">
         <div><h1 class="admin-panel__title display">Dashboard</h1><p class="admin-panel__sub">What needs attention, then visitors, engagement and event health.</p></div>
       </div>
       <div data-attention></div>
-      <div class="stat-grid" data-stat-cards></div>
-      <div class="chart-grid">
-        <div class="chart-card"><p class="chart-card__title">Visitors — last 14 days</p><div data-chart-visitors></div></div>
-        <div class="chart-card"><p class="chart-card__title">Page views — last 7 days</p><div data-chart-pageviews></div></div>
-      </div>
-      <div class="chart-grid">
-        <div class="chart-card"><p class="chart-card__title">Top songs by plays</p><div class="chart-list" data-chart-topsongs></div></div>
-        <div class="chart-card"><p class="chart-card__title">Video engagement</p><div class="chart-list" data-chart-videos></div></div>
-      </div>
-      <div class="chart-card"><p class="chart-card__title">Event registration health</p><div class="chart-list" data-chart-events></div></div>
+      <div class="an-dash" data-dash-analytics></div>
     </section>
+
+    <!-- Analytics and campaign links (admin-analytics.js) -->
+    <section class="admin-panel" data-panel="analytics" hidden></section>
+    <section class="admin-panel" data-panel="campaigns" hidden></section>
 
     <!-- Every other screen draws itself into its section:
          the inbox (admin-inbox.js), the website (admin-site.js), content
@@ -136,12 +133,13 @@
 <script src="js/backend.js"></script>
 <script src="js/content.js"></script>
 <script src="js/app.js"></script>
-<script src="js/analytics.js"></script>
+<script src="js/analytics-core.js"></script>
 <script src="js/admin-core.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/admin-site.js"></script>
 <script src="js/admin-team.js"></script>
 <script src="js/admin-content.js"></script>
 <script src="js/admin-inbox.js"></script>
+<script src="js/admin-analytics.js"></script>
 </body>
 </html>

@@ -14,11 +14,11 @@ Supabase's free plan is enough to start. Nothing here needs a server of your own
 
 1. Open [`setup.sql`](setup.sql) and, at the very bottom, replace `owner@example.com` and `Owner name` with the email address and name of the site's Owner.
 2. In Supabase, open **SQL Editor → New query**, paste the whole file, and press **Run**. It should finish with "Success. No rows returned".
-3. Do the same with [`setup-2.sql`](setup-2.sql). There's nothing to change in it.
+3. Do the same with [`setup-2.sql`](setup-2.sql), then with [`setup-3.sql`](setup-3.sql). There's nothing to change in either.
 
-`setup.sql` creates the tables for content, drafts, history, people and the activity log; the security rules that decide who can do what; and a public `media` folder for uploads. `setup-2.sql` adds the inbox: contact and booking enquiries, Talent Quest applications with a private folder for their audio and video samples, event registrations and check-in, and the newsletter list. Running either again later is safe.
+`setup.sql` creates the tables for content, drafts, history, people and the activity log; the security rules that decide who can do what; and a public `media` folder for uploads. `setup-2.sql` adds the inbox: contact and booking enquiries, Talent Quest applications with a private folder for their audio and video samples, event registrations and check-in, and the newsletter list. `setup-3.sql` adds the analytics (anonymous visits and what happens in them, and the report the admin reads), campaign links, and event registration that follows an event's status and closing date. Running any of them again later is safe.
 
-**Ran `setup.sql` before the inbox existed?** Run `setup-2.sql` now. Until it has run, the website's forms (contact and booking, event registration, the Talent Quest, the newsletter) can't save anything and show visitors an error.
+**Set up before a part existed?** Run the parts you haven't yet, in order. Until `setup-2.sql` has run, the website's forms can't save anything; until `setup-3.sql` has, visits aren't counted and the Analytics screen says so.
 
 ## 3. Sign-in settings
 
@@ -60,6 +60,7 @@ That key is meant to be public: it only lets a visitor do what the security rule
 | Edit and publish the website, upload files | ✓ | ✓ | |
 | See the inbox, applicants, registrations; check people in | ✓ | ✓ | ✓ |
 | Change statuses, ratings and notes; register someone by hand | ✓ | ✓ | ✓ |
+| See the analytics; make campaign links | ✓ | ✓ | ✓ |
 | Delete enquiries, applicants, registrations, subscribers | ✓ | | |
 | Add, change and remove people | ✓ | | |
 
@@ -80,5 +81,8 @@ The database enforces this on every request, whatever a browser sends. Visitors 
 | `subscribers` | The newsletter list |
 | storage bucket `media` | Uploaded pictures and files (public) |
 | storage bucket `applications` | Talent Quest samples (private: only the admin team can open them) |
+| `analytics_sessions` | One row per visit: a random visit and browser name, where it came from, device, browser, language, estimated country |
+| `analytics_events` | What happened in each visit: page views, time and scroll, taps, plays, searches, sign-up steps, speed, errors |
+| `campaign_links` | The campaign links and flyer QR codes the team has made |
 
-Visitors never read the inbox tables. The forms send through database functions (`submit_enquiry`, `register_for_event`, `submit_application`, `subscribe`) that check the details first; registration also checks the event is open and has room.
+Visitors never read the inbox or analytics tables. The forms send through database functions (`submit_enquiry`, `register_for_event`, `submit_application`, `subscribe`) that check the details first; registration also checks the event is shown, going ahead, open, not past its closing date, and has room. Visits arrive through `track()`, which keeps only the events it knows and drops a visit that sends far more than a person could; the admin reads them through `analytics_report()` and `analytics_live()`, which answer only people on the admin list. Visits older than 25 months are cleared away by themselves.

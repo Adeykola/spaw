@@ -19,15 +19,28 @@
   const OWNER = ["owner"];
 
   const NAV = [
-    { group: "Overview", items: [["dashboard", "Dashboard", ALL]] },
+    { group: "Overview", items: [["dashboard", "Dashboard", ALL], ["analytics", "Analytics", ALL]] },
+    {
+      group: "Events",
+      items: [
+        ["events", "Events", EDIT],
+        ["registrations", "Registrations", ALL],
+        ["checkin", "Event check-in", ALL],
+      ],
+    },
     {
       group: "Inbox",
       items: [
         ["enquiries", "Contact & bookings", ALL],
         ["talent", "Talent applicants", ALL],
-        ["registrations", "Registrations", ALL],
-        ["checkin", "Event check-in", ALL],
         ["subscribers", "Newsletter", ALL],
+      ],
+    },
+    {
+      group: "Marketing",
+      items: [
+        ["campaigns", "Campaign links", ALL],
+        ["announcements", "Announcements", EDIT],
       ],
     },
     {
@@ -35,7 +48,6 @@
       items: [
         ["pages", "Pages", EDIT],
         ["site", "Header, menus & footer", EDIT],
-        ["announcements", "Announcements", EDIT],
         ["publish", "Publish & history", EDIT],
         ["media", "Media library", EDIT],
       ],
@@ -47,7 +59,6 @@
         ["albums", "Albums", EDIT],
         ["videos", "Videos", EDIT],
         ["galleries", "Photo galleries", EDIT],
-        ["events", "Events", EDIT],
         ["symphony", "Symphony", EDIT],
         ["about", "About page lists", EDIT],
         ["ministry", "Ministry", EDIT],
@@ -265,6 +276,9 @@
 
   function enter(s) {
     session = s;
+    // This browser belongs to someone on the team now: its visits stay out
+    // of the analytics (the Analytics screen can count them again).
+    try { if (localStorage.getItem("drajokesings:notrack") !== "0") localStorage.setItem("drajokesings:notrack", "1"); } catch (_) { /* storage blocked */ }
     loginEl().hidden = true;
     shellEl().hidden = false;
     document.querySelector("[data-admin-me]").replaceChildren(
@@ -300,6 +314,11 @@
     currentSub = sub;
     if (location.hash.replace(/^#/, "").split("/")[0] !== id) history.replaceState(null, "", `#${id}${sub ? `/${sub}` : ""}`);
     document.querySelectorAll("[data-panel-link]").forEach((a) => a.setAttribute("aria-current", String(a.dataset.panelLink === id)));
+    const here = document.querySelector("[data-admin-current]");
+    if (here) here.textContent = (ITEMS.find(([i]) => i === id) || [])[1] || "";
+    // Keep the chosen screen in view in a long sidebar.
+    const active = document.querySelector(`[data-panel-link="${id}"]`);
+    if (active && !window.matchMedia("(max-width: 900px)").matches) active.scrollIntoView({ block: "nearest" });
     document.querySelectorAll(".admin-panel").forEach((p) => { p.hidden = p.dataset.panel !== id; });
     const panel = document.querySelector(`.admin-panel[data-panel="${id}"]`);
     window.scrollTo(0, 0);
@@ -355,9 +374,38 @@
     onBadges: (fn) => { badgeSources.push(fn); },
   };
 
+  // On a narrow screen the details sit below the list: choosing a row or an
+  // item brings them into view. (Capture phase: the list redraws itself on
+  // the click, so the panel is found before that.)
+  document.addEventListener("click", (e) => {
+    if (!window.matchMedia("(max-width: 1100px)").matches) return;
+    if (!e.target.closest || !e.target.closest(".admin-table.is-clickable tbody tr, .ce-itembtn")) return;
+    if (e.target.closest("button:not(.ce-itembtn), a, input, select, textarea, label")) return;
+    const panel = e.target.closest(".admin-panel");
+    setTimeout(() => {
+      const detail = panel && panel.querySelector(".detail-panel, .ce-detail");
+      if (detail) detail.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }, true);
+
+  // On a phone the sidebar folds into a bar with a Menu button.
+  function wireNavToggle() {
+    const btn = document.querySelector("[data-nav-toggle]");
+    if (!btn) return;
+    const set = (open) => {
+      shellEl().classList.toggle("is-nav-open", open);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.textContent = open ? "Close" : "Menu";
+    };
+    btn.addEventListener("click", () => set(!shellEl().classList.contains("is-nav-open")));
+    document.querySelector("[data-admin-nav]").addEventListener("click", (e) => { if (e.target.closest("a")) set(false); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && shellEl().classList.contains("is-nav-open")) { set(false); btn.focus(); } });
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
     modeNotes();
     wireAuth();
+    wireNavToggle();
     // A password-reset link lands here with #…type=recovery.
     if (/type=recovery/.test(location.hash)) {
       Backend.auth.onRecovery(() => {});

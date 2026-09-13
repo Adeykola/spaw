@@ -175,7 +175,8 @@ begin
 end $$;
 
 -- Registration checks the event as published from the admin, when it has
--- been: open or closed, and room left.
+-- been: open or closed, and room left. (setup-3.sql replaces this with a
+-- version that also follows the event's status and closing date.)
 create or replace function public.register_for_event(p_event_id text, p_event_name text, p_name text, p_email text, p_phone text default null)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare

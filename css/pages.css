@@ -260,6 +260,14 @@ body.has-persistent-player { padding-bottom: 92px; }
 .event-full-row__capacity { font-size: var(--step--1); color: var(--gray-on-light); margin-top: var(--space-s); }
 .capacity-bar { width: 160px; height: 3px; background: var(--paper-line); margin-top: var(--space-2xs); }
 .capacity-bar__fill { height: 100%; background: var(--red); }
+.event-full-row__actions { display: grid; gap: var(--space-xs); justify-items: stretch; }
+.event-flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2xs); }
+.event-flag { padding: 0.15rem 0.5rem; border: 1px solid var(--paper-line); color: var(--gray-on-light); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.event-flag--cancelled, .event-flag--postponed { border-color: var(--red); color: var(--red); }
+.event-full-row.is-cancelled .event-full-row__title { text-decoration: line-through; text-decoration-thickness: 1px; }
+.event-full-row.is-cancelled .event-full-row__img { filter: grayscale(1); opacity: 0.7; }
+.event-full-row__admission { margin-top: var(--space-2xs); font-size: var(--step--1); font-weight: 600; }
+.event-full-row__venue a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---- Persistent audio player (bottom bar) ---- */
 .persistent-player {

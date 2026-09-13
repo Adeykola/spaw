@@ -46,7 +46,7 @@
   const ROLE_HELP = {
     owner: "Everything, including adding and removing people.",
     editor: "Edits and publishes the website, and sees the inbox.",
-    team: "Inbox, applicants, registrations and check-in. Can't change the website.",
+    team: "Inbox, applicants, registrations, check-in, the analytics and campaign links. Can't change the website.",
   };
   const can = (role, what) => {
     if (what === "edit") return role === "owner" || role === "editor";
@@ -787,6 +787,119 @@
     },
   };
 
+  /* ===================================================================
+   * ANALYTICS
+   * The public pages send what happens through track.js; the admin reads
+   * the report. Live, the database keeps the visits and works the report
+   * out (supabase/setup-3.sql). Demo keeps this browser's own visits and
+   * mixes in made-up ones (analytics-core.js) so the screens have
+   * something to show; the admin says so.
+   * =================================================================== */
+  const A_KEY = "analytics:events";
+  const A_NAMES = new Set([
+    "pageview", "engagement", "slide", "slide_tap", "cta", "menu", "outbound", "stream", "youtube",
+    "play", "heard", "video", "gallery", "search", "register_open", "registered", "apply_start",
+    "applied", "booking_start", "booking", "enquiry", "newsletter", "error",
+  ]);
+  const cut = (v, n) => (v == null || v === "" ? null : String(v).slice(0, n));
+  const numeric = (v) => (v != null && /^-?\d{1,12}(\.\d{1,6})?$/.test(String(v)) ? Number(v) : null);
+  const campaignFromRow = (r) => ({
+    id: r.id, name: r.name, destination: r.destination || "", source: r.source, medium: r.medium || "",
+    campaign: r.campaign, content: r.content || "", createdAt: r.created_at, createdBy: r.created_by || "",
+  });
+  let madeUp = null;
+
+  demo.analytics = {
+    madeUp: true,
+    send(p) {
+      const rows = Store.read(A_KEY, []);
+      let id = rows.length ? rows[rows.length - 1].id : 1e9;
+      const at = now();
+      (p.events || []).slice(0, 50).forEach((e) => {
+        if (!A_NAMES.has(e.n)) return;
+        rows.push({
+          id: ++id, at, sid: p.sid, vid: p.vid, isNew: Boolean(p.new),
+          ref: cut(p.ref, 120), channel: cut(p.ch, 20), source: cut(p.src && String(p.src).toLowerCase(), 60),
+          medium: cut(p.med && String(p.med).toLowerCase(), 60), campaign: cut(p.cmp && String(p.cmp).toLowerCase(), 80),
+          device: cut(p.dev, 12), browser: cut(p.br, 30), os: cut(p.os, 20), lang: cut(p.lang, 20), country: cut(p.cty, 60),
+          name: e.n, path: cut(e.p, 200), title: cut(e.t, 150), value: numeric(e.v), label: cut(e.l, 150),
+          props: e.x && typeof e.x === "object" && JSON.stringify(e.x).length <= 1500 ? e.x : null,
+        });
+      });
+      Store.write(A_KEY, rows.slice(-6000));
+    },
+    // This browser's visits, after 120 days of made-up ones.
+    rows() {
+      if (!window.AnalyticsCore) throw new Error("The analytics aren't loaded on this page.");
+      if (!madeUp) {
+        const titleOf = (v) => (window.api && api._videoFromYouTube ? api._videoFromYouTube(v).title : v.title);
+        madeUp = AnalyticsCore.sample({
+          days: 120, seed: 7, now: Date.now() - 60e3,
+          catalog: { tracks: DB.tracks, videos: DB.videos.slice(0, 8).map((v) => ({ title: titleOf(v) })), events: DB.events, galleries: DB.galleries },
+        });
+      }
+      return madeUp.concat(Store.read(A_KEY, []));
+    },
+    async report(from, to, light = false) {
+      await wait(120);
+      return AnalyticsCore.aggregate(demo.analytics.rows(), { from, to, light });
+    },
+    async live() { return AnalyticsCore.live(demo.analytics.rows()); },
+    campaigns: {
+      async list() { return clone(Store.read("campaignLinks", [])); },
+      async save(link) {
+        const list = Store.read("campaignLinks", []);
+        const i = list.findIndex((l) => l.id === link.id);
+        const row = { ...link, createdAt: link.createdAt || now(), createdBy: link.createdBy || localSessionEmail() || "" };
+        if (i === -1) list.unshift(row); else list[i] = row;
+        mustWrite("campaignLinks", list);
+        return clone(row);
+      },
+      async remove(id) { Store.write("campaignLinks", Store.read("campaignLinks", []).filter((l) => l.id !== id)); },
+    },
+  };
+
+  let trackingMissing = false; // the database hasn't had setup-3.sql yet
+  live.analytics = {
+    madeUp: false,
+    send(p, { final = false } = {}) {
+      if (trackingMissing) return Promise.resolve();
+      return fetch(`${SUPABASE_URL}/rest/v1/rpc/track`, {
+        method: "POST",
+        headers: { ...publicHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ p }),
+        keepalive: final,
+      }).then((res) => { if (res.status === 404) trackingMissing = true; })
+        .catch(() => { /* a lost count must never trouble the visitor */ });
+    },
+    async report(from, to, light = false) {
+      const sb = await client();
+      return must(await sb.rpc("analytics_report", { p_from: from, p_to: to, p_light: light }));
+    },
+    async live() {
+      const sb = await client();
+      return must(await sb.rpc("analytics_live"));
+    },
+    campaigns: {
+      async list() {
+        const sb = await client();
+        return (must(await sb.from("campaign_links").select("*").order("created_at", { ascending: false })) || []).map(campaignFromRow);
+      },
+      async save(link) {
+        const sb = await client();
+        const row = {
+          id: link.id, name: link.name, destination: link.destination || "", source: link.source,
+          medium: link.medium || "", campaign: link.campaign, content: link.content || null,
+        };
+        return campaignFromRow(must(await sb.from("campaign_links").upsert(row).select().single()));
+      },
+      async remove(id) {
+        const sb = await client();
+        must(await sb.from("campaign_links").delete().eq("id", id));
+      },
+    },
+  };
+
   const impl = LIVE ? live : demo;
   window.Backend = Object.freeze({
     mode: LIVE ? "live" : "demo",
@@ -806,5 +919,6 @@
     activity: impl.activity,
     media: impl.media,
     forms: impl.forms,
+    analytics: impl.analytics,
   });
 })();

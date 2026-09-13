@@ -220,6 +220,8 @@ function wireLightbox() {
   function open(i) {
     lastFocused = document.activeElement;
     show(i);
+    const item = lightboxItems[index];
+    if (item && window.Track) Track.event("gallery", { label: item.gallery });
     box.hidden = false;
     requestAnimationFrame(() => box.classList.add("is-open"));
     document.body.classList.add("no-scroll");
