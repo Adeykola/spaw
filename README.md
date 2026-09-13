@@ -26,21 +26,21 @@ Then visit the address it prints. When hosting, GitHub Pages and Netlify map cle
 | `events.html` | Full calendar, registration with QR code and `.ics` download |
 | `about.html` | Story, timeline, principles, recognition |
 | `contact.html` | Contact and booking as one form with two modes |
-| `admin.html` | The admin: sign-in with roles; Pages and "Edit this page" for every word, link and picture; header, menus and footer; drafts with preview, publishing and history; media library; people & roles; activity log; dashboard and inbox screens |
+| `admin.html` | The admin: sign-in with roles; Pages and "Edit this page" for every word, link and picture; header, menus and footer; songs, albums, videos, galleries, events, Symphony, About lists, Ministry, artists, contact-page options and an announcement bar; drafts with preview, publishing and history; the inbox (enquiries, Talent Quest applicants with their samples, registrations, QR check-in, newsletter) with spreadsheet downloads; media library; people & roles; activity log |
 
 ## Architecture
 
-- **`js/data.js`** is the content layer and the seam to a real backend. Every read goes through an `api.*` method returning a Promise with simulated latency and real validation errors, so swapping `DB` for `fetch()` is mechanical rather than a rewrite. Anything user-generated (registrations, applications, enquiries, newsletter) persists to `localStorage` through the `Store` wrapper.
+- **`js/data.js`** is the content layer and the seam to a real backend. Every read goes through an `api.*` method returning a Promise with simulated latency and real validation errors, so swapping `DB` for `fetch()` is mechanical rather than a rewrite. Anything visitors send (registrations, applications, enquiries, newsletter sign-ups) goes through `Backend.forms`: into the database when the site is live, into this browser's `localStorage` in demo mode.
 - **Videos come from her YouTube channel.** `api._youtube()` in `data.js` reads the channel's public feed through [rss2json](https://rss2json.com) (YouTube serves the feed without CORS headers, so a browser can't read it directly), caches it for 30 minutes, and merges it over the snapshot in `DB.videos`. New uploads therefore appear on the Media page and in the homepage video slot on their own, usually within the hour; if the relay is unreachable, the snapshot is shown. To drop the relay, replace `_fetchYouTubeFeed()` with the YouTube Data API or a small serverless function. Videos play in an embedded player on a real host; opened from disk (`file://`), YouTube refuses embeds, so the links open YouTube instead.
 - **`js/app.js`** carries the shared DOM helpers (`el`, `showLoading`, `showError`, `showEmpty`) used by every page script. Rendering is done with `createElement`/`textContent` — never `innerHTML` with data-derived strings.
-- **Page scripts** (`music.js`, `media.js`, `events.js`, `talent.js`, `contact.js`, `hero.js`, `admin.js`, `analytics.js`) each guard on their own hooks and no-op elsewhere, which is what lets one bundle load everywhere.
+- **Page scripts** (`music.js`, `media.js`, `events.js`, `talent.js`, `contact.js`, `about.js`, `hero.js`, `analytics.js`) each guard on their own hooks and no-op elsewhere, which is what lets one bundle load everywhere.
 - **Progressive enhancement throughout.** GSAP and the QR library are both optional — if either CDN fails the page still works. The intro film, hero slideshow, and all scroll animation respect `prefers-reduced-motion`.
 - **Design system** lives in `css/main.css` as custom properties: warm near-black, warm white, one wine red used sparingly, a fluid type scale pairing Instrument Serif with Manrope.
 
 - **`js/backend.js`** is the one place the site talks to storage, in one of two modes. With [`js/config.js`](js/config.js) empty it runs in *demo mode* (everything in this browser's `localStorage`); with a Supabase project named there it runs *live* (content, logins and uploads in Supabase, guarded by the database's rules). Every admin screen uses the same methods either way.
 - **`js/content.js`** makes the public pages editable. The words stay in the HTML as the originals; on load it finds every editable word, link, picture and section, keys each one by page / section / position, and applies whatever has been published. Each edit remembers a fingerprint of the words it replaced, so if the code later changes those words the edit is held back for review instead of landing on the wrong line. Published collections (songs, events…) replace the matching part of `DB` before any page reads it.
 - **`js/editor.js`** ("Edit this page") loads only for signed-in admins: click words or pictures on any page to change them, hide sections, set the page's title and share picture, then save a draft or publish.
-- **The admin** is `admin-core.js` (sign-in, roles, the sidebar and shared toolkit), `admin-site.js` (Pages, Header/menus/footer, Publish & history, Media library), `admin-team.js` (People & roles, Activity log) and `admin.js` (the song, event and inbox screens that phase two moves onto the same system).
+- **The admin** is `admin-core.js` (sign-in, roles, the sidebar and shared toolkit), `admin-site.js` (Pages, Header/menus/footer, Publish & history, Media library), `admin-content.js` (the lists: songs, albums, videos, galleries, events, Symphony, About, Ministry, artists, the contact page's options, announcements), `admin-inbox.js` (enquiries, applicants, registrations, check-in, newsletter, and the dashboard's "Needs attention"), `admin-team.js` (People & roles, Activity log) and `admin.js` (a table helper).
 
 ## Admin
 
@@ -51,6 +51,8 @@ Then visit the address it prints. When hosting, GitHub Pages and Netlify map cle
 
 Edits are drafts until published; *Preview* shows the site with drafts applied (only to a signed-in admin), and every publish is kept in *Publish & history*, where an earlier version can be brought back as drafts.
 
+The inbox is where the website's forms land. Enquiries and applicants carry a status and team notes (applicants also a star rating, and their samples open from the admin); registrations can be cancelled, restored, added by hand and checked in. *Event check-in* scans the QR code on a ticket with the phone's camera (the site has to be on https for that) or takes the ticket ID typed in. Every list downloads as a spreadsheet (CSV).
+
 ## Prototype boundaries
 
-Media in `assets/` is placeholder and streaming links are stubs. The song, album, video, event and artist screens, and the inbox screens, still keep their own lists in the browser: phase two of the admin moves them onto drafts, publishing and the database, with full editing.
+Media in `assets/` is placeholder and streaming links are stubs. Email alerts for new enquiries and applications aren't built yet.

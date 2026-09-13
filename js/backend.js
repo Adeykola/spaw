@@ -20,8 +20,14 @@
   "use strict";
 
   const cfg = window.SITE_CONFIG || {};
-  const LIVE = Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey);
-  const SUPABASE_URL = String(cfg.supabaseUrl || "").replace(/\/+$/, "");
+  // A browser with drajokesings:forceDemo = "1" in its localStorage runs in
+  // demo mode even when config.js names a project: for trying things out,
+  // and for the automated tests, without touching the live site.
+  let forceDemo = false;
+  try { forceDemo = localStorage.getItem("drajokesings:forceDemo") === "1"; } catch (_) { /* storage blocked */ }
+  const LIVE = Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey) && !forceDemo;
+  // The project's address, whether it was pasted with an API path or not.
+  const SUPABASE_URL = String(cfg.supabaseUrl || "").trim().replace(/\/+$/, "").replace(/\/(rest|auth|storage)\/v1$/i, "");
   const AUTH_KEY = "drajokesings-auth";
 
   const now = () => new Date().toISOString();
@@ -546,12 +552,248 @@
     return Store.read(`media:${m[1]}`, "") || "";
   }
 
+  /* ===================================================================
+   * FORMS AND THE INBOX
+   * What visitors send (enquiries, event registrations, Talent Quest
+   * applications, newsletter sign-ups) and what the team does with it.
+   * Live, visitors send it through database functions that check the
+   * details and never let them read anything back (supabase/setup-2.sql);
+   * the team reads and updates it signed in. Demo keeps it in this
+   * browser, under the keys the site has always used.
+   * =================================================================== */
+  const STATUS = {
+    enquiries: ["new", "replied", "confirmed", "declined", "archived"],
+    applications: ["received", "shortlisted", "invited", "selected", "not-selected"],
+    registrations: ["registered", "cancelled"],
+  };
+  const newRef = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 6).toUpperCase()}${Date.now().toString(36).slice(-4).toUpperCase()}`;
+  const statusOf = (s, list) => {
+    const v = String(s || "").toLowerCase().replace(/\s+/g, "-");
+    return list.includes(v) ? v : list[0];
+  };
+  const FORM_KEYS = { enquiries: "enquiries", applications: "talentApplications", registrations: "registrations", subscribers: "newsletter" };
+
+  function fromDemo(kind, r) {
+    if (kind === "subscribers") return typeof r === "string" ? { email: r, source: "", subscribedAt: null, unsubscribedAt: null } : { unsubscribedAt: null, ...r };
+    if (kind === "enquiries") return { ...r, status: statusOf(r.status, STATUS.enquiries), note: r.note || "" };
+    if (kind === "applications") return { ...r, status: statusOf(r.status, STATUS.applications), rating: r.rating || 0, note: r.note || "", files: r.files || [] };
+    if (kind === "registrations") return { ...r, status: r.status || "registered", note: r.note || "", source: r.source || "website" };
+    return r;
+  }
+  const demoKeyOf = (kind, r) => (kind === "subscribers" ? (typeof r === "string" ? r : r.email) : r.id);
+  function logInboxChange(kind, before, after) {
+    const label = after.name || after.fullName || after.email || "";
+    if (kind === "registrations" && after.checkedIn && !before.checkedIn) localLog("registration.checkin", label, { event: after.eventName, id: after.id });
+    if (before.status !== undefined && after.status !== before.status) localLog(`${kind}.status`, label, { status: after.status, id: after.id });
+  }
+
+  demo.forms = {
+    async submitEnquiry(payload) {
+      const list = Store.read(FORM_KEYS.enquiries, []);
+      const enquiry = { id: newRef(payload.type === "booking" ? "BKG" : "MSG"), submittedAt: now(), status: "new", note: "", ...payload };
+      list.push(enquiry);
+      mustWrite(FORM_KEYS.enquiries, list);
+      if (payload.joinNewsletter) { try { await demo.forms.subscribe(payload.email, "contact form"); } catch (_) { /* already on the list */ } }
+      return enquiry;
+    },
+    async subscribe(email, source = "") {
+      const list = Store.read(FORM_KEYS.subscribers, []).map((s) => fromDemo("subscribers", s));
+      const mail = lower(email);
+      const found = list.find((s) => s.email === mail);
+      if (found && !found.unsubscribedAt) throw new Error("You're already on the list.");
+      if (found) Object.assign(found, { unsubscribedAt: null, subscribedAt: now(), source });
+      else list.push({ email: mail, source, subscribedAt: now(), unsubscribedAt: null });
+      mustWrite(FORM_KEYS.subscribers, list);
+      return { email: mail };
+    },
+    async registerForEvent(event, attendee, source = "website") {
+      const list = Store.read(FORM_KEYS.registrations, []);
+      const mail = lower(attendee.email);
+      if (list.some((r) => r.eventId === event.id && lower(r.email) === mail && (r.status || "registered") === "registered")) {
+        throw new Error("You're already registered for this event with that email.");
+      }
+      const reg = {
+        id: newRef("REG"), eventId: event.id, eventName: event.name,
+        name: String(attendee.name).trim(), email: String(attendee.email).trim(), phone: String(attendee.phone || "").trim(),
+        status: "registered", checkedIn: false, checkedInAt: null, source, note: "", registeredAt: now(),
+      };
+      list.push(reg);
+      mustWrite(FORM_KEYS.registrations, list);
+      return reg;
+    },
+    async addRegistration(event, attendee) { return demo.forms.registerForEvent(event, attendee, "admin"); },
+    async submitApplication(payload, files = []) {
+      const list = Store.read(FORM_KEYS.applications, []);
+      // A browser can't hold audio or video for the demo: the names are kept.
+      const application = {
+        id: newRef("SYM"), submittedAt: now(), status: "received", rating: 0, note: "", ...payload,
+        files: files.map((f) => ({ name: f.name, size: f.size, type: f.type, kind: f.kind || "", path: null })),
+      };
+      list.push(application);
+      mustWrite(FORM_KEYS.applications, list);
+      return application;
+    },
+    async eventCounts() {
+      const counts = {};
+      Store.read(FORM_KEYS.registrations, []).forEach((r) => {
+        if ((r.status || "registered") === "registered") counts[r.eventId] = (counts[r.eventId] || 0) + 1;
+      });
+      return counts;
+    },
+    async list(kind) {
+      return Store.read(FORM_KEYS[kind], []).map((r) => fromDemo(kind, r));
+    },
+    async update(kind, id, patch) {
+      const list = Store.read(FORM_KEYS[kind], []);
+      const i = list.findIndex((r) => demoKeyOf(kind, r) === id);
+      if (i === -1) throw new Error("That entry no longer exists.");
+      const before = fromDemo(kind, list[i]);
+      const after = { ...before, ...patch, updatedAt: now(), updatedBy: localSessionEmail() };
+      list[i] = after;
+      mustWrite(FORM_KEYS[kind], list);
+      logInboxChange(kind, before, after);
+      return after;
+    },
+    async remove(kind, id) {
+      requireRole(["owner"]);
+      const list = Store.read(FORM_KEYS[kind], []);
+      Store.write(FORM_KEYS[kind], list.filter((r) => demoKeyOf(kind, r) !== id));
+      localLog(`${kind}.delete`, id);
+    },
+    async checkIn(id) {
+      const list = Store.read(FORM_KEYS.registrations, []);
+      const reg = list.find((r) => String(r.id).toUpperCase() === String(id).trim().toUpperCase());
+      if (!reg) throw new Error("No registration found with that ID.");
+      if (reg.status === "cancelled") throw new Error("That registration was cancelled.");
+      if (reg.checkedIn) throw new Error(`Already checked in at ${new Date(reg.checkedInAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}.`);
+      const before = { ...reg };
+      reg.checkedIn = true;
+      reg.checkedInAt = now();
+      mustWrite(FORM_KEYS.registrations, list);
+      logInboxChange("registrations", before, reg);
+      return fromDemo("registrations", reg);
+    },
+    async fileUrl() { return null; },
+  };
+
+  // Calls a database function as a visitor (no sign-in, no client library).
+  async function rpc(name, args) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
+      method: "POST",
+      headers: { ...publicHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify(args || {}),
+    });
+    const text = await res.text();
+    let body = null;
+    try { body = text ? JSON.parse(text) : null; } catch (_) { body = text; }
+    if (!res.ok) {
+      const code = body && body.code;
+      if (code === "PGRST202" || res.status === 404) {
+        console.error(`[backend] ${name}() isn't in the database: run supabase/setup-2.sql in Supabase.`);
+        throw new Error("Sorry, this can't be sent just now. Please try again later.");
+      }
+      throw new Error((body && body.message) || `Request failed (${res.status}).`);
+    }
+    return body;
+  }
+
+  // Talent Quest samples go straight into the private "applications" folder.
+  async function uploadSample(file) {
+    const ext = (file.name.match(/\.[a-z0-9]{2,5}$/i) || [""])[0].toLowerCase();
+    const path = `incoming/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}/${slugify(file.name.replace(/\.[^.]+$/, ""))}${ext}`;
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/applications/${path}`, {
+      method: "POST",
+      headers: { ...publicHeaders(), "Content-Type": file.type || "application/octet-stream", "x-upsert": "false" },
+      body: file,
+    });
+    if (!res.ok) {
+      let message = "";
+      try { message = (await res.json()).message || ""; } catch (_) { /* no body */ }
+      throw new Error(message ? `The file didn't upload: ${message}` : `The file didn't upload (${res.status}).`);
+    }
+    return { path, name: file.name, size: file.size, type: file.type, kind: file.kind || "" };
+  }
+
+  function fromRow(kind, r) {
+    if (kind === "enquiries") {
+      return { ...(r.data || {}), id: r.id, type: r.type, status: r.status, name: r.name, email: r.email, phone: r.phone || "", subject: r.subject || "", message: r.message || "", note: r.note || "", submittedAt: r.submitted_at, updatedAt: r.updated_at, updatedBy: r.updated_by };
+    }
+    if (kind === "applications") {
+      const d = r.data || {};
+      return { ...d, id: r.id, fullName: r.full_name, email: r.email, phone: r.phone || "", location: r.location || "", track: r.track || "", status: r.status, rating: r.rating || 0, note: r.note || "", files: d.files || [], submittedAt: r.submitted_at, updatedAt: r.updated_at, updatedBy: r.updated_by };
+    }
+    if (kind === "registrations") {
+      return { id: r.id, eventId: r.event_id, eventName: r.event_name, name: r.name, email: r.email, phone: r.phone || "", status: r.status, checkedIn: r.checked_in, checkedInAt: r.checked_in_at, source: r.source, note: r.note || "", registeredAt: r.registered_at, updatedAt: r.updated_at };
+    }
+    if (kind === "subscribers") return { email: r.email, source: r.source || "", subscribedAt: r.subscribed_at, unsubscribedAt: r.unsubscribed_at };
+    return r;
+  }
+  const ROW_FIELDS = { status: "status", note: "note", rating: "rating", checkedIn: "checked_in", checkedInAt: "checked_in_at", unsubscribedAt: "unsubscribed_at" };
+  const ORDER = { enquiries: "submitted_at", applications: "submitted_at", registrations: "registered_at", subscribers: "subscribed_at" };
+
+  live.forms = {
+    async submitEnquiry(payload) {
+      const r = await rpc("submit_enquiry", { payload });
+      return { ...payload, id: r.id, submittedAt: r.submittedAt, status: "new" };
+    },
+    async subscribe(email, source = "") {
+      const r = await rpc("subscribe", { p_email: email, p_source: source });
+      if (r === "exists") throw new Error("You're already on the list.");
+      return { email: lower(email) };
+    },
+    async registerForEvent(event, attendee) {
+      return rpc("register_for_event", { p_event_id: event.id, p_event_name: event.name, p_name: attendee.name, p_email: attendee.email, p_phone: attendee.phone || null });
+    },
+    async addRegistration(event, attendee) {
+      const sb = await client();
+      return must(await sb.rpc("register_for_event", { p_event_id: event.id, p_event_name: event.name, p_name: attendee.name, p_email: attendee.email, p_phone: attendee.phone || null }));
+    },
+    async submitApplication(payload, files = []) {
+      const uploaded = [];
+      for (const f of files) uploaded.push(await uploadSample(f));
+      const r = await rpc("submit_application", { payload: { ...payload, files: uploaded } });
+      return { ...payload, id: r.id, submittedAt: r.submittedAt, files: uploaded };
+    },
+    async eventCounts() {
+      const rows = await rpc("event_counts", {});
+      return Object.fromEntries((rows || []).map((r) => [r.event_id, Number(r.registered)]));
+    },
+    async list(kind) {
+      const sb = await client();
+      const rows = must(await sb.from(kind).select("*").order(ORDER[kind], { ascending: false }).limit(5000));
+      return rows.map((r) => fromRow(kind, r));
+    },
+    async update(kind, id, patch) {
+      const row = {};
+      Object.entries(patch).forEach(([k, v]) => { if (ROW_FIELDS[k]) row[ROW_FIELDS[k]] = v; });
+      const sb = await client();
+      const data = must(await sb.from(kind).update(row).eq(kind === "subscribers" ? "email" : "id", id).select().maybeSingle());
+      if (!data) throw new Error("That entry no longer exists, or your role can't change it.");
+      return fromRow(kind, data);
+    },
+    async remove(kind, id) {
+      const sb = await client();
+      must(await sb.from(kind).delete().eq(kind === "subscribers" ? "email" : "id", id));
+    },
+    async checkIn(id) {
+      const sb = await client();
+      return fromRow("registrations", must(await sb.rpc("check_in", { p_id: id })));
+    },
+    async fileUrl(path) {
+      const sb = await client();
+      const { data, error } = await sb.storage.from("applications").createSignedUrl(path, 3600);
+      if (error) throw friendly(error);
+      return data.signedUrl;
+    },
+  };
+
   const impl = LIVE ? live : demo;
   window.Backend = Object.freeze({
     mode: LIVE ? "live" : "demo",
     root: ROOT,
     ROLES,
     ROLE_HELP,
+    STATUS,
     can,
     isEmail,
     fetchPublished,
@@ -563,5 +805,6 @@
     people: impl.people,
     activity: impl.activity,
     media: impl.media,
+    forms: impl.forms,
   });
 })();

@@ -10,12 +10,15 @@ Supabase's free plan is enough to start. Nothing here needs a server of your own
 2. Give it a name (for example `dr-ajokesings`), set a strong database password and keep it somewhere safe, and pick the region nearest most visitors.
 3. Wait a minute or two while it's created.
 
-## 2. Run the setup script
+## 2. Run the setup scripts
 
 1. Open [`setup.sql`](setup.sql) and, at the very bottom, replace `owner@example.com` and `Owner name` with the email address and name of the site's Owner.
 2. In Supabase, open **SQL Editor → New query**, paste the whole file, and press **Run**. It should finish with "Success. No rows returned".
+3. Do the same with [`setup-2.sql`](setup-2.sql). There's nothing to change in it.
 
-It creates the tables for content, drafts, history, people and the activity log; the security rules that decide who can do what; and a public `media` folder for uploads. Running it again later is safe.
+`setup.sql` creates the tables for content, drafts, history, people and the activity log; the security rules that decide who can do what; and a public `media` folder for uploads. `setup-2.sql` adds the inbox: contact and booking enquiries, Talent Quest applications with a private folder for their audio and video samples, event registrations and check-in, and the newsletter list. Running either again later is safe.
+
+**Ran `setup.sql` before the inbox existed?** Run `setup-2.sql` now. Until it has run, the website's forms (contact and booking, event registration, the Talent Quest, the newsletter) can't save anything and show visitors an error.
 
 ## 3. Sign-in settings
 
@@ -56,6 +59,8 @@ That key is meant to be public: it only lets a visitor do what the security rule
 | --- | :---: | :---: | :---: |
 | Edit and publish the website, upload files | ✓ | ✓ | |
 | See the inbox, applicants, registrations; check people in | ✓ | ✓ | ✓ |
+| Change statuses, ratings and notes; register someone by hand | ✓ | ✓ | ✓ |
+| Delete enquiries, applicants, registrations, subscribers | ✓ | | |
 | Add, change and remove people | ✓ | | |
 
 The database enforces this on every request, whatever a browser sends. Visitors can only read what has been published. There is always at least one Owner: the last one can't be removed or demoted.
@@ -65,10 +70,15 @@ The database enforces this on every request, whatever a browser sends. Visitors 
 | Table | Holds |
 | --- | --- |
 | `admins` | Who can sign in: email, name, role |
-| `content` | What's live: one row per page (`page:index`, `page:global` for the header, menus and footer) and, later, per collection |
+| `content` | What's live: one row per page (`page:index`, `page:global` for the header, menus and footer) and one per list (`tracks`, `events`, `videos`, `announcements`…) |
 | `content_drafts` | Changes saved but not yet published |
 | `content_versions` | A full copy of the live content at every publish, for bringing an earlier version back |
-| `activity` | Sign-ins, publishing, uploads and changes to people |
-| storage bucket `media` | Uploaded pictures and files |
+| `activity` | Sign-ins, publishing, uploads, changes to people, and inbox status changes and check-ins |
+| `enquiries` | Contact messages and booking requests, with their status and the team's notes |
+| `applications` | Talent Quest applications: details, samples, stage, rating, notes |
+| `registrations` | Event registrations: ticket ID, check-in time, cancelled or not |
+| `subscribers` | The newsletter list |
+| storage bucket `media` | Uploaded pictures and files (public) |
+| storage bucket `applications` | Talent Quest samples (private: only the admin team can open them) |
 
-Later phases of the admin (the inbox, registrations and analytics) add their own tables with a second, shorter script.
+Visitors never read the inbox tables. The forms send through database functions (`submit_enquiry`, `register_for_event`, `submit_application`, `subscribe`) that check the details first; registration also checks the event is open and has room.

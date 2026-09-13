@@ -80,19 +80,12 @@
   <main class="admin-main">
     <p class="admin-mode-banner" data-mode-banner hidden></p>
 
-    <!-- Website screens (admin-site.js, admin-team.js render these) -->
-    <section class="admin-panel" data-panel="pages" hidden></section>
-    <section class="admin-panel" data-panel="site" hidden></section>
-    <section class="admin-panel" data-panel="publish" hidden></section>
-    <section class="admin-panel" data-panel="media" hidden></section>
-    <section class="admin-panel" data-panel="people" hidden></section>
-    <section class="admin-panel" data-panel="activity" hidden></section>
-
-    <!-- Dashboard / Analytics -->
+    <!-- Dashboard: what needs attention (admin-inbox.js) above the analytics (analytics.js) -->
     <section class="admin-panel" data-panel="dashboard" hidden>
       <div class="admin-panel__head">
-        <div><h1 class="admin-panel__title display">Dashboard</h1><p class="admin-panel__sub">Visitors, engagement, and event health at a glance.</p></div>
+        <div><h1 class="admin-panel__title display">Dashboard</h1><p class="admin-panel__sub">What needs attention, then visitors, engagement and event health.</p></div>
       </div>
+      <div data-attention></div>
       <div class="stat-grid" data-stat-cards></div>
       <div class="chart-grid">
         <div class="chart-card"><p class="chart-card__title">Visitors — last 14 days</p><div data-chart-visitors></div></div>
@@ -105,161 +98,34 @@
       <div class="chart-card"><p class="chart-card__title">Event registration health</p><div class="chart-list" data-chart-events></div></div>
     </section>
 
-    <!-- Music -->
-    <section class="admin-panel" data-panel="music" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Music</h1><p class="admin-panel__sub">Manage the track catalogue.</p></div></div>
-      <div class="admin-layout">
-        <div data-crud-table></div>
-        <div class="admin-card">
-          <p class="admin-card__title">Add a track</p>
-          <form data-crud-form>
-            <p class="form-error-banner" data-crud-error></p>
-            <div class="field"><label>Title *</label><input type="text" name="title" required></div>
-            <div class="field"><label>Artist</label><input type="text" name="artist" value="Dr AjokeSings"></div>
-            <div class="field"><label>Duration (seconds) *</label><input type="number" name="duration" min="1" required></div>
-            <div class="field"><label>Release date *</label><input type="date" name="releaseDate" required></div>
-            <div class="checkbox-field" style="margin-bottom: var(--space-s);"><input type="checkbox" name="isSingle" id="track-single"><label for="track-single">This is a standalone single</label></div>
-            <button type="submit" class="btn btn-solid">Add track</button>
-          </form>
-        </div>
-      </div>
-    </section>
+    <!-- Every other screen draws itself into its section:
+         the inbox (admin-inbox.js), the website (admin-site.js), content
+         (admin-content.js), and the team (admin-team.js). -->
+    <section class="admin-panel" data-panel="enquiries" hidden></section>
+    <section class="admin-panel" data-panel="talent" hidden></section>
+    <section class="admin-panel" data-panel="registrations" hidden></section>
+    <section class="admin-panel" data-panel="checkin" hidden></section>
+    <section class="admin-panel" data-panel="subscribers" hidden></section>
 
-    <!-- Albums -->
-    <section class="admin-panel" data-panel="albums" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Albums</h1><p class="admin-panel__sub">Manage the discography.</p></div></div>
-      <div class="admin-layout">
-        <div data-crud-table></div>
-        <div class="admin-card">
-          <p class="admin-card__title">Add an album</p>
-          <form data-crud-form>
-            <p class="form-error-banner" data-crud-error></p>
-            <div class="field"><label>Title *</label><input type="text" name="title" required></div>
-            <div class="field"><label>Year *</label><input type="number" name="year" required></div>
-            <div class="field"><label>Description</label><textarea name="description"></textarea></div>
-            <button type="submit" class="btn btn-solid">Add album</button>
-          </form>
-        </div>
-      </div>
-    </section>
+    <section class="admin-panel" data-panel="pages" hidden></section>
+    <section class="admin-panel" data-panel="site" hidden></section>
+    <section class="admin-panel" data-panel="announcements" hidden></section>
+    <section class="admin-panel" data-panel="publish" hidden></section>
+    <section class="admin-panel" data-panel="media" hidden></section>
 
-    <!-- Videos -->
-    <section class="admin-panel" data-panel="videos" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Videos</h1><p class="admin-panel__sub">Manage the video library.</p></div></div>
-      <div class="admin-layout">
-        <div data-crud-table></div>
-        <div class="admin-card">
-          <p class="admin-card__title">Add a video</p>
-          <form data-crud-form>
-            <p class="form-error-banner" data-crud-error></p>
-            <div class="field"><label>Title *</label><input type="text" name="title" required></div>
-            <div class="field"><label>YouTube ID *</label><input type="text" name="youtubeId" required></div>
-            <div class="field"><label>Published *</label><input type="date" name="published" required></div>
-            <button type="submit" class="btn btn-solid">Add video</button>
-          </form>
-        </div>
-      </div>
-    </section>
+    <section class="admin-panel" data-panel="music" hidden></section>
+    <section class="admin-panel" data-panel="albums" hidden></section>
+    <section class="admin-panel" data-panel="videos" hidden></section>
+    <section class="admin-panel" data-panel="galleries" hidden></section>
+    <section class="admin-panel" data-panel="events" hidden></section>
+    <section class="admin-panel" data-panel="symphony" hidden></section>
+    <section class="admin-panel" data-panel="about" hidden></section>
+    <section class="admin-panel" data-panel="ministry" hidden></section>
+    <section class="admin-panel" data-panel="emerging" hidden></section>
+    <section class="admin-panel" data-panel="contact-page" hidden></section>
 
-    <!-- Events -->
-    <section class="admin-panel" data-panel="events" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Events</h1><p class="admin-panel__sub">Manage the public event calendar.</p></div></div>
-      <div class="admin-layout">
-        <div data-crud-table></div>
-        <div class="admin-card">
-          <p class="admin-card__title">Add an event</p>
-          <form data-crud-form>
-            <p class="form-error-banner" data-crud-error></p>
-            <div class="field"><label>Name *</label><input type="text" name="name" required></div>
-            <div class="field"><label>Venue *</label><input type="text" name="venue" required></div>
-            <div class="field"><label>City *</label><input type="text" name="city" required></div>
-            <div class="field"><label>Date *</label><input type="date" name="date" required></div>
-            <div class="field"><label>Time *</label><input type="time" name="time" required></div>
-            <div class="field"><label>Capacity *</label><input type="number" name="capacity" min="1" required></div>
-            <button type="submit" class="btn btn-solid">Add event</button>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- Registrations -->
-    <section class="admin-panel" data-panel="registrations" hidden>
-      <div class="admin-panel__head">
-        <div><h1 class="admin-panel__title display">Registrations</h1><p class="admin-panel__sub">Everyone registered across all events.</p></div>
-        <label class="search-field" style="border-color: var(--paper-line); color: var(--ink);">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.5"/></svg>
-          <input type="search" placeholder="Search name or email" data-registrations-search>
-        </label>
-      </div>
-      <div data-registrations-table></div>
-    </section>
-
-    <!-- Contact & booking enquiries -->
-    <section class="admin-panel" data-panel="enquiries" hidden>
-      <div class="admin-panel__head">
-        <div><h1 class="admin-panel__title display">Contact &amp; Bookings</h1><p class="admin-panel__sub">Everything sent through the contact page &mdash; general messages and booking requests.</p></div>
-        <div class="filter-pills" data-enquiry-filters>
-          <button type="button" class="filter-pill" data-enquiry-filter="all" aria-pressed="true">All</button>
-          <button type="button" class="filter-pill" data-enquiry-filter="booking" aria-pressed="false">Bookings</button>
-          <button type="button" class="filter-pill" data-enquiry-filter="message" aria-pressed="false">Messages</button>
-        </div>
-      </div>
-      <div class="admin-layout">
-        <div data-enquiries-table></div>
-        <div class="detail-panel">
-          <p class="admin-card__title">Enquiry detail</p>
-          <div data-enquiry-detail><p class="detail-panel__empty">Select an enquiry to view it in full.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Talent applicants -->
-    <section class="admin-panel" data-panel="talent" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Talent Applicants</h1><p class="admin-panel__sub">Symphony of Praise &amp; Worship submissions.</p></div></div>
-      <div class="admin-layout">
-        <div data-talent-table></div>
-        <div class="detail-panel">
-          <p class="admin-card__title">Applicant detail</p>
-          <div data-talent-detail><p class="detail-panel__empty">Select an applicant to view details.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Emerging artists -->
-    <section class="admin-panel" data-panel="emerging" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Emerging Artists</h1><p class="admin-panel__sub">Talent Quest alumni roster.</p></div></div>
-      <div class="admin-layout">
-        <div data-crud-table></div>
-        <div class="admin-card">
-          <p class="admin-card__title">Add an artist</p>
-          <form data-crud-form>
-            <p class="form-error-banner" data-crud-error></p>
-            <div class="field"><label>Name *</label><input type="text" name="name" required></div>
-            <div class="field"><label>Role *</label><input type="text" name="role" placeholder="Vocalist, Class of 2026" required></div>
-            <div class="field"><label>Bio</label><textarea name="bio"></textarea></div>
-            <button type="submit" class="btn btn-solid">Add artist</button>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- Check-in -->
-    <section class="admin-panel" data-panel="checkin" hidden>
-      <div class="admin-panel__head"><div><h1 class="admin-panel__title display">Event Check-in</h1><p class="admin-panel__sub">Enter or scan a registration ID to check an attendee in.</p></div></div>
-      <div class="checkin-panel">
-        <form data-checkin-form>
-          <div class="field"><label for="checkin-id">Registration ID</label>
-            <div class="checkin-input-row">
-              <input type="text" id="checkin-id" placeholder="REG-XXXXXXX" autocomplete="off">
-              <button type="button" class="btn btn-ghost" data-checkin-simulate style="border-color: var(--paper-line); color: var(--ink);">Simulate scan</button>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-solid">Verify &amp; check in</button>
-        </form>
-        <div class="checkin-result" data-checkin-result></div>
-      </div>
-    </section>
-
+    <section class="admin-panel" data-panel="people" hidden></section>
+    <section class="admin-panel" data-panel="activity" hidden></section>
   </main>
 </div>
 
@@ -275,5 +141,7 @@
 <script src="js/admin.js"></script>
 <script src="js/admin-site.js"></script>
 <script src="js/admin-team.js"></script>
+<script src="js/admin-content.js"></script>
+<script src="js/admin-inbox.js"></script>
 </body>
 </html>

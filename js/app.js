@@ -434,24 +434,21 @@ async function renderMinistryContent() {
       );
     }
 
+    // A resource with a file uploaded in the admin downloads it; one without
+    // (yet) sends people to ask for it.
     if (resourcesEl) {
       resourcesEl.replaceChildren(
         ...ministry.resources.map((r) => {
-          const btn = el("button", { class: "btn btn-line", type: "button", text: "Download" });
-          btn.addEventListener("click", () => {
-            btn.textContent = "Preparing\u2026";
-            btn.disabled = true;
-            setTimeout(() => {
-              btn.textContent = "Ready \u2014 check downloads";
-              setTimeout(() => { btn.textContent = "Download"; btn.disabled = false; }, 2200);
-            }, 900);
-          });
+          const url = r.url && window.Content ? Content.resolveMedia(Content.safeUrl(r.url, "image") || Content.safeUrl(r.url)) : "";
+          const action = url
+            ? el("a", { class: "btn btn-line", href: url, download: "", target: "_blank", rel: "noopener", text: "Download" })
+            : el("a", { class: "btn btn-line", href: "contact", text: "Ask for it" });
           return el("div", { class: "resource-row" }, [
             el("div", {}, [
               el("p", { class: "resource-row__title", text: r.title }),
-              el("p", { class: "resource-row__meta", text: `${r.type} \u00b7 ${r.size}` }),
+              el("p", { class: "resource-row__meta", text: [r.type, r.size].filter(Boolean).join(" \u00b7 ") }),
             ]),
-            btn,
+            action,
           ]);
         })
       );

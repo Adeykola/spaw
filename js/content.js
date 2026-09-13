@@ -84,7 +84,9 @@
    * breaks, nothing else. They are parsed into an inert <template> (no
    * scripts run, nothing loads) and rebuilt node by node, so no markup
    * from storage ever reaches the page as-is. */
-  function richFragment(html) {
+  // { links: true } also keeps links (FAQ answers, say), with nothing but a
+  // checked address; links off the site open in a new tab.
+  function richFragment(html, { links = false } = {}) {
     const tpl = document.createElement("template");
     tpl.innerHTML = String(html == null ? "" : html);
     const out = document.createDocumentFragment();
@@ -97,15 +99,26 @@
         if (tag === "BR") { to.appendChild(document.createElement("br")); return; }
         if (tag === "EM" || tag === "I") { const e = document.createElement("em"); copy(n, e); to.appendChild(e); return; }
         if (tag === "STRONG" || tag === "B") { const s = document.createElement("strong"); copy(n, s); to.appendChild(s); return; }
+        if (tag === "A" && links) {
+          const href = safeUrl(n.getAttribute("href"));
+          if (href) {
+            const a = document.createElement("a");
+            a.setAttribute("href", href);
+            if (/^https?:/i.test(href)) { a.setAttribute("target", "_blank"); a.setAttribute("rel", "noopener"); }
+            copy(n, a);
+            to.appendChild(a);
+            return;
+          }
+        }
         copy(n, to); // anything else is unwrapped, keeping its words
       });
     };
     copy(tpl.content, out);
     return out;
   }
-  function sanitizeRich(html) {
+  function sanitizeRich(html, opts) {
     const d = document.createElement("div");
-    d.appendChild(richFragment(html));
+    d.appendChild(richFragment(html, opts));
     return d.innerHTML
       .replace(/[ \t\n\r\f]+/g, " ")
       .replace(/^(?:\s*<br>)+|(?:<br>\s*)+$/g, "")
@@ -138,7 +151,9 @@
     "data-reveal", "data-magnetic", "data-hero-anim", "data-cursor-text", "data-split-words",
     "data-hero-more", "data-intro-enter", "data-reveal-delay",
   ]);
-  const SKIP = ".sig, .brand, script, style, svg, noscript, template, .sr-only, .cursor, .cursor__label, [data-edit-skip], input, select, textarea, option, video, audio, iframe, canvas, .grain, .scroll-progress, .hero__rail-num, .mode-option__num";
+  // [data-list] marks a list drawn from a collection (the About timeline,
+  // the FAQ…): its items are edited as a list in the admin, not as words.
+  const SKIP = ".sig, .brand, script, style, svg, noscript, template, .sr-only, .cursor, .cursor__label, [data-edit-skip], [data-list], input, select, textarea, option, video, audio, iframe, canvas, .grain, .scroll-progress, .hero__rail-num, .mode-option__num";
   const ANCHORS = "section, nav, header, footer, dialog, [data-intro]";
   const GLOBAL_ROOTS = "header.site-header, nav.mobile-nav, footer.site-footer";
   const GLOBAL_LABELS = { header: "Header", primary: "Top menu", mobile: "Phone menu", footer: "Footer" };
@@ -368,10 +383,23 @@
 
   /* ---- Collections: published keys replace parts of DB ------------ */
   const DB_ORIGINAL = typeof DB !== "undefined" ? clone(DB) : null;
+  // Demo uploads are referenced as local-media:<id>. Every picture or file in
+  // a published collection is swapped for the stored copy on the way in, so
+  // page scripts never need to know. (Live uploads are plain web links.)
+  function resolveDeep(v) {
+    if (typeof v === "string") return /^local-media:/.test(v) ? resolveMedia(v) : v;
+    if (Array.isArray(v)) return v.map(resolveDeep);
+    if (v && typeof v === "object") {
+      const out = {};
+      Object.keys(v).forEach((k) => { out[k] = resolveDeep(v[k]); });
+      return out;
+    }
+    return v;
+  }
   function mergeCollections(content) {
     if (!DB_ORIGINAL) return;
     Object.keys(DB_ORIGINAL).forEach((k) => {
-      DB[k] = content && content[k] != null ? clone(content[k]) : clone(DB_ORIGINAL[k]);
+      DB[k] = content && content[k] != null ? resolveDeep(content[k]) : clone(DB_ORIGINAL[k]);
     });
   }
 
@@ -532,6 +560,53 @@
   window.ContentReady = Promise.race([Promise.allSettled(tasks), new Promise((r) => setTimeout(r, 4000))]).then(() => {
     html.classList.remove("is-content-loading");
   });
+
+  // 3. The announcement bar (admin → Announcements): the first active one
+  //    inside its dates, until the visitor closes it.
+  window.ContentReady.then(renderAnnouncement);
+  function renderAnnouncement() {
+    const list = typeof DB !== "undefined" && Array.isArray(DB.announcements) ? DB.announcements : [];
+    const today = new Date().toISOString().slice(0, 10);
+    const a = list.find((x) => x && x.active !== false && normalize(x.text) && (!x.start || x.start <= today) && (!x.end || x.end >= today));
+    const old = document.querySelector("[data-announcement]");
+    if (old) old.remove();
+    html.classList.remove("has-announcement");
+    if (!a) return;
+    let dismissed = [];
+    try { dismissed = JSON.parse(localStorage.getItem("drajokesings:dismissed") || "[]"); } catch (_) { /* none */ }
+    const sig = fingerprint(`${a.id || ""}|${a.text}|${a.link || ""}`);
+    if (dismissed.includes(sig)) return;
+
+    const bar = document.createElement("div");
+    bar.className = "announce";
+    bar.setAttribute("data-announcement", "");
+    bar.setAttribute("role", "region");
+    bar.setAttribute("aria-label", "Announcement");
+    const text = document.createElement("p");
+    text.className = "announce__text";
+    text.textContent = normalize(a.text);
+    const href = safeUrl(a.link);
+    if (href) {
+      const link = document.createElement("a");
+      link.className = "announce__link";
+      link.href = href;
+      link.textContent = normalize(a.linkLabel) || "Find out more";
+      text.append(" ", link);
+    }
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "announce__close";
+    close.setAttribute("aria-label", "Close this announcement");
+    close.textContent = "×";
+    close.addEventListener("click", () => {
+      bar.remove();
+      html.classList.remove("has-announcement");
+      try { localStorage.setItem("drajokesings:dismissed", JSON.stringify([...dismissed, sig].slice(-20))); } catch (_) { /* fine */ }
+    });
+    bar.append(text, close);
+    document.body.prepend(bar);
+    html.classList.add("has-announcement");
+  }
 
   // 3. An admin is (or was) signed in on this browser: offer the editor.
   if (signedIn) {

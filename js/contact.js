@@ -15,9 +15,43 @@
  * ----------------------------------------------------------------------
  */
 document.addEventListener("DOMContentLoaded", () => {
+  renderContactLists();
   wireContactForm();
   wireYear();
 });
+
+// The FAQ and the booking form's choices come from DB.contact once the
+// admin has published them; until then the page's own HTML is current.
+async function renderContactLists() {
+  await (window.ContentReady || Promise.resolve());
+  const content = window.Content ? Content.mergedContent() : null;
+  if (!content || content.contact == null || !DB.contact) return;
+  const c = DB.contact;
+
+  const faq = document.querySelector('[data-list="faq"]');
+  if (faq && Array.isArray(c.faq)) {
+    faq.replaceChildren(...c.faq.filter((q) => q && q.question).map((q) => {
+      const answer = document.createElement("p");
+      answer.appendChild(Content.richFragment(q.answer, { links: true }));
+      return el("details", { class: "faq__item" }, [el("summary", { text: q.question }), el("div", { class: "faq__body" }, [answer])]);
+    }));
+  }
+
+  const fill = (select, items, first) => {
+    if (!select || !Array.isArray(items)) return;
+    const keep = select.value;
+    select.replaceChildren(el("option", { value: "", text: first }), ...items.filter(Boolean).map((t) => el("option", { value: t, text: t })));
+    select.value = keep;
+  };
+  fill(document.querySelector("#c-event-type"), c.eventTypes, "Select one");
+  fill(document.querySelector("#c-budget"), c.budgets, "Prefer to discuss");
+
+  const needs = document.querySelector('[data-list="needs"]');
+  if (needs && Array.isArray(c.needs)) {
+    needs.replaceChildren(...c.needs.filter(Boolean).map((t) =>
+      el("label", { class: "checkbox-field" }, [el("input", { type: "checkbox", name: "needs", value: t }), el("span", { text: t })])));
+  }
+}
 
 function wireContactForm() {
   const form = document.querySelector("[data-contact-form]");

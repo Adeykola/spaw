@@ -31,8 +31,17 @@ async function renderEventsList() {
 
     list.replaceChildren(
       ...events.map((e) => {
-        const pct = Math.min(100, Math.round((e.registered / e.capacity) * 100));
-        const registerBtn = el("button", { class: "btn btn-solid", type: "button", text: "Register" });
+        const pct = e.capacity ? Math.min(100, Math.round((e.registered / e.capacity) * 100)) : 0;
+        const past = new Date(`${e.date}T23:59:59`).getTime() < Date.now();
+        const closed = e.registrationOpen === false || past;
+        const full = !closed && e.capacity && e.registered >= e.capacity;
+        e.canRegister = !closed && !full;
+        const registerBtn = el("button", {
+          class: "btn btn-solid",
+          type: "button",
+          text: past ? "Event over" : closed ? "Registration closed" : full ? "Full" : "Register",
+          disabled: !e.canRegister,
+        });
         registerBtn.addEventListener("click", () => openRegisterModal(e));
 
         return el("article", { class: "event-full-row" }, [
@@ -59,7 +68,7 @@ async function renderEventsList() {
     const wanted = events.findIndex((e) => e.id === (params.get("register") || params.get("id")));
     if (wanted !== -1) {
       list.children[wanted]?.scrollIntoView({ block: "center" });
-      if (params.has("register")) openRegisterModal(events[wanted]);
+      if (params.has("register") && events[wanted].canRegister) openRegisterModal(events[wanted]);
     }
   } catch (err) {
     console.error("[events] list failed", err);

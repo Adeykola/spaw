@@ -112,7 +112,8 @@
     const n = Object.keys(drafts).length;
     // Long labels on wide screens, short ones on phones (editor.css).
     const label = (long, short) => [h("span", { class: "edit-dock__long", text: long }), h("span", { class: "edit-dock__short", text: short })];
-    dock.replaceChildren(
+    // replaceChildren would write a skipped button out as the word "null".
+    dock.replaceChildren(...[
       canEdit ? btn(label("Edit this page", "Edit"), startEditing, { cls: "edit-dock__main" }) : null,
       canEdit && (n || S.preview)
         ? btn(
@@ -121,8 +122,8 @@
           { title: S.preview ? "You're seeing unpublished drafts. Visitors see the live site." : "See the site with the drafts applied (only you see this)." }
         )
         : null,
-      h("a", { class: "edit-btn edit-dock__link", href: ADMIN_URL }, canEdit ? "Admin" : `Admin (${Backend.ROLES[session.role]})`)
-    );
+      h("a", { class: "edit-btn edit-dock__link", href: ADMIN_URL }, canEdit ? "Admin" : `Admin (${Backend.ROLES[session.role]})`),
+    ].filter(Boolean));
   }
   function togglePreview() {
     try {

@@ -21,10 +21,21 @@
   const NAV = [
     { group: "Overview", items: [["dashboard", "Dashboard", ALL]] },
     {
+      group: "Inbox",
+      items: [
+        ["enquiries", "Contact & bookings", ALL],
+        ["talent", "Talent applicants", ALL],
+        ["registrations", "Registrations", ALL],
+        ["checkin", "Event check-in", ALL],
+        ["subscribers", "Newsletter", ALL],
+      ],
+    },
+    {
       group: "Website",
       items: [
         ["pages", "Pages", EDIT],
         ["site", "Header, menus & footer", EDIT],
+        ["announcements", "Announcements", EDIT],
         ["publish", "Publish & history", EDIT],
         ["media", "Media library", EDIT],
       ],
@@ -32,20 +43,16 @@
     {
       group: "Content",
       items: [
-        ["music", "Music", EDIT],
+        ["music", "Songs", EDIT],
         ["albums", "Albums", EDIT],
         ["videos", "Videos", EDIT],
+        ["galleries", "Photo galleries", EDIT],
         ["events", "Events", EDIT],
+        ["symphony", "Symphony", EDIT],
+        ["about", "About page lists", EDIT],
+        ["ministry", "Ministry", EDIT],
         ["emerging", "Emerging artists", EDIT],
-      ],
-    },
-    {
-      group: "Community",
-      items: [
-        ["enquiries", "Contact & bookings", ALL],
-        ["talent", "Talent applicants", ALL],
-        ["registrations", "Registrations", ALL],
-        ["checkin", "Event check-in", ALL],
+        ["contact-page", "Contact page", EDIT],
       ],
     },
     { group: "Team", items: [["people", "People & roles", OWNER], ["activity", "Activity log", EDIT]] },
@@ -310,9 +317,14 @@
     b.hidden = !n;
     b.textContent = n ? String(n) : "";
   }
+  // Other screens add their own counts (the inbox's new enquiries…).
+  const badgeSources = [];
   async function refreshBadges() {
-    if (!session || !Backend.can(session.role, "edit")) return;
-    try { setBadge("publish", Object.keys(await Backend.content.getDrafts()).length); } catch (_) { /* offline */ }
+    if (!session) return;
+    if (Backend.can(session.role, "edit")) {
+      try { setBadge("publish", Object.keys(await Backend.content.getDrafts()).length); } catch (_) { /* offline */ }
+    }
+    badgeSources.forEach((fn) => { try { fn(); } catch (_) { /* one count failing leaves the rest */ } });
   }
 
   function leaveDialog() {
@@ -339,6 +351,8 @@
     can: (what) => Boolean(session) && Backend.can(session.role, what),
     setGuard: (g) => { guard = g; },
     refreshBadges,
+    setBadge,
+    onBadges: (fn) => { badgeSources.push(fn); },
   };
 
   document.addEventListener("DOMContentLoaded", async () => {

@@ -395,20 +395,65 @@ const DB = {
     },
   ],
 
-  announcements: [
-    {
-      id: "ann-001",
-      title: "Applications for Symphony 2026 are open",
-      date: "2026-08-01",
-      body: "This year's Symphony of Praise & Worship cohort opens for applications through November 1st.",
-    },
-    {
-      id: "ann-002",
-      title: "Covenant multitracks now free for local churches",
-      date: "2026-05-02",
-      body: "The full Threshold live-session multitracks are now available in the ministry resource library.",
-    },
-  ],
+  /* The About page's lists (about.js draws them once anything has been
+   * published for them; until then the page's own HTML shows the same
+   * items). Titles, bodies and captions may carry <em>. */
+  about: {
+    timeline: [
+      { year: "2012", title: "A corridor, then a choir stand", body: "Joins the worship team at a 200-seat assembly in Surulere as a backing vocalist. Writes the first eleven songs nobody will ever hear.", current: false, links: [] },
+      { year: "2015", title: "First ministration outside Nigeria", body: "An invitation to Accra turns into six countries in eighteen months. Learns that a song survives translation only if the silence around it does too.", current: false, links: [] },
+      { year: "2019", title: "The doctorate, and a decision", body: "Completes doctoral work in music and liturgy. Turns down a touring contract the same month, choosing local church work over a release schedule.", current: false, links: [] },
+      { year: "2022", title: "<em>Threshold</em>", body: "The debut record — worship reimagined through highlife rhythm and orchestral strings. <em>Threshold</em> itself is cut in a single take at midnight and never re-recorded.", current: false, links: [] },
+      { year: "2023", title: "Symphony of Praise & Worship begins", body: "The concert and its Talent Quest launch together — nine applicants, one rented rehearsal room, and a hall that was two-thirds full. Four of that first cohort are still working in music today.", current: false, links: [] },
+      { year: "2025", title: "<em>Covenant</em>", body: "Nine songs about promises kept in the dark, recorded live with a fourteen-piece ensemble in Lagos. The multitracks are later released free to local churches.", current: false, links: [] },
+      {
+        year: "2026", title: "The fourth Talent Quest — and the Global Concert",
+        body: "Applications open for Talent Quest Vol. IV, and the season comes home to Regal Hall, Daystar Christian Center: the Talent Quest on 27 November, and the SPAW Global Concert on the 28th.",
+        current: true, links: [{ label: "Apply to Symphony", href: "symphony" }, { label: "See the calendar", href: "events" }],
+      },
+    ],
+    principles: [
+      { title: "Scripture before sentiment", body: "Every lyric is checked against the text before it is checked against the melody. A line that moves a room but misrepresents God does not make the record." },
+      { title: "The room is not the metric", body: "Three hundred people and thirty people get the same preparation. Attendance has never been allowed to set the standard of the ministration." },
+      { title: "Give the material away", body: "Chord charts, devotionals, and full live-session multitracks go out free to local churches. If a song can serve a congregation without her in the room, it should." },
+      { title: "Always be handing it over", body: "Mentorship is not a side programme, it is succession planning. The point is a generation that no longer needs the person who trained them." },
+    ],
+    photos: [
+      { src: "assets/images/TGE-1.jpeg", alt: "Leading worship on a white stage with the full band and choir behind her", caption: "The Glory Experience — full band, full house" },
+      { src: "assets/images/Violinist.jpeg", alt: "The string section playing, flute, violins and cello in white", caption: "The string section, mid-set" },
+      { src: "assets/images/picturesf.jpeg", alt: "Dr AjokeSings and her husband at the Iba Re launch", caption: "At the <em>Iba Re</em> launch, together as always" },
+      { src: "assets/images/motion-5.jpeg", alt: "A worshipper in the congregation with her hand raised", caption: "The room, somewhere in the middle of it" },
+    ],
+    recognition: [
+      { year: "2026", title: "Keynote ministration — West African Worship Leaders Convening, Accra", tag: "Ministration" },
+      { year: "2025", title: "<em>Covenant</em> named Gospel Record of the Year, Lagos Music Circle", tag: "Award" },
+      { year: "2025", title: "Long-form interview — “On Grief and Songwriting”", tag: "Feature" },
+      { year: "2024", title: "Guest lecturer in liturgy and songwriting, University of Lagos", tag: "Teaching" },
+      { year: "2023", title: "Founder — Symphony of Praise & Worship talent platform", tag: "Ministry" },
+      { year: "2022", title: "<em>Threshold</em> debuts at number one on the national gospel chart", tag: "Release" },
+    ],
+  },
+
+  /* The contact page: its questions and answers (answers may carry <em>
+   * and links), and the choices the booking form offers. */
+  contact: {
+    faq: [
+      { question: "How far in advance should we book?", answer: "Three months is comfortable, six is ideal for anything with travel attached. Requests inside six weeks are still welcome — they are simply harder to place, and the team will tell you honestly and quickly if the date cannot hold." },
+      { question: "We are a small church with almost no budget. Should we still ask?", answer: "Yes. A portion of every year is deliberately kept for local congregations who cannot pay a standard honorarium. Say so plainly in your message — it will not count against you." },
+      { question: "Does she travel with a band?", answer: "She can come solo, with a rhythm section, or with the full fourteen-piece ensemble. Tick what you are hoping for in the booking form and the team will send technical and hospitality riders for each option." },
+      { question: "Can we record or livestream the ministration?", answer: "Almost always yes, with a short written agreement covering how the footage is used. Mention it up front so it is settled before the day rather than during soundcheck." },
+      { question: "Where do I get photos, bio, and stage requirements?", answer: "Ask for the press kit through this form and it comes back as one link: approved biography at three lengths, high-resolution images, logo files, technical rider, and hospitality rider." },
+      { question: "I want mentorship. Is this the right form?", answer: 'Yes. Mentorship runs under the <a href="ministry">ministry</a>, with intake every January and July — send a message here and say which intake you are aiming for. It is a separate thing from the <a href="symphony">Symphony Talent Quest</a>, which has its own application because it collects your music.' },
+    ],
+    eventTypes: ["Sunday service", "Worship night", "Conference", "Concert", "Crusade / outreach", "Workshop / masterclass", "Wedding", "Corporate or private event", "Other"],
+    budgets: ["Local church — whatever is possible", "Under ₦500,000", "₦500,000 – ₦1,500,000", "Above ₦1,500,000", "International — travel & accommodation covered"],
+    needs: ["Full worship ministration", "Short set — two or three songs", "Workshop or masterclass", "Panel or speaking slot", "Full band required"],
+  },
+
+  /* The bar across the top of every page. Each: { id, text, linkLabel,
+   * link, start, end, active }; the first active one inside its dates
+   * shows. None to begin with. */
+  announcements: [],
 };
 
 /* ----------------------------------------------------------------------
@@ -536,8 +581,10 @@ const api = {
   },
 
   /* ---- Videos: live from her YouTube channel (see DB.youtube) ---- */
+  // The homepage slot shows the video featured in the admin, else the newest.
   async getVideos(limit = 3) {
-    return (await this._youtube()).slice(0, limit);
+    const all = await this._youtube();
+    return [...all.filter((v) => v.featured), ...all.filter((v) => !v.featured)].slice(0, limit);
   },
 
   async getAllVideos({ category = "all" } = {}) {
@@ -569,9 +616,15 @@ const api = {
         live = cached ? cached.videos : [];
       }
     }
+    // The feed has the newest title and date; what the admin set on a video
+    // (its own title or category, hidden, featured) stays on top of it.
     const byId = new Map();
-    [...live, ...DB.videos].forEach((v) => { if (!byId.has(v.youtubeId)) byId.set(v.youtubeId, v); });
+    [...live, ...DB.videos].forEach((v) => {
+      const seen = byId.get(v.youtubeId);
+      byId.set(v.youtubeId, seen ? { ...v, ...seen } : v);
+    });
     return [...byId.values()]
+      .filter((v) => !v.hidden)
       .map((v) => this._videoFromYouTube(v))
       .sort((a, b) => b.date.localeCompare(a.date));
   },
@@ -613,10 +666,11 @@ const api = {
     return {
       id: `yt-${v.youtubeId}`,
       youtubeId: v.youtubeId,
-      title,
-      category: v.category || this._videoCategory(title),
+      title: v.customTitle || title,
+      category: v.customCategory || v.category || this._videoCategory(title),
       date: v.published,
       url: `https://www.youtube.com/watch?v=${v.youtubeId}`,
+      featured: Boolean(v.featured),
     };
   },
 
@@ -658,32 +712,42 @@ const api = {
     return DB.symphony;
   },
 
-  async submitTalentApplication(payload) {
-    await this._delay(900);
+  // Open unless the admin has switched them off or the closing date is past.
+  applicationsOpen() {
+    const s = DB.symphony || {};
+    if (s.applicationsOpen === false) return false;
+    if (s.applicationCloses && new Date(`${s.applicationCloses}T23:59:59`).getTime() < Date.now()) return false;
+    return true;
+  },
+
+  // files: File objects from the upload fields, each tagged .kind "audio" or
+  // "video". Live they upload to the private applications folder first.
+  async submitTalentApplication(payload, files = []) {
+    await this._delay(300);
     const required = ["fullName", "email", "phone", "location", "track", "bio"];
     const missing = required.filter((key) => !payload[key] || !String(payload[key]).trim());
     if (missing.length) throw new Error("Please complete all required fields before submitting.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) throw new Error("That email address doesn't look right.");
     if (!payload.agreedToTerms) throw new Error("You need to agree to the terms to submit your application.");
-
-    const applications = Store.read("talentApplications", []);
-    const application = {
-      id: genId("SYM"),
-      submittedAt: new Date().toISOString(),
-      status: "Received",
-      ...payload,
-    };
-    applications.push(application);
-    Store.write("talentApplications", applications);
-    return application;
+    if (!this.applicationsOpen()) throw new Error("Applications for this Talent Quest are closed.");
+    return Backend.forms.submitApplication(payload, files);
   },
 
   async getTalentApplications() {
-    await this._delay(260);
-    return Store.read("talentApplications", []);
+    await this._delay(0);
+    return Backend.forms.list("applications");
   },
 
-  /* ---- Events ---- */
+  /* ---- Events ----
+   * registered: live, the real number of registrations; in demo mode, the
+   * sample figure in DB plus the registrations made in this browser. */
+  async _withCounts(events) {
+    let counts = {};
+    try { counts = await Backend.forms.eventCounts(); } catch (err) { console.warn("[api] registration counts unavailable:", err.message); }
+    const live = Backend.mode === "live";
+    return events.map((e) => ({ ...e, registered: (live ? 0 : (e.registered || 0)) + (counts[e.id] || 0) }));
+  },
+
   async getUpcomingEvents(limit = 3) {
     await this._delay(300);
     const now = Date.now();
@@ -695,71 +759,44 @@ const api = {
 
   async getAllEvents() {
     await this._delay(320);
-    return [...DB.events].sort((a, b) => new Date(a.date) - new Date(b.date));
+    return this._withCounts([...DB.events].sort((a, b) => new Date(a.date) - new Date(b.date)));
   },
 
   async getEventById(id) {
     await this._delay(280);
     const event = DB.events.find((e) => e.id === id);
     if (!event) throw new Error("That event couldn't be found.");
-    const regs = Store.read("registrations", []).filter((r) => r.eventId === id);
-    return { ...event, liveRegistered: event.registered + regs.length };
+    const [counted] = await this._withCounts([event]);
+    return { ...counted, liveRegistered: counted.registered };
   },
 
   async registerForEvent(eventId, attendee) {
-    await this._delay(700);
-    const event = DB.events.find((e) => e.id === eventId);
+    await this._delay(300);
+    const [event] = await this._withCounts(DB.events.filter((e) => e.id === eventId));
     if (!event) throw new Error("That event couldn't be found.");
     if (!attendee.name || !attendee.name.trim()) throw new Error("Enter your full name.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email || "")) throw new Error("That email address doesn't look right.");
-
-    const registrations = Store.read("registrations", []);
-    const duplicate = registrations.find((r) => r.eventId === eventId && r.email.toLowerCase() === attendee.email.toLowerCase());
-    if (duplicate) throw new Error("You're already registered for this event with that email.");
-
-    const registration = {
-      id: genId("REG"),
-      eventId,
-      eventName: event.name,
-      name: attendee.name.trim(),
-      email: attendee.email.trim(),
-      phone: attendee.phone ? attendee.phone.trim() : "",
-      registeredAt: new Date().toISOString(),
-      checkedIn: false,
-      checkedInAt: null,
-    };
-    registrations.push(registration);
-    Store.write("registrations", registrations);
-    return registration;
+    if (event.registrationOpen === false) throw new Error("Registration for this event is closed.");
+    if (event.capacity && event.registered >= event.capacity) throw new Error("This event is full.");
+    return Backend.forms.registerForEvent(event, attendee);
   },
 
   async getRegistrations(eventId = null) {
-    await this._delay(260);
-    const all = Store.read("registrations", []);
+    await this._delay(0);
+    const all = await Backend.forms.list("registrations");
     return eventId ? all.filter((r) => r.eventId === eventId) : all;
   },
 
   async checkInRegistration(registrationId) {
-    await this._delay(500);
-    const registrations = Store.read("registrations", []);
-    const reg = registrations.find((r) => r.id === registrationId.trim());
-    if (!reg) throw new Error("No registration found with that ID.");
-    if (reg.checkedIn) throw new Error(`Already checked in at ${new Date(reg.checkedInAt).toLocaleTimeString()}.`);
-    reg.checkedIn = true;
-    reg.checkedInAt = new Date().toISOString();
-    Store.write("registrations", registrations);
-    return reg;
+    await this._delay(0);
+    return Backend.forms.checkIn(registrationId);
   },
 
   /* ---- Newsletter ---- */
-  async subscribeNewsletter(email) {
-    await this._delay(500);
+  async subscribeNewsletter(email, source = document.title.split(" — ")[0]) {
+    await this._delay(200);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("That email address doesn't look right.");
-    const list = Store.read("newsletter", []);
-    if (list.includes(email)) throw new Error("You're already on the list.");
-    list.push(email);
-    Store.write("newsletter", list);
-    return { email };
+    return Backend.forms.subscribe(email, source);
   },
 
   /* ---- Contact & booking enquiries ----
@@ -792,44 +829,13 @@ const api = {
       throw err;
     }
 
-    const enquiries = Store.read("enquiries", []);
-    const enquiry = {
-      id: genId(payload.type === "booking" ? "BKG" : "MSG"),
-      submittedAt: new Date().toISOString(),
-      status: "New",
-      ...payload,
-    };
-    enquiries.push(enquiry);
-    Store.write("enquiries", enquiries);
-    return enquiry;
+    return Backend.forms.submitEnquiry(payload);
   },
 
   async getEnquiries(type = null) {
-    await this._delay(260);
-    const all = Store.read("enquiries", []);
+    await this._delay(0);
+    const all = await Backend.forms.list("enquiries");
     return type ? all.filter((e) => e.type === type) : all;
-  },
-
-  /* ---- Admin: session ---- */
-  async adminLogin(username, password) {
-    await this._delay(600);
-    // Prototype-only credential check. No real auth, no secrets of value —
-    // this exists purely to demonstrate the login -> validate -> session
-    // journey, and is clearly not production authentication.
-    if (username.trim().toLowerCase() === "admin" && password === "symphony2026") {
-      const session = { username: "admin", loggedInAt: new Date().toISOString() };
-      Store.write("adminSession", session);
-      return session;
-    }
-    throw new Error("Incorrect username or password.");
-  },
-
-  async getAdminSession() {
-    return Store.read("adminSession", null);
-  },
-
-  adminLogout() {
-    Store.remove("adminSession");
   },
 
   async getAnalyticsSnapshot() {

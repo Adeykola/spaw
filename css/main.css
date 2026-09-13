@@ -85,6 +85,52 @@ body.no-scroll { overflow: hidden; height: 100svh; }
    ones and swapping them. */
 .is-content-loading main,
 .is-content-loading .site-footer { opacity: 0; }
+
+/* The announcement bar (content.js; admin → Announcements). It sits above
+   the fixed header, which moves down by its height, and the page moves down
+   with it, so nothing is covered. */
+.has-announcement { --announce-h: 2.5rem; }
+.has-announcement body { padding-top: var(--announce-h); }
+.has-announcement .site-header { top: var(--announce-h); }
+.has-announcement .mobile-nav { padding-top: calc(var(--space-xl) + var(--announce-h)); }
+.announce {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 305;
+  height: var(--announce-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3rem 0 1rem;
+  background: var(--red);
+  color: var(--paper);
+  font-size: var(--step--1);
+  text-align: center;
+}
+.announce__text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.announce__link { color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.announce__close {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  color: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+@media (max-width: 680px) {
+  .has-announcement { --announce-h: 3.1rem; }
+  .announce__text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+    font-size: 0.78rem;
+    line-height: 1.3;
+  }
+}
 img, picture, video { display: block; max-width: 100%; }
 input, button, textarea, select { font: inherit; color: inherit; }
 button { background: none; border: none; cursor: pointer; }

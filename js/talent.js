@@ -55,9 +55,29 @@ async function renderSymphonyInfo() {
     }
 
     if (termsEl) termsEl.textContent = info.terms;
+    if (!api.applicationsOpen()) showApplicationsClosed(info, fmt);
   } catch (err) {
     console.error("[talent] symphony info failed", err);
   }
+}
+
+// The admin can switch applications off, and they close by themselves after
+// the closing date: the form then gives way to a note saying so.
+function showApplicationsClosed(info, fmt) {
+  const form = document.querySelector("[data-application-form]");
+  if (!form || form.hidden) return;
+  const pastDate = info.applicationCloses && new Date(`${info.applicationCloses}T23:59:59`).getTime() < Date.now();
+  form.hidden = true;
+  form.after(el("div", { class: "confirm-screen", "data-applications-closed": "" }, [
+    el("h2", { class: "confirm-screen__title display", text: "Applications are closed." }),
+    el("p", {
+      class: "confirm-screen__body",
+      text: pastDate
+        ? `Applications for this Talent Quest closed on ${fmt(info.applicationCloses)}. The next one will be announced here.`
+        : "Applications for the Talent Quest aren't open at the moment. The next round will be announced here.",
+    }),
+    el("div", { class: "confirm-screen__actions" }, [el("a", { class: "btn btn-line", href: "events", text: "See the event dates" })]),
+  ]));
 }
 
 /* ---------------------------------------------------------------------
@@ -150,8 +170,9 @@ function renderQuest(quest, info, fmt) {
 }
 
 /* ---------------------------------------------------------------------
- * Simulated upload fields (audio / video) — no backend, but a real
- * progress + success/error UI so the journey feels complete.
+ * Sample upload fields (audio / video). Choosing a file checks it and
+ * keeps it on the field; it travels with the application when the form
+ * is sent (live, into the private applications folder).
  * ------------------------------------------------------------------- */
 function wireUploadFields() {
   document.querySelectorAll("[data-upload-field]").forEach((field) => {
@@ -159,34 +180,33 @@ function wireUploadFields() {
     const label = field.querySelector("[data-upload-filename]");
     const fill = field.querySelector("[data-upload-fill]");
     if (!input) return;
+    const kind = (input.getAttribute("accept") || "").split("/")[0] || "file"; // "audio" or "video"
 
     input.addEventListener("change", () => {
-      const file = input.files?.[0];
-      if (!file) return;
+      const file = input.files && input.files[0];
+      field.file = null;
+      if (fill) fill.style.width = "0%";
+      if (!file) { delete field.dataset.status; if (label) label.textContent = ""; return; }
 
       const maxMB = Number(field.dataset.maxMb || 50);
       if (file.size > maxMB * 1024 * 1024) {
         field.dataset.status = "error";
-        if (label) label.textContent = `File too large — keep it under ${maxMB}MB.`;
+        if (label) label.textContent = `That file is ${Math.ceil(file.size / 1048576)} MB. Keep it under ${maxMB} MB.`;
+        input.value = "";
+        return;
+      }
+      if (kind !== "file" && file.type && !file.type.startsWith(`${kind}/`)) {
+        field.dataset.status = "error";
+        if (label) label.textContent = `That doesn't look like ${kind === "audio" ? "an audio" : "a video"} file.`;
         input.value = "";
         return;
       }
 
-      field.dataset.status = "uploading";
-      if (label) label.textContent = file.name;
-      if (fill) fill.style.width = "0%";
-
-      let pct = 0;
-      const timer = setInterval(() => {
-        pct += 8 + Math.random() * 12;
-        if (pct >= 100) {
-          pct = 100;
-          clearInterval(timer);
-          field.dataset.status = "done";
-          if (label) label.textContent = `${file.name} \u2014 uploaded`;
-        }
-        if (fill) fill.style.width = `${pct}%`;
-      }, 140);
+      file.kind = kind;
+      field.file = file;
+      field.dataset.status = "done";
+      if (label) label.textContent = `${file.name} · ${(file.size / 1048576).toFixed(1)} MB. It's sent with your application.`;
+      if (fill) fill.style.width = "100%";
     });
   });
 }
@@ -258,8 +278,11 @@ function wireApplicationForm() {
       agreedToTerms: form.querySelector("#app-terms").checked,
     };
 
+    const files = Array.from(form.querySelectorAll("[data-upload-field]")).map((f) => f.file).filter(Boolean);
+    if (files.length) submitBtn.textContent = files.length === 1 ? "Uploading your sample…" : "Uploading your samples…";
+
     try {
-      const application = await api.submitTalentApplication(payload);
+      const application = await api.submitTalentApplication(payload, files);
       form.hidden = true;
       if (confirmScreen) {
         confirmScreen.hidden = false;

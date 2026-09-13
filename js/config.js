@@ -13,6 +13,6 @@
  * ----------------------------------------------------------------------
  */
 window.SITE_CONFIG = {
-  supabaseUrl: "",      // e.g. "https://abcdefghijklmnop.supabase.co"
-  supabaseAnonKey: "",  // Project Settings → API: the anon / publishable key
+  supabaseUrl: "https://vmcthkprnilpylkzkdbq.supabase.co", // the project's address, nothing after .co
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtY3Roa3BybmlscHlsa3prZGJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyODY5NDEsImV4cCI6MjEwNDg2Mjk0MX0.AvNnzppFOqDUyuokQ41Ks2lI4NjMhM1BKF4TTx9GmjI",  // Project Settings → API: the anon / publishable key
 };

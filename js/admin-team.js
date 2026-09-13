@@ -153,13 +153,27 @@
     "people.insert": "Added a person",
     "people.update": "Changed a person",
     "people.delete": "Removed a person",
+    "enquiries.status": "Changed an enquiry's status",
+    "applications.status": "Moved an applicant on",
+    "registrations.status": "Changed a registration",
+    "registration.checkin": "Checked someone in",
+    "enquiries.delete": "Deleted an enquiry",
+    "applications.delete": "Deleted an application",
+    "registrations.delete": "Deleted a registration",
+    "subscribers.delete": "Deleted a newsletter address",
   };
   const KINDS = {
     all: ["Everything", () => true],
+    inbox: ["Inbox", (a) => /^(enquiries|applications|registrations|registration|subscribers)\./.test(a)],
     publishing: ["Publishing", (a) => ["publish", "discard", "restore"].includes(a)],
     uploads: ["Uploads", (a) => a.startsWith("media.")],
     people: ["People", (a) => a.startsWith("people.")],
     signins: ["Sign-ins", (a) => a === "sign-in"],
+  };
+  const STATUS_WORDS = {
+    new: "new", replied: "replied", confirmed: "confirmed", declined: "declined", archived: "archived",
+    received: "to review", shortlisted: "shortlisted", invited: "invited", selected: "selected", "not-selected": "not selected",
+    registered: "registered", cancelled: "cancelled",
   };
 
   function details(row) {
@@ -171,6 +185,8 @@
     if (row.action === "discard") return Admin.labelForKey(row.target || "");
     if (row.action.startsWith("people.")) return [row.target, d.role ? Backend.ROLES[d.role] : ""].filter(Boolean).join(" · ");
     if (row.action === "restore") return [row.target, d.drafted != null ? `${d.drafted} drafts` : ""].filter(Boolean).join(" · ");
+    if (row.action.endsWith(".status")) return [row.target, d.status ? `now ${STATUS_WORDS[d.status] || d.status}` : ""].filter(Boolean).join(" · ");
+    if (row.action === "registration.checkin") return [row.target, d.event].filter(Boolean).join(" · ");
     return row.target || "";
   }
 

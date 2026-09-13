@@ -667,4 +667,7 @@
       draw();
     },
   });
+
+  // Shared with the content screens (admin-content.js).
+  Object.assign(Admin, { publishAll, pickFile, uploadPicture, previewHref });
 })();
