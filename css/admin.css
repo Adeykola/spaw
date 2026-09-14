@@ -14,8 +14,9 @@
   padding: var(--space-m);
 }
 .admin-login__card { width: min(400px, 100%); }
-.admin-login__mark { display: flex; align-items: baseline; gap: 0.55em; font-size: var(--step-2); margin-bottom: var(--space-m); }
-.admin-login__mark .sig { --sig-accent: var(--red); }
+.admin-login__mark { display: flex; align-items: center; gap: 0.55em; font-size: var(--step-2); margin-bottom: var(--space-m); }
+.admin-login__mark .sig { --sig-h: 1.6em; --sig-rope: 18; }
+.admin-sidebar__brand .sig { --sig-h: 2.1em; --sig-rope: 26; }
 .admin-login__role { font-family: var(--font-ui); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gray-on-light); }
 .admin-login__sub { color: var(--gray-on-light); font-size: var(--step--1); margin-bottom: var(--space-l); }
 .admin-login form { display: flex; flex-direction: column; gap: var(--space-m); }

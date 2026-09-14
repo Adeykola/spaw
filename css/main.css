@@ -27,10 +27,7 @@
   /* ---- Type ---- */
   --font-display: "Instrument Serif", "Times New Roman", serif;
   --font-ui: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  /* The wordmark face. Swap the family here and the whole signature
-     (header, footer, intro, admin) follows; the fallbacks are script
-     faces shipped with Windows and macOS. */
-  --font-signature: var(--font-display); /* the wordmark: Instrument Serif */
+  /* The logo is a drawing, not type: assets/images/logo.svg, and .sig below. */
 
   --step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.875rem);
   --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
@@ -678,203 +675,113 @@ p { text-wrap: pretty; }
 }
 
 /* ==========================================================================
-   SIGNATURE LOGO
-   "DrAjokeSings" in Instrument Serif, the site's display face, with
-   "Sings" in red italic, written onto the page. A feathered mask sweeps
-   left to right behind a travelling pen nib, the underline flourish is
-   then drawn back beneath the name — from the tail of the final "s", the
-   way a hand finishes a signature — and a single stage-light glint
-   crosses "Sings".
+   THE LOGO — her signature, "Dr. Ajokesings" (assets/images/logo.svg)
+   It arrives the way a rope is laid: three strands, gold, red and light,
+   trace the lettering from a little apart (two of them from opposite ends)
+   and draw together into place; the solid signature fills in where they
+   meet and the strands fall away. Hovering the header logo runs a gold
+   strand along it again.
 
-   CSS runs all of it unaided. navigation.js only holds it: until the
-   logo face has loaded (so the fallback face is never the one being
-   written) and, in the homepage header, until the intro film has cleared.
-   Footer signatures wait until they scroll into view.
+   Each page carries the drawing once, as <symbol id="dj-logo"> at the top
+   of <body>; each logo is an <svg class="sig__logo"> holding five <use>
+   copies of it (three strands, the ink, the hover strand). Colour follows
+   the text colour around it, so it reads light on dark and dark on light.
+
+   CSS runs all of it. navigation.js only holds it: in the homepage header
+   until the intro film has cleared, and in the footer until it scrolls
+   into view.
    ========================================================================== */
+.sig-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
 .sig {
-  --sig-accent: var(--red-bright);
-  --sig-delay: 0.35s;
-  --sig-dur: 1.7s;
-  --sig-ease: cubic-bezier(0.45, 0.05, 0.35, 1);
-  /* The italic leans past its em box and the flourish sits below the
-     baseline. The text carries padding so that ink stays inside the
-     masked box; these negative margins hand the space back to layout. */
-  --sig-pad-t: 0.12em;
-  --sig-pad-r: 0.2em;
-  --sig-pad-b: 0.3em;
-  --sig-pad-l: 0.08em;
-  position: relative;
+  --sig-delay: 0.3s;
+  --sig-dur: 2.2s;
+  --sig-ease: cubic-bezier(0.6, 0.02, 0.22, 1);
+  --sig-h: 1.9em;   /* the logo's height; its width follows */
+  --sig-rope: 20;   /* strand thickness, in the drawing's own units (2632 wide) */
   display: inline-block;
-  margin: calc(var(--sig-pad-t) * -1) calc(var(--sig-pad-r) * -1) calc(var(--sig-pad-b) * -1) calc(var(--sig-pad-l) * -1);
-  font-family: var(--font-signature);
-  font-weight: 400;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 0;
 }
-
-.sig__text {
-  display: inline-block;
-  padding: var(--sig-pad-t) var(--sig-pad-r) var(--sig-pad-b) var(--sig-pad-l);
-  /* Resting state is fully written: the gradient's opaque half covers the
-     whole box and the feather sits just past the right edge. The write-on
-     slides that feather across from the left. */
-  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 50%, transparent 54%);
-          mask-image: linear-gradient(90deg, #000 0%, #000 50%, transparent 54%);
-  -webkit-mask-size: 200% 100%;
-          mask-size: 200% 100%;
-  -webkit-mask-repeat: no-repeat;
-          mask-repeat: no-repeat;
-  -webkit-mask-position: 0 0;
-          mask-position: 0 0;
-}
-
-.sig__accent { color: var(--sig-accent); font-style: italic; }
-
-/* ---- Pen nib: rides the leading edge of the ink ---- */
-.sig__nib {
-  position: absolute;
-  top: 50%;
-  left: 104%;
-  width: 0.14em;
-  height: 0.14em;
-  margin: -0.07em 0 0 -0.07em;
-  border-radius: 50%;
-  background: #fff4e4;
-  box-shadow:
-    0 0 0.25em 0.06em color-mix(in srgb, var(--gold) 85%, transparent),
-    0 0 0.7em 0.16em color-mix(in srgb, var(--sig-accent) 60%, transparent);
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* ---- Underline flourish ---- */
-.sig__flourish {
-  position: absolute;
-  left: var(--sig-pad-l);
-  /* An <svg> is a replaced element, so left + right alone will not stretch
-     it — it falls back to the width its viewBox ratio implies. Explicit. */
-  width: calc(100% - var(--sig-pad-l) - var(--sig-pad-r));
-  bottom: calc(var(--sig-pad-b) - 0.2em);
-  height: 0.3em;
-  overflow: visible;
-  pointer-events: none;
-}
-.sig__flourish path {
+.sig__logo { display: block; width: auto; height: var(--sig-h); max-width: 100%; overflow: visible; }
+.sig__ink { fill: currentColor; }
+.sig__rope,
+.sig__echo {
   fill: none;
-  stroke-width: 1.7;
+  stroke-width: var(--sig-rope);
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 1;
-  stroke-dashoffset: 0;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 50% 50%;
 }
-.sig__stroke { stroke: var(--sig-accent); opacity: 0.85; }
-.sig__echo { stroke: var(--gold); stroke-dashoffset: 1; opacity: 0; }
+.sig__rope--gold { stroke: var(--gold); }
+.sig__rope--red { stroke: var(--red-bright); }
+.sig__rope--light { stroke: currentColor; }
+.sig__echo { stroke: var(--gold); }
 
-/* ---- The write-on ---- */
-.sig--autoplay .sig__text,
-.sig.is-signing .sig__text {
-  animation: sigWrite var(--sig-dur) var(--sig-ease) var(--sig-delay) both;
-}
-.sig--autoplay .sig__nib,
-.sig.is-signing .sig__nib {
-  animation:
-    sigNib var(--sig-dur) var(--sig-ease) var(--sig-delay) both,
-    sigWobble var(--sig-dur) linear var(--sig-delay) both;
-}
-.sig--autoplay .sig__stroke,
-.sig.is-signing .sig__stroke {
-  animation: sigFlourish 0.95s var(--ease-cinema) calc(var(--sig-delay) + var(--sig-dur) - 0.15s) both;
-}
+/* Where it sits: its height, and strands that suit the size. */
+.brand .sig { --sig-h: 2.25em; --sig-rope: 24; }
+.intro__mark .sig { --sig-h: 2.2em; --sig-rope: 24; }
+.footer-brand .sig { --sig-h: 1.55em; --sig-rope: 15; }
 
-/* "Sings" is painted through its glyphs so a highlight can cross them.
-   The padding widens the paint box past the letters' swashes (inline
-   padding does not move the line) and the negative margins cancel it
-   sideways, so nothing shifts. Guarded, because a browser without
-   background-clip:text would otherwise render the word invisible. */
-@supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .sig__accent {
-    padding: var(--sig-pad-t) var(--sig-pad-r) var(--sig-pad-b) 0.3em;
-    margin: 0 calc(var(--sig-pad-r) * -1) 0 -0.3em;
-    background-image: linear-gradient(100deg,
-      var(--sig-accent) 0%, var(--sig-accent) 42%,
-      #ffe2c4 50%,
-      var(--sig-accent) 58%, var(--sig-accent) 100%);
-    background-size: 260% 100%;
-    background-position: 100% 0;
-    background-repeat: no-repeat;
-    -webkit-background-clip: text;
-            background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-  }
-  .sig--autoplay .sig__accent,
-  .sig.is-signing .sig__accent {
-    animation: sigSheen 1.3s var(--ease-soft) calc(var(--sig-delay) + var(--sig-dur) + 0.55s) both;
-  }
-}
+/* ---- The entrance ---- */
+.sig--autoplay .sig__rope--gold,
+.sig.is-signing .sig__rope--gold { animation: sigStrandA var(--sig-dur) var(--sig-ease) var(--sig-delay) both; }
+.sig--autoplay .sig__rope--red,
+.sig.is-signing .sig__rope--red { animation: sigStrandB var(--sig-dur) var(--sig-ease) calc(var(--sig-delay) + 0.08s) both; }
+.sig--autoplay .sig__rope--light,
+.sig.is-signing .sig__rope--light { animation: sigStrandC var(--sig-dur) var(--sig-ease) calc(var(--sig-delay) + 0.16s) both; }
+.sig--autoplay .sig__ink,
+.sig.is-signing .sig__ink { animation: sigInk calc(var(--sig-dur) * 0.24) var(--ease-soft) calc(var(--sig-delay) + var(--sig-dur) * 0.52) both; }
 
 /* Held by navigation.js: every part pauses together so they stay in step. */
-.sig.is-waiting .sig__text,
-.sig.is-waiting .sig__nib,
-.sig.is-waiting .sig__stroke,
-.sig.is-waiting .sig__accent { animation-play-state: paused; }
+.sig.is-waiting .sig__rope,
+.sig.is-waiting .sig__ink { animation-play-state: paused; }
 
-/* Over photography a soft ink halo lifts the wordmark off busy frames. */
+/* Over photography a soft ink halo lifts the signature off busy frames. */
 .brand .sig,
-.intro__mark .sig {
-  filter: drop-shadow(0 0.03em 0.14em rgba(10, 9, 8, 0.65));
-}
+.intro__mark .sig { filter: drop-shadow(0 0.03em 0.14em rgba(10, 9, 8, 0.65)); }
 
-/* Hovering the header wordmark runs a gold glint along the flourish. */
+/* Hovering the header logo runs a gold strand along the lettering. */
 .brand:hover .sig__echo,
-.brand:focus-visible .sig__echo {
-  animation: sigEcho 1.1s var(--ease-cinema) both;
-}
+.brand:focus-visible .sig__echo { animation: sigEcho 1.3s var(--ease-cinema) both; }
 
-@keyframes sigWrite {
-  from { -webkit-mask-position: 110% 0; mask-position: 110% 0; }
-  to   { -webkit-mask-position: 0 0;    mask-position: 0 0; }
+@keyframes sigStrandA {
+  0%   { opacity: 0; stroke-dashoffset: 1;  transform: translate(-2.5%, -16%) rotate(-1.6deg); }
+  10%  { opacity: 1; }
+  62%  { opacity: 1; stroke-dashoffset: 0;  transform: none; }
+  84%  { opacity: 0; }
+  100% { opacity: 0; stroke-dashoffset: 0;  transform: none; }
 }
-/* Travels from -6% to 104% because that is exactly where the mask's
-   feather centre starts and ends; same duration and easing as sigWrite,
-   so the nib stays on the edge of the ink the whole way across. */
-@keyframes sigNib {
-  0%   { left: -6%;  opacity: 0; }
-  5%   { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { left: 104%; opacity: 0; }
+@keyframes sigStrandB {
+  0%   { opacity: 0; stroke-dashoffset: -1; transform: translate(2.5%, 16%) rotate(1.6deg); }
+  10%  { opacity: 1; }
+  62%  { opacity: 1; stroke-dashoffset: 0;  transform: none; }
+  80%  { opacity: 0; }
+  100% { opacity: 0; stroke-dashoffset: 0;  transform: none; }
 }
-@keyframes sigWobble {
-  0%   { transform: translateY(0.18em); }
-  12%  { transform: translateY(-0.22em); }
-  24%  { transform: translateY(0.14em); }
-  36%  { transform: translateY(-0.3em); }
-  50%  { transform: translateY(0.2em); }
-  63%  { transform: translateY(-0.16em); }
-  76%  { transform: translateY(0.24em); }
-  88%  { transform: translateY(-0.12em); }
-  100% { transform: translateY(0.1em); }
+@keyframes sigStrandC {
+  0%   { opacity: 0;   stroke-dashoffset: 1; transform: scale(1.07); }
+  14%  { opacity: 0.9; }
+  62%  { opacity: 0.9; stroke-dashoffset: 0; transform: none; }
+  86%  { opacity: 0; }
+  100% { opacity: 0;   stroke-dashoffset: 0; transform: none; }
 }
-@keyframes sigFlourish {
-  from { stroke-dashoffset: 1; }
-  to   { stroke-dashoffset: 0; }
-}
-@keyframes sigSheen {
-  from { background-position: 100% 0; }
-  to   { background-position: 0 0; }
+@keyframes sigInk {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes sigEcho {
-  0%   { stroke-dashoffset: 1; opacity: 1; }
-  60%  { stroke-dashoffset: 0; opacity: 1; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
+  0%   { opacity: 1; stroke-dashoffset: 1; }
+  65%  { opacity: 1; stroke-dashoffset: 0; }
+  100% { opacity: 0; stroke-dashoffset: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sig__text,
-  .sig__nib,
-  .sig__stroke,
-  .sig__echo,
-  .sig__accent { animation: none !important; }
+  .sig__rope,
+  .sig__ink,
+  .sig__echo { animation: none !important; }
 }
