@@ -18,7 +18,83 @@ document.addEventListener("DOMContentLoaded", () => {
   wireVideoModal();
   wireNewsletter();
   wireYear();
+  renderQuestCall();
 });
+
+/* ---------------------------------------------------------------------
+ * The Talent Quest's call for applicants
+ * While applications are open (the admin's Symphony screen switches them
+ * on and off, and they close by themselves after the closing date), a
+ * call to apply sits at the bottom of every page, and every "apply"
+ * button (.btn-quest) glows and now and then wiggles (main.css). Once
+ * applications close, those buttons stand down and point to the Quest's
+ * details instead. A visitor can put the bottom call away for the rest
+ * of their visit; on the Symphony page it steps aside while the form
+ * itself is on screen.
+ * ------------------------------------------------------------------- */
+async function renderQuestCall() {
+  if (document.querySelector("[data-admin-shell]") || typeof api === "undefined") return; // not in the admin
+  try { await window.ContentReady; } catch (_) { /* the built-in content stands */ }
+  if (!api.applicationsOpen()) {
+    // Closed: the buttons stand still, and those sending people to the
+    // form from another page point to the Quest's details instead. (On the
+    // Symphony page, the form's own section says applications are closed.)
+    document.querySelectorAll(".btn-quest").forEach((b) => {
+      b.classList.remove("btn-quest");
+      const href = b.getAttribute("href") || "";
+      if (/(^|\/)symphony(\.html)?#apply$/.test(href)) { b.setAttribute("href", href.replace(/#apply$/, "#quest")); b.textContent = "About the Talent Quest"; }
+    });
+    return;
+  }
+  let away = false;
+  try { away = sessionStorage.getItem("drajokesings:questCall") === "hidden"; } catch (_) { away = false; }
+  if (away || document.querySelector("[data-quest-call]")) return;
+
+  const closes = DB.symphony && DB.symphony.applicationCloses
+    ? new Date(`${DB.symphony.applicationCloses}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long" })
+    : "";
+  const onSymphony = Boolean(document.querySelector("[data-application-form]"));
+  const close = el("button", { class: "quest-call__close", type: "button", text: "×", aria: { label: "Hide the Talent Quest call" } });
+  const call = el("aside", { class: "quest-call", "data-quest-call": "", aria: { label: "Talent Quest applications" } }, [
+    el("p", { class: "quest-call__text" }, [
+      el("strong", { text: "SPAW Talent Quest: come on board" }),
+      el("span", { text: closes ? `Applications are open until ${closes}` : "Applications are open" }),
+    ]),
+    el("a", { class: "btn btn-solid btn-quest quest-call__btn", href: onSymphony ? "#apply" : "symphony#apply", text: "Apply now", "data-cta": "Talent Quest: apply (bottom of the page)" }),
+    close,
+  ]);
+  close.addEventListener("click", () => {
+    call.remove();
+    document.body.classList.remove("has-quest-call");
+    try { sessionStorage.setItem("drajokesings:questCall", "hidden"); } catch (_) { /* fine */ }
+  });
+  document.body.append(call);
+  document.body.classList.add("has-quest-call");
+  setTimeout(() => call.classList.add("is-shown"), 1400);
+
+  // It steps aside while it would cover something that matters more: the
+  // form itself (Symphony page), and the homepage slider's controls at the
+  // foot of the first screen (it comes in once the page scrolls a little).
+  const form = document.getElementById("apply");
+  const controls = document.querySelector("[data-hero-controls]");
+  let formInView = false;
+  const place = () => {
+    const r = controls ? controls.getBoundingClientRect() : null;
+    const top = innerHeight - call.offsetHeight - (parseFloat(getComputedStyle(call).bottom) || 0);
+    const covering = Boolean(r && r.height && r.bottom > top - 8 && r.top < innerHeight);
+    call.classList.toggle("is-away", formInView || covering);
+  };
+  if (form && "IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => { formInView = entry.isIntersecting; place(); }, { threshold: 0.12 }).observe(form);
+  }
+  if (controls) {
+    let queued = false;
+    const soon = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; place(); }); };
+    addEventListener("scroll", soon, { passive: true });
+    addEventListener("resize", soon);
+    place();
+  }
+}
 
 /* ---------------------------------------------------------------------
  * Small safe-DOM helpers
@@ -344,6 +420,12 @@ async function renderEmergingArtists() {
 /* ---------------------------------------------------------------------
  * Upcoming events
  * ------------------------------------------------------------------- */
+// The Talent Quest's own event calls for people to take part, not only to
+// come and watch, while applications are open.
+function questCallsFor(e) {
+  return api.applicationsOpen() && e.status !== "cancelled" && (e.category === "Talent Quest" || /talent quest/i.test(e.name || ""));
+}
+
 async function renderEvents() {
   const list = document.querySelector("[data-events-list]");
   if (!list) return;
@@ -359,10 +441,11 @@ async function renderEvents() {
       ...events.map((e) => {
         const { day, month } = formatEventDate(e.date);
         const state = api.eventState(e);
+        const quest = questCallsFor(e);
         const link = el("a", {
           class: "event-row",
-          href: `events?id=${encodeURIComponent(e.id)}`,
-          "data-cta": `Event: ${e.name}`,
+          href: quest ? "symphony#apply" : `events?id=${encodeURIComponent(e.id)}`,
+          "data-cta": quest ? "Talent Quest: apply (homepage events)" : `Event: ${e.name}`,
         }, [
           el("div", { class: "event-row__date", text: day }, [
             el("span", { text: month.toUpperCase() }),
@@ -372,7 +455,7 @@ async function renderEvents() {
             el("p", { class: "event-row__venue", text: e.venue }),
           ]),
           el("p", { class: "event-row__city", text: e.city }),
-          el("span", { class: "event-row__cta btn-line", text: state.open ? "Register" : state.label }),
+          el("span", { class: `event-row__cta btn-line${quest ? " btn-quest" : ""}`, text: quest ? "Apply to take part" : state.open ? "Register" : state.label }),
         ]);
         return link;
       })

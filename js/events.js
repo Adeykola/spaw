@@ -52,14 +52,17 @@ async function renderEventsList() {
         const state = api.eventState(e);
         const full = state.open && e.capacity && e.registered >= e.capacity;
         e.canRegister = state.open && !full;
+        // The Talent Quest leads with "Apply" while applications are open (app.js).
+        const quest = questCallsFor(e);
         const registerBtn = el("button", {
           class: "btn btn-solid",
           type: "button",
-          text: !state.open ? state.label : full ? "Full" : "Register",
+          text: !state.open ? state.label : full ? "Full" : quest ? "Register to watch" : "Register",
           disabled: !e.canRegister,
         });
         registerBtn.addEventListener("click", () => openRegisterModal(e));
         const actions = [registerBtn];
+        if (quest) actions.unshift(el("a", { class: "btn btn-solid btn-quest", href: "symphony#apply", text: "Apply to take part", "data-cta": "Talent Quest: apply (events page)" }));
         if (e.ticketUrl && e.status !== "cancelled") {
           actions.push(el("a", { class: "btn btn-line", href: e.ticketUrl, target: "_blank", rel: "noopener", text: "Get tickets", "data-cta": `Get tickets: ${e.name}` }));
         }

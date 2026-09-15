@@ -189,7 +189,7 @@
         { key: "title", label: "Name", type: "text" },
         { key: "tagline", label: "Tagline", type: "text" },
         { key: "description", label: "Introduction", type: "textarea", rows: 3 },
-        { key: "applicationsOpen", label: "Accept Talent Quest applications", type: "check", defaultOn: true, help: "Applications also close by themselves after the closing date." },
+        { key: "applicationsOpen", label: "Accept Talent Quest applications", type: "check", defaultOn: true, help: "Applications also close by themselves after the closing date. While they're open, a call to apply sits at the bottom of every page and the apply buttons glow; once closed, both stand down." },
         { key: "applicationOpens", label: "Applications open", type: "date" },
         { key: "applicationCloses", label: "Applications close", type: "date" },
         { key: "questDate", label: "Talent Quest date", type: "date" },

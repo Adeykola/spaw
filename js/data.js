@@ -293,7 +293,7 @@ const DB = {
   symphony: {
     title: "Symphony of Praise & Worship",
     tagline: "One night of worship, and the search that fills its stage.",
-    description: "Symphony of Praise & Worship is a concert and a talent quest running on the same calendar. The night itself is a full-length worship gathering built around the house band and the room. The Quest is how the newest voices on that stage are found.",
+    description: "Symphony of Praise & Worship is a concert and a talent quest running on the same calendar. The night itself is a full-length worship gathering built around the house band and the room. The Quest calls the newest voices to come on board and take that stage: singers, songwriters, instrumentalists and producers are invited to apply.",
     // SPAW 2026, as printed on the official flyer: the Talent Quest on
     // Friday 27 November and the concert the next day, both at Regal Hall.
     // The flyer gives no times, so doors/start stay null (shown as "to be
@@ -327,8 +327,8 @@ const DB = {
 
     quest: {
       title: "The Talent Quest",
-      tagline: "A yearly search for the next generation of worship voices.",
-      description: "Four tracks, one cohort, and one clear prize: your own recording, finished properly, and a place on the Symphony stage in front of a full house. The Quest is held live at Regal Hall, Daystar Christian Center, the day before the concert, and every applicant hears back, whichever way the answer goes.",
+      tagline: "Applications are open. Come on board: a yearly search for the next generation of worship voices.",
+      description: "Calling singers, songwriters, instrumentalists and producers: come on board and apply. Four tracks, one cohort, and one clear prize: your own recording, finished properly, and a place on the Symphony stage in front of a full house. The Quest is held live at Regal Hall, Daystar Christian Center, the day before the concert, and every applicant hears back, whichever way the answer goes.",
       benefits: [
         { title: "Funded studio time", body: "Studio days toward one original recording, cut with the Symphony house team in Lagos." },
         { title: "The Symphony stage", body: "A performance slot at the SPAW Global Concert, backed by the full fourteen-piece band." },
@@ -363,7 +363,7 @@ const DB = {
       time: null, // not yet announced
       capacity: 150,
       registered: 96,
-      description: "The SPAW Talent Quest, live: this year's applicants take the stage, the day before the concert.",
+      description: "Calling vocalists, songwriters, instrumentalists and producers: apply to take the stage at the SPAW Talent Quest, held live the day before the concert. Everyone else can register to come and watch.",
       image: "assets/images/spaw-stage-01.webp",
       ticketRequired: true,
     },
@@ -408,8 +408,8 @@ const DB = {
       { year: "2025", title: "<em>Covenant</em>", body: "Nine songs about promises kept in the dark, recorded live with a fourteen-piece ensemble in Lagos. The multitracks are later released free to local churches.", current: false, links: [] },
       {
         year: "2026", title: "The fourth Talent Quest — and the Global Concert",
-        body: "Applications open for Talent Quest Vol. IV, and the season comes home to Regal Hall, Daystar Christian Center: the Talent Quest on 27 November, and the SPAW Global Concert on the 28th.",
-        current: true, links: [{ label: "Apply to Symphony", href: "symphony" }, { label: "See the calendar", href: "events" }],
+        body: "Applications are open for Talent Quest Vol. IV — singers, songwriters, instrumentalists and producers, come on board — and the season comes home to Regal Hall, Daystar Christian Center: the Talent Quest on 27 November, and the SPAW Global Concert on the 28th.",
+        current: true, links: [{ label: "Apply to the Talent Quest", href: "symphony#apply" }, { label: "See the calendar", href: "events" }],
       },
     ],
     principles: [
@@ -443,7 +443,7 @@ const DB = {
       { question: "Does she travel with a band?", answer: "She can come solo, with a rhythm section, or with the full fourteen-piece ensemble. Tick what you are hoping for in the booking form and the team will send technical and hospitality riders for each option." },
       { question: "Can we record or livestream the ministration?", answer: "Almost always yes, with a short written agreement covering how the footage is used. Mention it up front so it is settled before the day rather than during soundcheck." },
       { question: "Where do I get photos, bio, and stage requirements?", answer: "Ask for the press kit through this form and it comes back as one link: approved biography at three lengths, high-resolution images, logo files, technical rider, and hospitality rider." },
-      { question: "I want mentorship. Is this the right form?", answer: 'Yes. Mentorship runs under the <a href="ministry">ministry</a>, with intake every January and July — send a message here and say which intake you are aiming for. It is a separate thing from the <a href="symphony">Symphony Talent Quest</a>, which has its own application because it collects your music.' },
+      { question: "I want mentorship. Is this the right form?", answer: 'Yes. Mentorship runs under the <a href="ministry">ministry</a>, with intake every January and July — send a message here and say which intake you are aiming for. It is a separate thing from the <a href="symphony">Symphony Talent Quest</a>, which has <a href="symphony#apply">its own application</a> because it collects your music — singers, songwriters, instrumentalists and producers are all welcome to apply.' },
     ],
     eventTypes: ["Sunday service", "Worship night", "Conference", "Concert", "Crusade / outreach", "Workshop / masterclass", "Wedding", "Corporate or private event", "Other"],
     budgets: ["Local church — whatever is possible", "Under ₦500,000", "₦500,000 – ₦1,500,000", "Above ₦1,500,000", "International — travel & accommodation covered"],

@@ -275,6 +275,123 @@ p { text-wrap: pretty; }
 }
 .btn-ghost:hover { border-color: currentColor; background: color-mix(in srgb, currentColor 8%, transparent); }
 
+/* ---- The Talent Quest's call to apply ----
+   Every button asking people to apply to the Talent Quest (.btn-quest)
+   keeps calling: a light sweeps across it every few seconds, a warm glow
+   breathes around it, and now and then it gives a little wiggle. The
+   wiggle uses the `rotate` property, so it adds to a button's own
+   movement (the magnetic pull, the hover lift, a slide's entrance)
+   instead of fighting it. app.js stands the buttons down while
+   applications are closed. Still for anyone who asks for reduced motion. */
+.btn-quest { animation: questWiggle 7s var(--ease-soft) 2.4s infinite; }
+.btn-solid.btn-quest {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  animation: questWiggle 7s var(--ease-soft) 2.4s infinite, questGlow 3.6s ease-in-out infinite;
+}
+.btn-solid.btn-quest::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -30%;
+  bottom: -30%;
+  left: -75%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255, 232, 200, 0.45) 40%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 232, 200, 0.45) 60%, transparent 100%);
+  transform: skewX(-18deg);
+  animation: questShine 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.btn-line.btn-quest { animation: questWiggle 7s var(--ease-soft) 2.4s infinite, questTextGlow 3.6s ease-in-out infinite; }
+
+@keyframes questShine {
+  0%, 48%   { left: -75%; }
+  78%, 100% { left: 135%; }
+}
+@keyframes questGlow {
+  0%, 100% { box-shadow: var(--quest-base, 0 0 0 0 transparent), 0 0 0 0 transparent, 0 0 0 0 transparent; }
+  55%      { box-shadow: var(--quest-base, 0 0 0 0 transparent), 0 0 0 5px color-mix(in srgb, var(--red-bright) 26%, transparent), 0 0 30px 6px color-mix(in srgb, var(--gold) 55%, transparent); }
+}
+@keyframes questTextGlow {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  55%      { text-shadow: 0 0 16px color-mix(in srgb, var(--gold) 90%, transparent); }
+}
+@keyframes questWiggle {
+  0%, 82%, 100% { rotate: 0deg; }
+  84% { rotate: -3deg; }
+  86% { rotate: 3deg; }
+  88% { rotate: -2.5deg; }
+  90% { rotate: 2deg; }
+  92% { rotate: -1deg; }
+  94% { rotate: 0deg; }
+}
+
+/* The call at the bottom of every page while applications are open. */
+.quest-call {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: calc(100vw - 32px);
+  padding: 8px 8px 8px 18px;
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 90%, transparent);
+  color: var(--paper);
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.75);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  /* Hidden until app.js shows it, a moment after the page opens. */
+  opacity: 0;
+  translate: 0 24px;
+  visibility: hidden;
+  transition: opacity 0.5s var(--ease-soft), translate 0.7s var(--ease-cinema), visibility 0s linear 0.7s;
+}
+.quest-call.is-shown { opacity: 1; translate: 0 0; visibility: visible; transition-delay: 0s; }
+/* Out of the way while it would cover the application form or the
+   homepage slider's controls, and while a menu, form or video is open. */
+.quest-call.is-away,
+.no-scroll .quest-call { opacity: 0; translate: 0 18px; visibility: hidden; transition-delay: 0s, 0s, 0.7s; }
+.quest-call__text { display: grid; gap: 2px; margin: 0; font-size: 0.78rem; line-height: 1.25; }
+.quest-call__text strong { font-size: 0.86rem; font-weight: 700; }
+.quest-call__text span { color: var(--gray-on-dark); }
+.quest-call__btn { padding: 0.75rem 1.25rem; border-radius: 999px; font-size: 0.82rem; white-space: nowrap; }
+.quest-call__close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--gray-on-dark);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.quest-call__close:hover,
+.quest-call__close:focus-visible { color: var(--paper); background: color-mix(in srgb, var(--paper) 10%, transparent); }
+.has-persistent-player .quest-call { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 96px); }
+@media (max-width: 560px) {
+  .quest-call { left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); max-width: none; justify-content: space-between; gap: 10px; padding-left: 16px; }
+  .quest-call__text span { display: none; }
+  body.has-quest-call { padding-bottom: 76px; }
+  body.has-quest-call.has-persistent-player { padding-bottom: 172px; }
+}
+/* Signed-in admins have their dock in the bottom-left corner. */
+@media (max-width: 680px) {
+  body:has(.edit-dock:not([hidden])) .quest-call { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 48px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-quest,
+  .btn-solid.btn-quest,
+  .btn-line.btn-quest,
+  .btn-solid.btn-quest::before { animation: none; }
+}
+
 /* ==========================================================================
    NAVIGATION
    ========================================================================== */

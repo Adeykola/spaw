@@ -25,11 +25,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (host && Array.isArray(items)) host.replaceChildren(...items.map(build));
   };
 
+  // A link to the Talent Quest application calls like every other one
+  // (.btn-quest, main.css) while applications are open.
+  const applyLink = (href) => /(^|\/)symphony(\.html)?#apply$/.test(href) && api.applicationsOpen();
   put("about-timeline", DB.about.timeline, (t) => {
     const body = el("div", { class: "timeline__body" }, [rich("h3", "timeline__title", t.title), rich("p", "", t.body)]);
     const links = (t.links || []).filter((l) => l && l.label && Content.safeUrl(l.href));
     if (links.length) {
-      body.appendChild(el("p", { class: "timeline__links" }, links.map((l) => el("a", { class: "btn btn-line", href: Content.safeUrl(l.href), text: l.label }))));
+      body.appendChild(el("p", { class: "timeline__links" }, links.map((l) => el("a", { class: `btn btn-line${applyLink(l.href) ? " btn-quest" : ""}`, href: Content.safeUrl(l.href), text: l.label }))));
     }
     return el("li", { class: `timeline__item${t.current ? " is-now" : ""}` }, [el("p", { class: "timeline__year display", text: t.year || "" }), body]);
   });

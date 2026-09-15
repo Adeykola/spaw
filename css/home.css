@@ -239,8 +239,15 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* The phone slide's "Apply to take part" rises in with the rest of the
+   copy, then keeps up the Talent Quest's call (.btn-quest, main.css). */
+.hero--slider.is-ready .hero-slide.is-active .hero__register.btn-quest {
+  animation: heroRise 1s var(--ease-cinema) 0.44s forwards, questWiggle 7s var(--ease-soft) 3s infinite, questGlow 3.6s ease-in-out 1.4s infinite;
+}
+
 /* Copy is held until the intro film clears; .is-live releases it. */
-.hero--slider.is-ready:not(.is-live) .hero-slide [data-hero-anim] { animation-play-state: paused; }
+.hero--slider.is-ready:not(.is-live) .hero-slide [data-hero-anim],
+.hero--slider.is-ready:not(.is-live) .hero-slide .hero__register.btn-quest { animation-play-state: paused; }
 
 /* No-JS / pre-JS baseline: the first slide paints from a plain background
    image on its slat holder, so the hero is never an empty black box while
@@ -377,6 +384,7 @@
   .hero-slide { transition: opacity 0.3s linear; }
   .hero-sweep { display: none; }
   .hero-slide [data-hero-anim] { opacity: 1; transform: none; }
+  .hero--slider.is-ready .hero-slide.is-active .hero__register.btn-quest { animation: heroRise 1s var(--ease-cinema) 0.44s forwards; }
 }
 
 /* ---- SPAW slides on phones ----------------------------------------
@@ -429,9 +437,11 @@
   text-transform: uppercase;
   color: var(--gold);
 }
-/* "Register here": a full-width, square-cornered block, the one thing on
-   the slide to press. */
+/* "Register here" / "Apply to take part": a full-width, square-cornered
+   block, the one thing on the slide to press. --quest-base keeps its
+   shadow while the Talent Quest glow (main.css) breathes over it. */
 .hero__register {
+  --quest-base: inset 0 0 0 1px color-mix(in srgb, var(--paper) 22%, transparent), 0 18px 36px -20px var(--red);
   align-self: stretch;
   justify-content: center;
   padding: 1.05rem 1.5rem;
@@ -440,7 +450,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--paper) 22%, transparent), 0 18px 36px -20px var(--red);
+  box-shadow: var(--quest-base);
 }
 .hero__phone-text {
   font-size: 0.95rem;
