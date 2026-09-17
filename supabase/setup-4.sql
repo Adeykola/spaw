@@ -4,13 +4,24 @@
 -- Registration form: where people live, gender, age category, anything
 -- else) and the answers are kept with each registration. Registration also
 -- stops once an event is sold out, and the Talent Quest application keeps
--- gender, age category, state and country.
+-- gender, age category, state and country. And it notes when each form's
+-- confirmation email was sent.
 --
 -- Run it once, after parts 1, 2 and 3 (setup.sql, setup-2.sql, setup-3.sql):
 --   Supabase → SQL Editor → New query → paste all of this → Run.
 -- Running it again is safe. Event registration lives here from now on; the
 -- earlier parts no longer carry it.
 -- ============================================================================
+
+
+-- ----------------------------------------------------------------------------
+-- 0. When each form's email went out (supabase/functions/send-email): one
+--    email per registration, application, message and sign-up.
+-- ----------------------------------------------------------------------------
+alter table public.registrations add column if not exists emailed_at timestamptz;
+alter table public.applications  add column if not exists emailed_at timestamptz;
+alter table public.enquiries     add column if not exists emailed_at timestamptz;
+alter table public.subscribers   add column if not exists emailed_at timestamptz;
 
 
 -- ----------------------------------------------------------------------------

@@ -47,30 +47,42 @@
     const submit = make("button", { type: "submit", class: "btn btn-solid reg-modal__submit", text: "Confirm registration" });
     const form = make("form", { novalidate: true }, [name, meta, error, fields, submit]);
 
-    const regName = make("span");
+    const title = make("h2", { class: "confirm-screen__title display", text: "You're registered." });
+    const body = make("p", { class: "confirm-screen__body" });
     const qr = make("div", { class: "confirm-screen__qr" });
     const regId = make("span");
+    const idLine = make("p", { class: "confirm-screen__id" }, ["Ticket ID: ", regId]);
+    const emailed = make("p", { class: "reg-modal__emailed", role: "status", hidden: true });
+    const saveTicket = make("button", { type: "button", class: "btn btn-solid", text: "Download your ticket", "data-cta": "Download ticket (after registering)" });
     const ics = make("button", { type: "button", class: "btn btn-line", text: "Add to calendar" });
     const done = make("button", { type: "button", class: "btn btn-line", text: "Done" });
     const confirm = make("div", { class: "reg-modal__confirm", hidden: true }, [
       make("div", { class: "confirm-screen__icon" }, [svgTick()]),
-      make("h2", { class: "confirm-screen__title display", text: "You're registered." }),
-      make("p", { class: "confirm-screen__body" }, ["See you there, ", regName, ". Show this QR code at check-in."]),
-      qr,
-      make("p", { class: "confirm-screen__id" }, ["ID: ", regId]),
-      make("div", { class: "confirm-screen__actions" }, [ics, done]),
+      title, body, qr, idLine, emailed,
+      make("div", { class: "confirm-screen__actions" }, [saveTicket, ics, done]),
+      whatsappBlock("after registering"),
     ]);
 
     modal = make("div", { class: "video-modal reg-modal", "data-register-modal": "", hidden: true, role: "dialog", "aria-modal": "true", "aria-labelledby": "reg-modal-title" }, [
       make("div", { class: "reg-modal__panel section--light" }, [close, form, confirm]),
     ]);
     document.body.append(modal);
-    parts = { form, name, meta, error, fields, submit, confirm, regName, qr, regId, ics };
+    parts = { form, name, meta, error, fields, submit, confirm, title, body, qr, regId, idLine, emailed, saveTicket, ics, done };
 
     [close, done].forEach((b) => b.addEventListener("click", hide));
     modal.addEventListener("click", (e) => { if (e.target === modal) hide(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("is-open")) hide(); });
     form.addEventListener("submit", send);
+  }
+
+  // The WhatsApp channel, for everyone who has just registered.
+  function whatsappBlock(where) {
+    const url = (window.DB && DB.siteSettings && DB.siteSettings.whatsappChannel) || "https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e";
+    return make("div", { class: "whatsapp-cta" }, [
+      make("p", { class: "whatsapp-cta__title", text: "Join us on WhatsApp" }),
+      make("p", { class: "whatsapp-cta__text", text: "Follow the Dr AjokeSings WhatsApp channel for event reminders, updates and news before anyone else." }),
+      make("a", { class: "whatsapp-cta__link", href: url, target: "_blank", rel: "noopener", text: "Join the WhatsApp channel", "data-cta": `WhatsApp channel (${where})` }),
+    ]);
   }
 
   function svgTick() {
@@ -197,15 +209,41 @@
 
   function confirmed(registration) {
     const e = current;
+    // Events that send tickets (admin → Events → "Send a ticket") show the
+    // QR code and the ticket to download; the others just confirm.
+    const withTicket = e.ticketRequired !== false;
     parts.form.hidden = true;
     parts.confirm.hidden = false;
-    parts.regName.textContent = registration.name;
+    parts.title.textContent = withTicket ? "You're registered. Here's your ticket." : "You're registered.";
+    parts.body.textContent = withTicket
+      ? `See you there, ${registration.name}. Show this QR code at the door, or download your ticket to keep it on your phone.`
+      : `See you there, ${registration.name}. Your place is confirmed.`;
+    parts.idLine.firstChild.textContent = withTicket ? "Ticket ID: " : "Reference: ";
     parts.regId.textContent = registration.id;
+    parts.qr.hidden = !withTicket;
+    parts.saveTicket.hidden = !withTicket || !window.Ticket;
     parts.qr.replaceChildren();
-    if (typeof QRCode !== "undefined") {
+    if (withTicket && typeof QRCode !== "undefined") {
       new QRCode(parts.qr, { text: registration.id, width: 148, height: 148, colorDark: "#0a0908", colorLight: "#faf7f2" });
-    } else {
+    } else if (withTicket) {
       parts.qr.replaceChildren(make("p", { class: "state-msg", text: `Show ID ${registration.id} at check-in.` }));
+    }
+    parts.saveTicket.onclick = async () => {
+      parts.saveTicket.disabled = true;
+      parts.saveTicket.textContent = "Preparing your ticket…";
+      try { await Ticket.download({ id: registration.id, name: registration.name, event: e }); } finally {
+        parts.saveTicket.disabled = false;
+        parts.saveTicket.textContent = "Download your ticket";
+      }
+    };
+    // Once the email has gone (live, with emails set up), say so.
+    parts.emailed.hidden = true;
+    if (registration.emailing && typeof registration.emailing.then === "function") {
+      registration.emailing.then((r) => {
+        if (!r || !r.sent || parts.confirm.hidden) return;
+        parts.emailed.textContent = withTicket ? `We've also emailed your ticket to ${registration.email}.` : `We've emailed a confirmation to ${registration.email}.`;
+        parts.emailed.hidden = false;
+      });
     }
     parts.ics.onclick = () => {
       const url = URL.createObjectURL(new Blob([calendarFile(e, registration)], { type: "text/calendar" }));
@@ -215,7 +253,7 @@
       a.remove();
       URL.revokeObjectURL(url);
     };
-    parts.confirm.querySelector("button").focus();
+    (parts.saveTicket.hidden ? parts.done : parts.saveTicket).focus();
   }
 
   function calendarFile(event, registration) {

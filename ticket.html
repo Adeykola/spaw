@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Events — Dr AjokeSings</title>
+<title>Your ticket — Dr AjokeSings</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="description" content="Upcoming events, listening nights, and worship gatherings from Dr AjokeSings.">
+<meta name="description" content="Your event ticket from Dr AjokeSings: show the QR code at the door, or download it to your phone.">
+<meta name="robots" content="noindex">
 <meta name="theme-color" content="#0a0908">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +38,7 @@
         <li><a href="media">Media</a></li>
         <li><a href="ministry">Ministry</a></li>
         <li><a href="symphony">Symphony</a></li>
-        <li><a href="events" aria-current="page">Events</a></li>
+        <li><a href="events">Events</a></li>
         <li><a href="about">About</a></li>
       </ul>
     </nav>
@@ -56,17 +57,35 @@
 </nav>
 
 <main id="main">
-  <section class="page-hero" style="min-height:46svh;" aria-label="Events">
+  <section class="page-hero ticket-hero" aria-label="Your ticket">
     <div class="page-hero__media"><img src="assets/images/spaw-duet.webp" alt="" loading="eager"></div>
     <div class="page-hero__scrim"></div>
     <div class="page-hero__content">
-      <p class="eyebrow page-hero__eyebrow">Calendar</p>
-      <h1 class="page-hero__title display">Where we <em>gather.</em></h1>
+      <p class="eyebrow page-hero__eyebrow">Event ticket</p>
+      <h1 class="page-hero__title display">Your <em>ticket.</em></h1>
     </div>
   </section>
 
-  <section class="section section--light" aria-label="Upcoming events">
-    <div class="wrap" data-events-full-list></div>
+  <section class="section section--light ticket-page" aria-label="Your ticket">
+    <div class="wrap ticket-page__wrap">
+      <div class="ticket-page__text">
+        <p class="ticket-page__lede" data-ticket-lede>Show the QR code at the door, or download the ticket to keep it on your phone.</p>
+        <div class="ticket-page__actions">
+          <button type="button" class="btn btn-solid" data-ticket-download disabled data-cta="Download ticket (ticket page)">Download your ticket</button>
+          <a class="btn btn-line" href="events" data-ticket-event>See the event</a>
+        </div>
+        <p class="ticket-page__note">One ticket admits one person. Can&rsquo;t make it? Reply to your ticket email and we&rsquo;ll free your place for someone else.</p>
+        <div class="whatsapp-cta">
+          <p class="whatsapp-cta__title">Join us on WhatsApp</p>
+          <p class="whatsapp-cta__text">Follow the Dr AjokeSings WhatsApp channel for event reminders, updates and news before anyone else.</p>
+          <a class="whatsapp-cta__link" href="https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e" target="_blank" rel="noopener" data-cta="WhatsApp channel (ticket page)">Join the WhatsApp channel</a>
+        </div>
+      </div>
+      <figure class="ticket-page__figure">
+        <img data-ticket-image alt="" hidden>
+        <p class="state-msg" data-ticket-status>Preparing your ticket&hellip;</p>
+      </figure>
+    </div>
   </section>
 </main>
 
@@ -91,10 +110,8 @@
 <script src="js/track.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/app.js" defer></script>
-<script src="js/form-fields.js" defer></script>
-<script src="js/register.js" defer></script>
 <script src="js/ticket.js" defer></script>
-<script src="js/events.js" defer></script>
+<script src="js/ticket-page.js" defer></script>
 <script src="js/animations.js" defer></script>
 </body>
 </html>

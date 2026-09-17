@@ -19,6 +19,7 @@ const DB = {
     locationLabel: "Lagos, Nigeria",
     email: "hello@dr-ajokesings.com",
     bookingEmail: "booking@dr-ajokesings.com",
+    whatsappChannel: "https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e",
     social: {
       instagram: "https://instagram.com/drajokesings",
       youtube: "https://youtube.com/@drajokesings",
@@ -745,6 +746,7 @@ const api = {
     if (!this.applicationsOpen()) throw new Error("Applications for this Talent Quest are closed.");
     const application = await Backend.forms.submitApplication(payload, files);
     if (window.Track) Track.event("applied", { label: payload.track });
+    Backend.email.send("applications", application.id); // "application received"
     return application;
   },
 
@@ -833,7 +835,8 @@ const api = {
     if (missing.length) throw new Error(`Please answer: ${missing.map((q) => q.label).join(" · ")}`);
     const registration = await Backend.forms.registerForEvent(event, clean);
     if (window.Track) Track.event("registered", { label: event.name, props: { id: event.id } });
-    return registration;
+    // The ticket (or confirmation) by email; the success screen says so once it's gone.
+    return { ...registration, emailing: Backend.email.send("registrations", registration.id) };
   },
 
   async getRegistrations(eventId = null) {
@@ -853,6 +856,7 @@ const api = {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("That email address doesn't look right.");
     const result = await Backend.forms.subscribe(email, source);
     if (window.Track) Track.event("newsletter", { label: source });
+    Backend.email.send("subscribers", result.email); // a welcome
     return result;
   },
 
@@ -887,6 +891,7 @@ const api = {
     }
 
     const enquiry = await Backend.forms.submitEnquiry(payload);
+    Backend.email.send("enquiries", enquiry.id); // "we've got your message / booking request"
     const booking = payload.type === "booking";
     if (window.Track) Track.event(booking ? "booking" : "enquiry", { label: booking ? payload.eventType || "Booking" : "Message" });
     return enquiry;

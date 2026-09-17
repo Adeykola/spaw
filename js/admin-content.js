@@ -189,6 +189,10 @@
         { key: "capacity", label: "Places", type: "number", help: "Registration stops, and the event shows as sold out, when this many have registered. The number isn't shown on the site. Leave empty for no limit." },
         { type: "heading", label: "Registration form" },
         {
+          key: "ticketRequired", label: "Send a ticket", type: "check", defaultOn: true,
+          help: "People who register get a ticket with a QR code to show at the door: on screen, to download, and by email. Untick for events that only need a confirmation email.",
+        },
+        {
           key: "phone", label: "Phone number", type: "select",
           options: [{ value: "optional", label: "Ask for it, optional" }, { value: "required", label: "Ask for it, required" }, { value: "off", label: "Don't ask" }],
           help: "Everyone gives their name and email. The phone number comes with its country code.",

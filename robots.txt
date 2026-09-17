@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin
+Disallow: /ticket
+
+Sitemap: https://dr-ajokesings.com/sitemap.xml

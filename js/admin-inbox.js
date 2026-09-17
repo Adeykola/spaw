@@ -470,7 +470,10 @@
         try {
           const reg = await Backend.forms.addRegistration(ev, { name: name.value.trim(), email: email.value.trim(), phone: phone.value.trim() });
           all.unshift({ status: "registered", checkedIn: false, source: "admin", note: "", ...reg, registeredAt: reg.registeredAt || new Date().toISOString() });
-          toast(`${name.value.trim()} is registered. Ticket ${reg.id}.`, "is-success");
+          const who = name.value.trim();
+          toast(`${who} is registered. Ticket ${reg.id}.`, "is-success");
+          // Their ticket (or confirmation) by email, as if they'd registered themselves.
+          Backend.email.send("registrations", reg.id).then((r) => { if (r.sent) toast(`${ev.ticketRequired === false ? "Confirmation" : "Ticket"} emailed to ${who}.`); });
           addForm.reset();
           drawList();
         } catch (err) {

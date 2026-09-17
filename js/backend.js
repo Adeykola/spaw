@@ -929,6 +929,32 @@
     },
   };
 
+  /* ===================================================================
+   * EMAILS
+   * Straight after a form is saved, the site asks the send-email function
+   * (supabase/functions/send-email) to write to the person: their ticket,
+   * or a reply suited to the form. The function reads the saved form
+   * itself and sends one email each. Demo mode sends nothing.
+   * =================================================================== */
+  const email = {
+    async send(kind, id) {
+      if (!LIVE || !id) return { sent: false, demo: !LIVE };
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+          method: "POST",
+          headers: { ...publicHeaders(), "Content-Type": "application/json" },
+          body: JSON.stringify({ kind, id }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!body.sent && body.reason !== "already sent") console.warn(`[backend] No email for ${kind} ${id}: ${body.reason || `the send-email function answered ${res.status}`}. See supabase/README.md, "Emails".`);
+        return { sent: Boolean(body.sent), reason: body.reason };
+      } catch (err) {
+        console.warn("[backend] The send-email function couldn't be reached. See supabase/README.md, \"Emails\".", err.message);
+        return { sent: false };
+      }
+    },
+  };
+
   const impl = LIVE ? live : demo;
   window.Backend = Object.freeze({
     mode: LIVE ? "live" : "demo",
@@ -949,5 +975,6 @@
     media: impl.media,
     forms: impl.forms,
     analytics: impl.analytics,
+    email,
   });
 })();

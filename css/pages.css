@@ -173,6 +173,22 @@ body.has-persistent-player { padding-bottom: 92px; }
 .video-card__cat { font-size: var(--step--1); color: var(--gold); }
 .video-card__title { font-family: var(--font-display); font-size: var(--step-1); font-style: italic; margin-top: 2px; }
 
+/* ---- The ticket page (ticket.html, linked from the ticket email) ---- */
+.ticket-hero { min-height: 40svh; }
+.ticket-page { padding-block: var(--space-xl); }
+.ticket-page__wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: var(--space-xl); align-items: start; }
+.ticket-page__lede { max-width: 44ch; color: var(--gray-on-light); font-size: var(--step-1); line-height: 1.45; }
+.ticket-page__actions { display: flex; flex-wrap: wrap; gap: var(--space-s) var(--space-m); align-items: center; margin-top: var(--space-l); }
+.ticket-page__actions .btn-line { --btn-fg: var(--ink); }
+.ticket-page__note { margin-top: var(--space-m); font-size: var(--step--1); color: var(--gray-on-light); max-width: 48ch; }
+.ticket-page__figure { margin: 0; }
+.ticket-page__figure img { width: 100%; height: auto; box-shadow: 0 40px 80px -40px rgba(10, 9, 8, 0.7); }
+@media (max-width: 860px) {
+  .ticket-page { padding-block: var(--space-l); }
+  .ticket-page__wrap { grid-template-columns: minmax(0, 1fr); gap: var(--space-l); }
+  .ticket-page__figure { max-width: 420px; }
+}
+
 /* Forms: the fields themselves are in main.css (the homepage has a form too). */
 .upload-field { border: 1px dashed var(--ink-line); padding: var(--space-m); text-align: center; border-radius: 2px; position: relative; }
 .section--light .upload-field { border-color: var(--paper-line); }

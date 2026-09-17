@@ -1,3 +1,11 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.dr-ajokesings.com" }],
+      "destination": "https://dr-ajokesings.com/:path*",
+      "permanent": true
+    }
+  ]
 }

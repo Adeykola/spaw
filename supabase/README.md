@@ -53,6 +53,38 @@ That key is meant to be public: it only lets a visitor do what the security rule
 2. Supabase sends a confirmation email; open the link in it.
 3. Back on `/admin`, sign in. **People & roles** is where the Owner adds everyone else by name, email and role; each of them does the same three steps.
 
+## 6. Emails to the people who send a form
+
+Everyone who sends a form on the site gets an email straight away, from `hello@dr-ajokesings.com`:
+
+| Form | The email |
+| --- | --- |
+| Event registration | **Their ticket**: the QR code to show at the door, the event's date, time and venue, and a button to the ticket page, where the designed ticket downloads to their phone. For an event with **Send a ticket** unticked (admin → Events), a confirmation instead. |
+| Talent Quest application | "Your application is in": their details, what happens next, and the travel disclaimer |
+| Contact message | "Thank you for your message", with their reference |
+| Booking request | "We've got your booking request", with the date and details they gave |
+| Newsletter | A welcome |
+
+Every email points to the WhatsApp channel. The team registering someone by hand (Inbox → Registrations) sends them their ticket too.
+
+The emails are written and sent by a small program in Supabase, [`functions/send-email`](functions/send-email/index.ts), through [Resend](https://resend.com) (free for up to 3,000 emails a month). Setting it up, once:
+
+1. **Resend.** Create an account at resend.com. Under **Domains**, add `dr-ajokesings.com`. Resend lists a few DNS records (a TXT record named `resend._domainkey`, and an MX and a TXT record for `send`). Add each of them in the domain's DNS at Truehost (Client area → Domains → dr-ajokesings.com → Manage DNS), exactly as Resend shows them, then press **Verify** in Resend. These records sit alongside the website's and the mailbox's records and change neither. Then, under **API Keys**, create a key with *Sending access* and copy it.
+2. **The function.** In Supabase, open **Edge Functions → Deploy a new function → Via Editor**. Name it `send-email`, replace the example code with everything in [`functions/send-email/index.ts`](functions/send-email/index.ts), and press **Deploy**. Then open the function's **Details** and switch **Enforce JWT verification** (Verify JWT) **off**, and save: email apps have to be able to load the QR code image without signing in. (The function checks everything itself: it only writes about a form saved in the last few hours, once, to the address on that form.)
+3. **Its settings.** In **Edge Functions → Secrets**, add:
+
+   | Name | Value |
+   | --- | --- |
+   | `RESEND_API_KEY` | the key from step 1 |
+   | `MAIL_FROM` | `Dr AjokeSings <hello@dr-ajokesings.com>` |
+   | `MAIL_REPLY_TO` | `hello@dr-ajokesings.com` (where replies go) |
+   | `SITE_URL` | `https://dr-ajokesings.com` |
+
+4. **The database.** Run [`setup-4.sql`](setup-4.sql) (again, if it has run before): it adds the column that makes sure each form gets one email.
+5. **Try it.** Register for an event on the website with your own address. The success screen says "We've also emailed your ticket to …" once it has gone. If no email comes, **Edge Functions → send-email → Logs** says why, and so does the browser's console.
+
+Until this is set up the site works as before, without the emails. The ticket email's details (date, venue) come from the events as published from the admin; publish the events list once so every event's details are there (the SPAW Global Concert's come from the Symphony page's settings either way).
+
 ## Who can do what
 
 | | Owner | Editor | Team |
