@@ -53,6 +53,7 @@ async function renderSymphonyInfo() {
         ...info.tracks.map((t) => el("option", { value: t, text: t }))
       );
     }
+    if (appQuestions.age && Array.isArray(info.ageCategories) && info.ageCategories.length) appQuestions.age.setOptions(info.ageCategories);
 
     if (termsEl) termsEl.textContent = info.terms;
     if (!api.applicationsOpen()) showApplicationsClosed(info, fmt);
@@ -214,10 +215,27 @@ function wireUploadFields() {
 /* ---------------------------------------------------------------------
  * Application form — validate -> submit -> success/error
  * ------------------------------------------------------------------- */
+// Phone (with its country code), gender, state and country, and age
+// category, drawn into their places in the form (form-fields.js).
+const appQuestions = {};
+
 function wireApplicationForm() {
   const form = document.querySelector("[data-application-form]");
   if (!form) return;
   const banner = form.querySelector("[data-form-error]");
+
+  const QUESTIONS = {
+    phone: { id: "phone", label: "Phone", type: "phone", required: true, full: true },
+    gender: { id: "gender", label: "Gender", type: "select", required: true, options: FormFields.GENDERS },
+    location: { id: "location", label: "State and country", type: "location", required: true, full: true },
+    age: { id: "age", label: "Age category", type: "select", required: true, options: (DB.symphony && DB.symphony.ageCategories) || FormFields.AGE_CATEGORIES },
+  };
+  form.querySelectorAll("[data-app-question]").forEach((slot) => {
+    const q = QUESTIONS[slot.dataset.appQuestion];
+    if (!q) return;
+    appQuestions[q.id] = FormFields.render(q, { prefix: "app" });
+    slot.replaceWith(appQuestions[q.id].node);
+  });
 
   // The first thing typed or chosen counts as starting an application
   // (the analytics' step-by-step view: page, started, sent).
@@ -234,8 +252,6 @@ function wireApplicationForm() {
   const fields = {
     fullName: form.querySelector("#app-name"),
     email: form.querySelector("#app-email"),
-    phone: form.querySelector("#app-phone"),
-    location: form.querySelector("#app-location"),
     track: form.querySelector("#app-track"),
     bio: form.querySelector("#app-bio"),
     socialLink: form.querySelector("#app-social"),
@@ -256,8 +272,7 @@ function wireApplicationForm() {
     let valid = true;
     if (!fields.fullName.value.trim()) { setFieldError("fullName", "Enter your full name."); valid = false; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email.value.trim())) { setFieldError("email", "Enter a valid email address."); valid = false; }
-    if (!fields.phone.value.trim()) { setFieldError("phone", "Enter a phone number."); valid = false; }
-    if (!fields.location.value.trim()) { setFieldError("location", "Tell us your city and country."); valid = false; }
+    Object.values(appQuestions).forEach((q) => { if (q.check()) valid = false; });
     if (!fields.track.value) { setFieldError("track", "Choose a track."); valid = false; }
     if (!fields.bio.value.trim() || fields.bio.value.trim().length < 30) { setFieldError("bio", "Tell us a bit more — at least 30 characters."); valid = false; }
     if (!form.querySelector("#app-terms").checked) { setFieldError("terms", "You need to agree to the terms to continue."); valid = false; }
@@ -276,11 +291,16 @@ function wireApplicationForm() {
     const originalLabel = submitBtn.textContent;
     submitBtn.textContent = "Submitting\u2026";
 
+    const place = appQuestions.location.read();
     const payload = {
       fullName: fields.fullName.value.trim(),
       email: fields.email.value.trim(),
-      phone: fields.phone.value.trim(),
-      location: fields.location.value.trim(),
+      phone: appQuestions.phone.read(),
+      gender: appQuestions.gender.read(),
+      ageCategory: appQuestions.age.read(),
+      state: place.state,
+      country: place.country,
+      location: FormFields.formatValue(place),
       track: fields.track.value,
       bio: fields.bio.value.trim(),
       socialLink: fields.socialLink.value.trim(),

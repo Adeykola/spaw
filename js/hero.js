@@ -48,6 +48,7 @@
   let paused = reducedMotion;      // reduced motion never auto-advances
   let pausedByPointer = false;
   let pausedBySheet = false;       // a SPAW "See more" sheet is open
+  let pausedByForm = false;        // the registration form is open (register.js)
   let started = false;
 
   /* -------------------------------------------------------------------
@@ -185,12 +186,12 @@
    * ----------------------------------------------------------------- */
   function schedule() {
     window.clearTimeout(timer);
-    if (paused || pausedByPointer || pausedBySheet || !started || slides.length < 2) return;
+    if (paused || pausedByPointer || pausedBySheet || pausedByForm || !started || slides.length < 2) return;
     timer = window.setTimeout(next, AUTOPLAY_MS);
   }
 
   function syncPausedClass() {
-    root.classList.toggle("is-paused", paused || pausedByPointer || pausedBySheet);
+    root.classList.toggle("is-paused", paused || pausedByPointer || pausedBySheet || pausedByForm);
   }
 
   function setPaused(value) {
@@ -314,6 +315,11 @@
       sheet.showModal();
     });
   });
+  ["register:open", "register:close"].forEach((name) => document.addEventListener(name, () => {
+    pausedByForm = name === "register:open";
+    syncPausedClass();
+    schedule();
+  }));
   document.querySelectorAll("[data-hero-sheet]").forEach((sheet) => {
     // Slides back down before it closes; reduced motion just closes.
     const dismiss = () => {

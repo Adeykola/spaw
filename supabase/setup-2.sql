@@ -174,98 +174,9 @@ begin
   return 'added';
 end $$;
 
--- Registration checks the event as published from the admin, when it has
--- been: open or closed, and room left. (setup-3.sql replaces this with a
--- version that also follows the event's status and closing date.)
-create or replace function public.register_for_event(p_event_id text, p_event_name text, p_name text, p_email text, p_phone text default null)
-returns jsonb language plpgsql security definer set search_path = public as $$
-declare
-  mail   text := lower(trim(coalesce(p_email, '')));
-  ev     jsonb;
-  ename  text := p_event_name;
-  cap    integer;
-  taken  integer;
-  ref    text;
-begin
-  if length(trim(coalesce(p_name, ''))) = 0 then raise exception 'Enter your full name.'; end if;
-  if mail !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' then raise exception 'That email address doesn''t look right.'; end if;
-
-  select e.value into ev
-  from public.content c,
-       jsonb_array_elements(case when jsonb_typeof(c.data) = 'array' then c.data else '[]'::jsonb end) as e(value)
-  where c.key = 'events' and e.value ->> 'id' = p_event_id
-  limit 1;
-
-  if ev is not null then
-    ename := ev ->> 'name';
-    if coalesce((ev ->> 'registrationOpen')::boolean, true) = false then
-      raise exception 'Registration for this event is closed.';
-    end if;
-    cap := floor(nullif(ev ->> 'capacity', '')::numeric)::integer;
-    if cap is not null then
-      select count(*) into taken from public.registrations where event_id = p_event_id and status = 'registered';
-      if taken >= cap then raise exception 'This event is full.'; end if;
-    end if;
-  end if;
-
-  if exists (select 1 from public.registrations where event_id = p_event_id and lower(email) = mail and status = 'registered') then
-    raise exception 'You''re already registered for this event with that email.';
-  end if;
-
-  ref := public.new_ref('REG');
-  insert into public.registrations (id, event_id, event_name, name, email, phone, source)
-  values (ref, p_event_id, left(coalesce(ename, p_event_id), 200), trim(p_name), mail,
-          nullif(trim(coalesce(p_phone, '')), ''), case when public.is_admin() then 'admin' else 'website' end);
-
-  return jsonb_build_object('id', ref, 'eventId', p_event_id, 'eventName', ename, 'name', trim(p_name),
-                            'email', mail, 'phone', nullif(trim(coalesce(p_phone, '')), ''),
-                            'registeredAt', now(), 'checkedIn', false, 'status', 'registered');
-end $$;
-
--- The Talent Quest checks the dates and switch published from the admin.
-create or replace function public.submit_application(payload jsonb)
-returns jsonb language plpgsql security definer set search_path = public as $$
-declare
-  mail    text := lower(trim(coalesce(payload ->> 'email', '')));
-  sym     jsonb;
-  closes  date;
-  ref     text;
-begin
-  if length(payload::text) > 30000 then raise exception 'That application is too long.'; end if;
-  if length(trim(coalesce(payload ->> 'fullName', ''))) = 0
-     or length(trim(coalesce(payload ->> 'phone', ''))) = 0
-     or length(trim(coalesce(payload ->> 'location', ''))) = 0
-     or length(trim(coalesce(payload ->> 'track', ''))) = 0
-     or length(trim(coalesce(payload ->> 'bio', ''))) = 0 then
-    raise exception 'Please complete all required fields before submitting.';
-  end if;
-  if mail !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' then raise exception 'That email address doesn''t look right.'; end if;
-  if not coalesce((payload ->> 'agreedToTerms')::boolean, false) then
-    raise exception 'You need to agree to the terms to submit your application.';
-  end if;
-
-  select c.data into sym from public.content c where c.key = 'symphony';
-  if sym is not null then
-    if coalesce((sym ->> 'applicationsOpen')::boolean, true) = false then raise exception 'Applications are closed.'; end if;
-    closes := nullif(sym ->> 'applicationCloses', '')::date;
-    if closes is not null and current_date > closes then
-      raise exception 'Applications closed on %.', to_char(closes, 'FMDD FMMonth YYYY');
-    end if;
-  end if;
-
-  ref := public.new_ref('SYM');
-  insert into public.applications (id, full_name, email, phone, location, track, data)
-  values (
-    ref, trim(payload ->> 'fullName'), mail, trim(payload ->> 'phone'), trim(payload ->> 'location'), trim(payload ->> 'track'),
-    jsonb_strip_nulls(jsonb_build_object(
-      'bio', payload ->> 'bio',
-      'socialLink', nullif(payload ->> 'socialLink', ''),
-      'projectLink', nullif(payload ->> 'projectLink', ''),
-      'files', payload -> 'files'
-    ))
-  );
-  return jsonb_build_object('id', ref, 'email', mail, 'submittedAt', now());
-end $$;
+-- Event registration (register_for_event) and the Talent Quest application
+-- (submit_application) are in setup-4.sql: the registration form's own
+-- questions, and the application's gender, age category, state and country.
 
 -- How many are registered for each event: numbers only, for the public
 -- "120 of 800 registered" lines.
@@ -294,8 +205,6 @@ end $$;
 
 grant execute on function public.submit_enquiry(jsonb) to anon, authenticated;
 grant execute on function public.subscribe(text, text) to anon, authenticated;
-grant execute on function public.register_for_event(text, text, text, text, text) to anon, authenticated;
-grant execute on function public.submit_application(jsonb) to anon, authenticated;
 grant execute on function public.event_counts() to anon, authenticated;
 grant execute on function public.check_in(text) to authenticated;
 

@@ -274,6 +274,112 @@ p { text-wrap: pretty; }
   transition: border-color var(--dur-s) var(--ease-soft), background var(--dur-s) var(--ease-soft);
 }
 .btn-ghost:hover { border-color: currentColor; background: color-mix(in srgb, currentColor 8%, transparent); }
+/* A Register button for an event that is sold out or closed (register.js,
+   events.js): it stays in place, can't be pressed, and says why. */
+.btn[disabled],
+.btn.is-disabled { cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-line[disabled],
+.btn-line.is-disabled { opacity: 0.55; }
+/* A muted colour rather than transparency: a button that rises in with
+   its slide has its opacity animated. */
+.btn-solid[disabled],
+.btn-solid.is-disabled,
+.btn-solid[disabled]:hover,
+.btn-solid.is-disabled:hover { background: color-mix(in srgb, var(--red) 40%, #6b625a); color: color-mix(in srgb, var(--paper) 80%, transparent); }
+.register-note { margin-top: 0.5rem; font-size: 0.8rem; line-height: 1.4; color: var(--gray-on-dark); max-width: 34ch; }
+.hero__phone .register-note { margin-top: -0.25rem; }
+
+/* ---- Forms (Symphony application, event registration, admin) ---- */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-m) var(--space-l); }
+.field { display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; }
+.field--full { grid-column: 1 / -1; }
+.field label,
+.field .field-label { font-size: var(--step--1); font-weight: 600; color: var(--gray-on-dark); }
+.section--light .field label,
+.section--light .field .field-label { color: var(--gray-on-light); }
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="tel"],
+.field input[type="url"],
+.field input[type="password"],
+.field input[type="number"],
+.field input[type="date"],
+.field input[type="time"],
+.field select,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  background: var(--ink-soft);
+  border: 1px solid var(--ink-line);
+  color: var(--paper);
+  padding: 0.85rem 1rem;
+  font-family: var(--font-ui);
+  font-size: var(--step-0);
+  border-radius: 2px;
+  transition: border-color var(--dur-s);
+}
+.section--light .field input,
+.section--light .field select,
+.section--light .field textarea {
+  background: var(--paper);
+  border-color: var(--paper-line);
+  color: var(--ink);
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--red-bright); }
+.field input:disabled, .field select:disabled, .field textarea:disabled { opacity: 0.6; }
+.field textarea { resize: vertical; min-height: 110px; }
+.field-error { font-size: 0.78rem; color: var(--red-bright); min-height: 1.1em; }
+.field-hint { font-size: 0.78rem; color: var(--gray-on-dark); }
+.section--light .field-hint { color: var(--gray-on-light); }
+/* Phone: country code, then the number. Location: country, then state. */
+.field-phone { display: grid; grid-template-columns: minmax(6.5rem, 10.5rem) minmax(0, 1fr); gap: var(--space-2xs); }
+.field-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2xs); }
+.field-choices { display: flex; flex-wrap: wrap; gap: var(--space-2xs) var(--space-m); padding-block: 0.35rem; }
+.field .field-choices label { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 500; color: inherit; cursor: pointer; }
+.field-choices input { width: 16px; height: 16px; accent-color: var(--red); }
+@media (max-width: 480px) {
+  .field-pair { grid-template-columns: minmax(0, 1fr); }
+}
+
+.checkbox-field { display: flex; align-items: flex-start; gap: var(--space-xs); }
+.checkbox-field input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--red); flex-shrink: 0; }
+.checkbox-field label { font-size: var(--step--1); color: var(--gray-on-dark); line-height: 1.5; }
+.section--light .checkbox-field label { color: var(--gray-on-light); }
+.form-error-banner { font-size: var(--step--1); color: var(--red-bright); }
+.form-error-banner:empty { display: none; }
+
+/* ---- Confirmation / QR screen ---- */
+.confirm-screen { text-align: left; max-width: 560px; }
+.confirm-screen__icon { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--red-bright); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-m); }
+.confirm-screen__title { font-family: var(--font-display); font-size: var(--step-3); }
+.confirm-screen__body { color: var(--gray-on-dark); margin-top: var(--space-s); max-width: 48ch; }
+.section--light .confirm-screen__body { color: var(--gray-on-light); }
+.confirm-screen__id { font-family: var(--font-display); font-style: italic; font-size: var(--step-2); color: var(--red-bright); margin-top: var(--space-m); }
+.confirm-screen__qr { background: var(--paper); padding: var(--space-m); display: inline-block; margin-top: var(--space-l); }
+.confirm-screen__actions { display: flex; gap: var(--space-m); margin-top: var(--space-l); flex-wrap: wrap; }
+
+/* ---- The registration form (register.js), over any page ---- */
+.video-modal.reg-modal { display: block; overflow-y: auto; overscroll-behavior: contain; padding: 4vh var(--space-s); }
+.reg-modal__panel { position: relative; width: min(560px, 100%); margin: 0 auto; padding: var(--space-l); box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8); }
+.reg-modal__close {
+  position: absolute; top: 0.5rem; right: 0.5rem;
+  width: 2.75rem; height: 2.75rem;
+  display: grid; place-items: center;
+  font-size: 1.7rem; line-height: 1; color: var(--ink);
+}
+.reg-modal__meta { margin-top: var(--space-2xs); padding-right: 2rem; }
+.reg-modal form > .eyebrow { padding-right: 2.5rem; }
+.reg-modal .form-error-banner { margin-top: var(--space-s); }
+.reg-modal__fields { display: grid; gap: var(--space-s); margin-block: var(--space-m); }
+.reg-modal__submit { width: 100%; justify-content: center; }
+.reg-modal .btn-line { --btn-fg: var(--ink); }
+.reg-modal .confirm-screen__title { font-size: var(--step-2); }
+.reg-modal .confirm-screen__id { font-size: var(--step-0); }
+.reg-modal .confirm-screen__qr { border: 1px solid var(--paper-line); }
+@media (max-width: 560px) {
+  .video-modal.reg-modal { padding: var(--space-2xs); }
+  .reg-modal__panel { padding: var(--space-m) var(--space-s); }
+}
 
 /* ---- The Talent Quest's call to apply ----
    Every button asking people to apply to the Talent Quest (.btn-quest)

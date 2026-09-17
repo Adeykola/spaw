@@ -70,47 +70,6 @@
   </section>
 </main>
 
-<div class="video-modal" data-register-modal hidden role="dialog" aria-modal="true" aria-label="Event registration">
-  <div class="video-modal__inner" style="aspect-ratio:auto; background: var(--paper); color: var(--ink); padding: var(--space-l); max-width: 520px; margin-inline:auto;">
-    <button class="video-modal__close" data-register-close type="button" style="color:var(--ink);">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="#icon-close"></use></svg>
-      Close
-    </button>
-
-    <form data-register-form>
-      <p class="eyebrow" data-register-event-name style="margin-bottom: var(--space-2xs);"></p>
-      <p class="field-hint" data-register-event-meta style="margin-bottom: var(--space-l);"></p>
-      <p class="form-error-banner" data-register-error role="alert"></p>
-
-      <div class="field" style="margin-bottom: var(--space-s);">
-        <label for="reg-name">Full name *</label>
-        <input type="text" id="reg-name" required autocomplete="name">
-      </div>
-      <div class="field" style="margin-bottom: var(--space-s);">
-        <label for="reg-email">Email *</label>
-        <input type="email" id="reg-email" required autocomplete="email">
-      </div>
-      <div class="field" style="margin-bottom: var(--space-m);">
-        <label for="reg-phone">Phone</label>
-        <input type="tel" id="reg-phone" autocomplete="tel">
-      </div>
-      <button type="submit" class="btn btn-solid" style="width:100%; justify-content:center;">Confirm registration</button>
-    </form>
-
-    <div data-register-confirm hidden>
-      <div class="confirm-screen__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12l5 5L19 7" stroke="var(--red)" stroke-width="2"/></svg></div>
-      <h2 class="confirm-screen__title display" style="font-size: var(--step-2);">You're registered.</h2>
-      <p class="confirm-screen__body">See you there, <span data-reg-name></span>. Show this QR code at check-in.</p>
-      <div class="confirm-screen__qr" data-reg-qr></div>
-      <p class="confirm-screen__id" style="font-size: var(--step-0);">ID: <span data-reg-id></span></p>
-      <div class="confirm-screen__actions">
-        <button type="button" class="btn btn-line" data-reg-ics>Add to calendar</button>
-        <button type="button" class="btn btn-line" data-register-close>Done</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-top">
@@ -132,6 +91,8 @@
 <script src="js/track.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/app.js" defer></script>
+<script src="js/form-fields.js" defer></script>
+<script src="js/register.js" defer></script>
 <script src="js/events.js" defer></script>
 <script src="js/animations.js" defer></script>
 </body>

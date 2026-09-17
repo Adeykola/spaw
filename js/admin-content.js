@@ -126,15 +126,18 @@
         day(e.date),
         e.status === "cancelled" ? "Cancelled" : e.status === "postponed" ? "Postponed" : "",
         e.visible === false ? "Not on the site yet" : "",
+        e.soldOut ? "Sold out" : "",
         e.registrationOpen === false ? "Registration closed" : "",
         Number(e.expectedGuests) ? `${Number(e.expectedGuests).toLocaleString("en-GB")} expected` : "",
+        (e.formFields || []).length ? plural(e.formFields.length, "extra question") : "",
       ].filter(Boolean).join(" · "),
       newItem: () => ({
         id: uid("event"), name: "", category: "", status: null, visible: true,
         date: today(), endDate: null, time: null, endTime: null,
         venue: "", address: "", city: "", mapUrl: null,
         admission: "free", price: "", ticketUrl: null,
-        capacity: 100, expectedGuests: null, registrationOpen: true, registrationCloses: null,
+        capacity: 100, expectedGuests: null, registrationOpen: true, soldOut: false, registrationCloses: null,
+        phone: "optional", formFields: [],
         registered: 0, description: "", image: "", ticketRequired: true,
       }),
       check: (work) => {
@@ -142,6 +145,11 @@
         if (work.some((e) => !e.date)) return ["Every event needs a date."];
         const backwards = work.find((e) => e.endDate && e.date && e.endDate < e.date);
         if (backwards) return [`“${tidyText(backwards.name)}” ends before it starts. Check its dates.`];
+        const questions = work.flatMap((e) => (e.formFields || []).map((q) => [e, q]));
+        const unworded = questions.find(([, q]) => !tidyText(q.label));
+        if (unworded) return [`A question on the registration form for “${tidyText(unworded[0].name)}” has no wording.`];
+        const noChoices = questions.find(([, q]) => (q.type === "select" || q.type === "radio") && (q.options || []).length < 2);
+        if (noChoices) return [`“${tidyText(noChoices[1].label)}” on the form for “${tidyText(noChoices[0].name)}” needs at least two choices, one per line.`];
         return [];
       },
       itemNote: () => "Registrations stay with the event while its name changes; deleting an event keeps its registrations in the inbox.",
@@ -175,9 +183,34 @@
         { key: "admission", label: "Entry", type: "select", options: [{ value: "free", label: "Free" }, { value: "ticketed", label: "Ticketed" }] },
         { key: "price", label: "Ticket prices", type: "text", placeholder: "₦5,000 regular · ₦20,000 VIP", help: "For a ticketed event." },
         { key: "ticketUrl", label: "Where to buy tickets", type: "url", placeholder: "https://…", help: "Adds a “Get tickets” button." },
-        { key: "registrationOpen", label: "Registration open", type: "check", defaultOn: true, help: "Untick to stop new registrations; the event still shows." },
+        { key: "registrationOpen", label: "Registration open", type: "check", defaultOn: true, help: "Untick to stop new registrations: the Register buttons are disabled and say “Registration closed”. The event still shows." },
+        { key: "soldOut", label: "Sold out", type: "check", help: "Tick to stop registration and show “Sold out” on the Register buttons. The site does this by itself once every place is taken." },
         { key: "registrationCloses", label: "Registration closes after", type: "date", help: "Optional. After this day the site stops taking registrations by itself." },
-        { key: "capacity", label: "Places", type: "number", help: "Registration stops when this many have registered. Leave empty for no limit." },
+        { key: "capacity", label: "Places", type: "number", help: "Registration stops, and the event shows as sold out, when this many have registered. The number isn't shown on the site. Leave empty for no limit." },
+        { type: "heading", label: "Registration form" },
+        {
+          key: "phone", label: "Phone number", type: "select",
+          options: [{ value: "optional", label: "Ask for it, optional" }, { value: "required", label: "Ask for it, required" }, { value: "off", label: "Don't ask" }],
+          help: "Everyone gives their name and email. The phone number comes with its country code.",
+        },
+        {
+          key: "formFields", label: "Extra questions", type: "list", itemName: "a question",
+          help: "Asked after name, email and phone, in this order. The answers are kept with each registration (Inbox → Registrations, and its spreadsheet), and the choices are counted in Analytics → Sign-ups.",
+          presets: [
+            ["Add location (state and country)", () => FormFields.preset("location")],
+            ["Add gender", () => FormFields.preset("gender")],
+            ["Add age category", () => FormFields.preset("age")],
+          ],
+          itemLabel: (q) => `${tidyText(q.label) || "A question without wording"}${q.required ? " (required)" : ""}`,
+          newItem: () => ({ id: uid("q"), label: "", type: "text", required: false, options: [], help: "" }),
+          fields: [
+            { key: "label", label: "Question", type: "text" },
+            { key: "type", label: "Kind of answer", type: "select", options: FormFields.TYPES.map(([value, label]) => ({ value, label })), onChange: () => "redraw" },
+            { key: "required", label: "Required", type: "check", help: "People can't register without answering it." },
+            { key: "options", label: "Choices", type: "lines", rows: 4, help: "One choice per line.", showIf: (q) => q.type === "select" || q.type === "radio" },
+            { key: "help", label: "Hint under the question (optional)", type: "text" },
+          ],
+        },
         { type: "heading", label: "Planning" },
         { key: "expectedGuests", label: "Expected guests", type: "number", help: "How many you expect to come. Not shown on the site: the admin follows registrations against it, here, on the Dashboard and in the analytics." },
       ],
@@ -194,6 +227,7 @@
         { key: "applicationCloses", label: "Applications close", type: "date" },
         { key: "questDate", label: "Talent Quest date", type: "date" },
         { key: "tracks", label: "Tracks applicants choose from", type: "lines", rows: 4 },
+        { key: "ageCategories", label: "Age categories applicants choose from", type: "lines", rows: 6, help: "One per line. The application also asks for gender, state and country, and a phone number with its country code." },
         {
           key: "concert", label: "The SPAW Global Concert", type: "group", fields: [
             { key: "name", label: "Name", type: "text" },
@@ -588,8 +622,10 @@
   /* ===================================================================
    * Fields
    * =================================================================== */
+  // showIf: a field that only applies sometimes (a question's choices, for
+  // a dropdown). The field that decides it redraws on change.
   function renderFields(fields, obj, ctx) {
-    return fields.map((f) => control(f, obj, ctx)).filter(Boolean);
+    return fields.filter((f) => !f.showIf || f.showIf(obj)).map((f) => control(f, obj, ctx)).filter(Boolean);
   }
 
   function wrap(f, controlEl) {
@@ -786,7 +822,12 @@
   }
 
   function listControl(f, obj, ctx) {
-    const arr = Array.isArray(obj[f.key]) ? obj[f.key] : (obj[f.key] = []);
+    // A list that isn't there yet (an event without extra questions) is
+    // only added once something goes in it, so opening an item never
+    // counts as a change.
+    const arr = Array.isArray(obj[f.key]) ? obj[f.key] : [];
+    const changed = ctx.changed;
+    ctx = { ...ctx, changed: () => { if (obj[f.key] !== arr) obj[f.key] = arr; changed(); } };
     const box = h("div", { class: "ce-list" });
     const labelOf = (item, i) => `${i + 1}. ${f.itemLabel ? f.itemLabel(item) || "" : ""}`;
     const draw = () => {
@@ -806,7 +847,17 @@
             ...renderFields(f.fields, item, itemCtx),
           ]);
         }),
-        btn(`Add ${f.itemName || "one"}`, () => { arr.push(f.newItem ? f.newItem() : {}); draw(); ctx.changed(); }, "pe-small-btn ce-list__add")
+        h("div", { class: "pe-actions-row ce-list__adds" }, [
+          btn(`Add ${f.itemName || "one"}`, () => { arr.push(f.newItem ? f.newItem() : {}); draw(); ctx.changed(); }, "pe-small-btn ce-list__add"),
+          // Ready-made items, each at most once (matched by id).
+          ...(f.presets || []).map(([label, make]) => btn(label, () => {
+            const item = make();
+            if (item.id && arr.some((x) => x && x.id === item.id)) { toast("That's already on the list."); return; }
+            arr.push(item);
+            draw();
+            ctx.changed();
+          }, "pe-small-btn ce-list__add")),
+        ])
       );
     };
     draw();

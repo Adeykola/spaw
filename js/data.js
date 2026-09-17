@@ -302,6 +302,7 @@ const DB = {
     applicationCloses: "2026-11-01",
     questDate: "2026-11-27",
     tracks: ["Vocalist", "Songwriter", "Instrumentalist", "Producer"],
+    ageCategories: ["Under 18", "18–24", "25–34", "35–44", "45–54", "55 and over"],
 
     concert: {
       eventId: "event-004",
@@ -366,6 +367,13 @@ const DB = {
       description: "Calling vocalists, songwriters, instrumentalists and producers: apply to take the stage at the SPAW Talent Quest, held live the day before the concert. Everyone else can register to come and watch.",
       image: "assets/images/spaw-stage-01.webp",
       ticketRequired: true,
+      // The registration form's own questions (admin → Events → Registration form).
+      phone: "optional",
+      formFields: [
+        { id: "location", label: "Where do you live?", type: "location", required: true, options: [], help: "" },
+        { id: "gender", label: "Gender", type: "select", required: true, options: ["Female", "Male", "Prefer not to say"], help: "" },
+        { id: "age", label: "Age category", type: "select", required: true, options: ["Under 18", "18–24", "25–34", "35–44", "45–54", "55 and over"], help: "" },
+      ],
     },
     {
       id: "event-003",
@@ -392,6 +400,11 @@ const DB = {
       description: "One night of worship with the full house band, opened by this year's Talent Quest finalists.",
       image: "assets/images/spaw-duet.webp",
       ticketRequired: true,
+      phone: "optional",
+      formFields: [
+        { id: "location", label: "Where do you live?", type: "location", required: true, options: [], help: "" },
+        { id: "gender", label: "Gender", type: "select", required: true, options: ["Female", "Male", "Prefer not to say"], help: "" },
+      ],
     },
   ],
 
@@ -724,7 +737,7 @@ const api = {
   // "video". Live they upload to the private applications folder first.
   async submitTalentApplication(payload, files = []) {
     await this._delay(300);
-    const required = ["fullName", "email", "phone", "location", "track", "bio"];
+    const required = ["fullName", "email", "phone", "gender", "ageCategory", "state", "country", "location", "track", "bio"];
     const missing = required.filter((key) => !payload[key] || !String(payload[key]).trim());
     if (missing.length) throw new Error("Please complete all required fields before submitting.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) throw new Error("That email address doesn't look right.");
@@ -760,6 +773,10 @@ const api = {
     if (e.status === "cancelled") return { open: false, label: "Cancelled", reason: "This event has been cancelled." };
     if (e.status === "postponed") return { open: false, label: "Postponed", reason: "This event has been postponed. Registration reopens with the new date." };
     if (lastDay && lastDay < today) return { open: false, label: "Event over", reason: "This event has already taken place." };
+    // Marked sold out in the admin, or every place taken.
+    if (e.soldOut === true || (Number(e.capacity) > 0 && Number(e.registered) >= Number(e.capacity))) {
+      return { open: false, label: "Sold out", reason: "Sorry, this event is sold out: every place has been taken." };
+    }
     if (e.registrationOpen === false) return { open: false, label: "Registration closed", reason: "Registration for this event is closed." };
     if (e.registrationCloses && today > e.registrationCloses) {
       const on = new Date(`${e.registrationCloses}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -776,10 +793,10 @@ const api = {
   async getUpcomingEvents(limit = 3) {
     await this._delay(300);
     const now = Date.now();
-    return this._shownEvents()
+    return this._withCounts(this._shownEvents()
       .filter((e) => new Date(`${e.endDate || e.date}T${e.endTime || e.time || "00:00"}:00`).getTime() >= now - 86400000)
       .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .slice(0, limit);
+      .slice(0, limit));
   },
 
   async getAllEvents() {
@@ -803,8 +820,18 @@ const api = {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendee.email || "")) throw new Error("That email address doesn't look right.");
     const state = this.eventState(event);
     if (!state.open) throw new Error(state.reason);
-    if (event.capacity && event.registered >= event.capacity) throw new Error("This event is full.");
-    const registration = await Backend.forms.registerForEvent(event, attendee);
+    // The event's own questions (admin → Events → Registration form). The
+    // database checks the same (register_for_event, setup-4.sql).
+    const answered = (v) => (v && typeof v === "object" ? Boolean(v.state && v.country) : String(v == null ? "" : v).trim() !== "");
+    const phone = event.phone || "optional";
+    const clean = { ...attendee, phone: phone === "off" ? "" : String(attendee.phone || "").trim(), answers: Array.isArray(attendee.answers) ? attendee.answers : [] };
+    if (phone === "required" && clean.phone.replace(/[^\d]/g, "").length < 7) throw new Error("Enter a phone number.");
+    const missing = (event.formFields || []).filter((q) => q && q.required).filter((q) => {
+      const a = clean.answers.find((x) => x.id === q.id);
+      return !a || !answered(a.value) || (q.type === "checkbox" && a.value !== "Yes");
+    });
+    if (missing.length) throw new Error(`Please answer: ${missing.map((q) => q.label).join(" · ")}`);
+    const registration = await Backend.forms.registerForEvent(event, clean);
     if (window.Track) Track.event("registered", { label: event.name, props: { id: event.id } });
     return registration;
   },

@@ -1,8 +1,8 @@
 -- ============================================================================
--- Dr AjokeSings: Supabase setup, part 3 — analytics, campaign links, events
+-- Dr AjokeSings: Supabase setup, part 3 — analytics and campaign links
 -- Anonymous visit counting for the admin's analytics (no cookies, no names,
--- no internet addresses kept), the campaign links the team makes for flyers
--- and posts, and event registration that follows an event's status.
+-- no internet addresses kept), and the campaign links the team makes for
+-- flyers and posts.
 --
 -- Run it once, after parts 1 and 2 (setup.sql, setup-2.sql):
 --   Supabase → SQL Editor → New query → paste all of this → Run.
@@ -407,66 +407,5 @@ drop policy if exists "the team removes campaign links" on public.campaign_links
 create policy "the team removes campaign links" on public.campaign_links for delete to authenticated using (public.is_admin());
 
 
--- ----------------------------------------------------------------------------
--- 5. Event registration, replacing part 2's version: it also follows the
---    event's status (hidden, postponed, cancelled), its registration
---    closing date, and turns away events that have already happened.
--- ----------------------------------------------------------------------------
-create or replace function public.register_for_event(p_event_id text, p_event_name text, p_name text, p_email text, p_phone text default null)
-returns jsonb language plpgsql security definer set search_path = public as $$
-declare
-  mail      text := lower(trim(coalesce(p_email, '')));
-  today     date := (now() at time zone 'Africa/Lagos')::date;
-  ev        jsonb;
-  ename     text := p_event_name;
-  last_day  text;
-  closes    date;
-  cap       integer;
-  taken     integer;
-  ref       text;
-begin
-  if length(trim(coalesce(p_name, ''))) = 0 then raise exception 'Enter your full name.'; end if;
-  if mail !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' then raise exception 'That email address doesn''t look right.'; end if;
-
-  select e.value into ev
-  from public.content c,
-       jsonb_array_elements(case when jsonb_typeof(c.data) = 'array' then c.data else '[]'::jsonb end) as e(value)
-  where c.key = 'events' and e.value ->> 'id' = p_event_id
-  limit 1;
-
-  if ev is not null then
-    ename := ev ->> 'name';
-    if coalesce(ev ->> 'visible', 'true') = 'false' then raise exception 'This event isn''t open for registration.'; end if;
-    if ev ->> 'status' = 'cancelled' then raise exception 'This event has been cancelled.'; end if;
-    if ev ->> 'status' = 'postponed' then raise exception 'This event has been postponed. Registration reopens with the new date.'; end if;
-    if coalesce(ev ->> 'registrationOpen', 'true') = 'false' then raise exception 'Registration for this event is closed.'; end if;
-    last_day := coalesce(nullif(ev ->> 'endDate', ''), ev ->> 'date');
-    if coalesce(last_day, '') ~ '^\d{4}-\d{2}-\d{2}$' and last_day::date < today then
-      raise exception 'This event has already taken place.';
-    end if;
-    closes := case when coalesce(ev ->> 'registrationCloses', '') ~ '^\d{4}-\d{2}-\d{2}$' then (ev ->> 'registrationCloses')::date end;
-    if closes is not null and today > closes then
-      raise exception 'Registration for this event closed on %.', to_char(closes, 'FMDD FMMonth YYYY');
-    end if;
-    cap := floor(public.analytics_num(ev ->> 'capacity'))::integer;
-    if cap is not null and cap > 0 then
-      select count(*) into taken from public.registrations where event_id = p_event_id and status = 'registered';
-      if taken >= cap then raise exception 'This event is full.'; end if;
-    end if;
-  end if;
-
-  if exists (select 1 from public.registrations where event_id = p_event_id and lower(email) = mail and status = 'registered') then
-    raise exception 'You''re already registered for this event with that email.';
-  end if;
-
-  ref := public.new_ref('REG');
-  insert into public.registrations (id, event_id, event_name, name, email, phone, source)
-  values (ref, p_event_id, left(coalesce(ename, p_event_id), 200), trim(p_name), mail,
-          nullif(trim(coalesce(p_phone, '')), ''), case when public.is_admin() then 'admin' else 'website' end);
-
-  return jsonb_build_object('id', ref, 'eventId', p_event_id, 'eventName', ename, 'name', trim(p_name),
-                            'email', mail, 'phone', nullif(trim(coalesce(p_phone, '')), ''),
-                            'registeredAt', now(), 'checkedIn', false, 'status', 'registered');
-end $$;
-
-grant execute on function public.register_for_event(text, text, text, text, text) to anon, authenticated;
+-- Event registration used to be part 5 here; it is in setup-4.sql now, with
+-- the registration form's own questions and sold-out events.

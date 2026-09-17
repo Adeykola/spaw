@@ -231,7 +231,7 @@
               <em class="hero__spaw-event">(SPAW) Global Concert</em>
               <span class="hero__spaw-with">with Dr AjokeSings</span>
             </h2>
-            <a href="events?register=event-004" class="btn btn-solid hero__register" data-hero-anim="2">Register here</a>
+            <a href="events?register=event-004" class="btn btn-solid hero__register" data-hero-anim="2" data-register-event="symphony-concert" data-cta="SPAW Global Concert: register (homepage slide, phone)">Register here</a>
             <p class="hero__phone-text" data-hero-anim="3">Dr AjokeSings, Nigerian gospel music minister, hosts the SPAW Global Concert: a night of praise and worship, free to attend.</p>
             <p class="hero__phone-when" data-hero-anim="3">Sat 28 Nov 2026 &middot; Regal Hall, Lagos</p>
             <a href="symphony#concert" class="hero__more" data-hero-more="spaw-more-concert" data-hero-anim="4">See more <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
@@ -239,14 +239,14 @@
           <div class="hero__meta hero__desk" data-hero-anim="4">
             <div class="hero__now-playing">
               <span class="dot" aria-hidden="true"></span>
-              Tickets open
+              <span data-register-status="symphony-concert">Registration open</span>
             </div>
             <dl class="hero__facts">
               <div><dt>Date</dt><dd>Saturday 28 November 2026</dd></div>
               <div><dt>Venue</dt><dd>Regal Hall, Daystar Christian Center, Oregun, Ikeja, Lagos</dd></div>
               <div><dt>Time</dt><dd>To be announced &middot; Free entry, registration required</dd></div>
             </dl>
-            <a href="events" class="btn btn-solid" data-magnetic>Reserve your seat</a>
+            <a href="events?register=event-004" class="btn btn-solid" data-magnetic data-register-event="symphony-concert" data-cta="SPAW Global Concert: register (homepage slide)">Reserve your seat</a>
           </div>
         </div>
       </article>
@@ -351,7 +351,7 @@
         <div><dt>Admission</dt><dd>Free entry, registration required</dd></div>
       </dl>
       <div class="spaw-sheet__actions">
-        <a href="events?register=event-004" class="btn btn-solid hero__register">Register here</a>
+        <a href="events?register=event-004" class="btn btn-solid hero__register" data-register-event="symphony-concert" data-cta="SPAW Global Concert: register (homepage sheet)">Register here</a>
         <a href="symphony#concert" class="spaw-sheet__link">Full details on the Symphony page <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
       </div>
     </div>
@@ -611,6 +611,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 <script src="js/config.js" defer></script>
 <script src="js/data.js" defer></script>
 <script src="js/backend.js" defer></script>
@@ -621,6 +622,8 @@
 <script src="js/hero.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/app.js" defer></script>
+<script src="js/form-fields.js" defer></script>
+<script src="js/register.js" defer></script>
 <script src="js/animations.js" defer></script>
 </body>
 </html>

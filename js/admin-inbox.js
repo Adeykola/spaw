@@ -76,6 +76,24 @@
     });
     return dl;
   }
+  // A registration's answers to its event's own questions: one line each in
+  // the details, and columns in the spreadsheet (state and country apart).
+  const answerText = (v) => (window.FormFields ? FormFields.formatValue(v) : v && typeof v === "object" ? [v.state, v.country].filter(Boolean).join(", ") : String(v == null ? "" : v));
+  const answerPairs = (r) => (Array.isArray(r.answers) ? r.answers : []).map((a) => [a.label || a.id, answerText(a.value)]);
+  function answerColumns(rows) {
+    const seen = new Map();
+    rows.forEach((r) => (r.answers || []).forEach((a) => {
+      const key = a.id || a.label;
+      if (key && !seen.has(key)) seen.set(key, { label: a.label || key, place: a.type === "location" || (a.value && typeof a.value === "object") });
+    }));
+    const find = (r, key) => (r.answers || []).find((a) => (a.id || a.label) === key);
+    // "State" and "Country", or with the question's wording if a form asks twice.
+    const places = [...seen.values()].filter((x) => x.place).length;
+    const title = (label, part) => (places > 1 ? `${label}: ${part.toLowerCase()}` : part);
+    return [...seen.entries()].flatMap(([key, { label, place }]) => (place
+      ? [[title(label, "State"), (r) => { const a = find(r, key); return a && a.value ? a.value.state : ""; }], [title(label, "Country"), (r) => { const a = find(r, key); return a && a.value ? a.value.country : ""; }]]
+      : [[label, (r) => { const a = find(r, key); return a ? answerText(a.value) : ""; }]]));
+  }
   const mailto = (email, subject) => h("a", { href: `mailto:${email}${subject ? `?subject=${encodeURIComponent(subject)}` : ""}`, text: email });
   const tel = (phone) => (phone ? h("a", { href: `tel:${phone.replace(/[^\d+]/g, "")}`, text: phone }) : "—");
   const safeLink = (url) => {
@@ -310,7 +328,7 @@
           h("div", { class: "admin-field" }, [h("span", { text: "Your rating" }), stars(a, drawList)]),
           details([
             ["Application", a.id], ["Email", mailto(a.email, "Your Symphony Talent Quest application")], ["Phone", tel(a.phone)],
-            ["From", a.location], ["Track", a.track], ["About them", a.bio],
+            ["From", a.location], ["Gender", a.gender], ["Age category", a.ageCategory], ["Track", a.track], ["About them", a.bio],
             ["Social", a.socialLink ? safeLink(a.socialLink) : ""], ["Best work", a.projectLink ? safeLink(a.projectLink) : ""],
             ["Samples", files.length ? h("ul", { class: "inbox-files" }, files.map(fileRow)) : "None sent"],
             ["Applied", Admin.fmtDate(a.submittedAt)],
@@ -325,7 +343,9 @@
 
       const csv = btn("Download spreadsheet", () => downloadCsv(`talent-applicants-${stamp()}.csv`, [
         ["Application", (a) => a.id], ["Applied", (a) => a.submittedAt], ["Stage", (a) => LABELS.applications[a.status]], ["Rating", (a) => a.rating || ""],
-        ["Name", (a) => a.fullName], ["Email", (a) => a.email], ["Phone", (a) => a.phone], ["From", (a) => a.location], ["Track", (a) => a.track],
+        ["Name", (a) => a.fullName], ["Email", (a) => a.email], ["Phone", (a) => a.phone],
+        ["State", (a) => a.state], ["Country", (a) => a.country], ["From", (a) => a.location],
+        ["Gender", (a) => a.gender], ["Age category", (a) => a.ageCategory], ["Track", (a) => a.track],
         ["About them", (a) => a.bio], ["Social", (a) => a.socialLink], ["Best work", (a) => a.projectLink],
         ["Samples", (a) => (a.files || []).map((f) => f.name).join("; ")], ["Notes", (a) => a.note],
       ], shown()));
@@ -410,6 +430,7 @@
           h("p", { class: "admin-card__title", text: r.name }),
           details([
             ["Ticket ID", r.id], ["Event", r.eventName], ["Email", mailto(r.email, r.eventName)], ["Phone", tel(r.phone)],
+            ...answerPairs(r),
             ["Registered", Admin.fmtDate(r.registeredAt)], ["Through", r.source === "admin" ? "Added by the team" : "The website"],
             ["Status", r.status === "cancelled" ? "Cancelled" : r.checkedIn ? `Checked in at ${Admin.fmtDate(r.checkedInAt)}` : "Registered, not checked in yet"],
           ]),
@@ -458,11 +479,15 @@
         }
       });
 
-      const csv = btn("Download spreadsheet", () => downloadCsv(`registrations-${stamp()}.csv`, [
-        ["Ticket ID", (r) => r.id], ["Event", (r) => r.eventName], ["Name", (r) => r.name], ["Email", (r) => r.email], ["Phone", (r) => r.phone],
-        ["Registered", (r) => r.registeredAt], ["Status", (r) => r.status], ["Checked in", (r) => (r.checkedIn ? r.checkedInAt : "")],
-        ["Through", (r) => r.source], ["Notes", (r) => r.note],
-      ], shown()));
+      const csv = btn("Download spreadsheet", () => {
+        const rows = shown();
+        downloadCsv(`registrations-${stamp()}.csv`, [
+          ["Ticket ID", (r) => r.id], ["Event", (r) => r.eventName], ["Name", (r) => r.name], ["Email", (r) => r.email], ["Phone", (r) => r.phone],
+          ...answerColumns(rows),
+          ["Registered", (r) => r.registeredAt], ["Status", (r) => r.status], ["Checked in", (r) => (r.checkedIn ? r.checkedInAt : "")],
+          ["Through", (r) => r.source], ["Notes", (r) => r.note],
+        ], rows);
+      });
 
       [eventSel, status, arrival].forEach((s) => s.addEventListener("change", drawList));
       q.addEventListener("input", drawList);

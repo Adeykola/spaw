@@ -386,6 +386,7 @@
         h("p", { class: "pe-card__note", text: paceNote(e, mine.length) }),
         h("div", { class: "pe-actions-row" }, [
           h("a", { class: "pe-small-btn", href: `#registrations/${encodeURIComponent(e.id)}` }, "See registrations"),
+          (e.formFields || []).length ? h("a", { class: "pe-small-btn", href: "#analytics/signups" }, "See the form's answers") : null,
           h("button", {
             type: "button", class: "pe-small-btn",
             onclick: () => navigator.clipboard.writeText(regLink).then(() => toast("Registration link copied."), () => toast(regLink)),
@@ -435,6 +436,91 @@
     if (Number(e.expectedGuests)) targets.push({ value: Number(e.expectedGuests), label: "Expected" });
     if (Number(e.capacity) && Number(e.capacity) !== Number(e.expectedGuests)) targets.push({ value: Number(e.capacity), label: "Places" });
     return lineChart(axis, [{ label: "Registered so far", values, area: true }], { targets });
+  }
+
+  /* ===================================================================
+   * What people answered: an event's registration form, and the
+   * Talent Quest application
+   * =================================================================== */
+  const toRows = (m) => [...m.entries()].map(([key, n]) => ({ key, n })).sort((a, b) => b.n - a.n || String(a.key).localeCompare(String(b.key)));
+  const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
+
+  // Each question's answers counted: the choices and yes/no, and where
+  // people live (country and state apart). Written answers are only
+  // counted as answered; they're in the registrations spreadsheet.
+  function answerBreakdown(e, regs) {
+    const mine = regs.filter((r) => r.eventId === e.id && r.status === "registered");
+    const order = (e.formFields || []).map((q) => q.id);
+    const groups = new Map();
+    mine.forEach((r) => (r.answers || []).forEach((a) => {
+      const key = a.id || a.label;
+      if (!key) return;
+      if (!groups.has(key)) groups.set(key, { key, label: a.label || key, type: a.type, counts: new Map(), states: new Map(), answered: 0 });
+      const g = groups.get(key);
+      if (a.value && typeof a.value === "object") {
+        g.place = true;
+        if (a.value.country) bump(g.counts, a.value.country);
+        if (a.value.state) bump(g.states, a.value.country && a.value.country !== "Nigeria" ? `${a.value.state}, ${a.value.country}` : a.value.state);
+        if (a.value.country || a.value.state) g.answered += 1;
+      } else if (String(a.value == null ? "" : a.value).trim()) {
+        g.answered += 1;
+        if (["select", "radio", "checkbox"].includes(a.type)) bump(g.counts, String(a.value));
+      }
+    }));
+    (e.formFields || []).forEach((q) => { if (groups.has(q.id) && plain(q.label)) groups.get(q.id).label = plain(q.label); });
+    const rank = (k) => (order.includes(k) ? order.indexOf(k) : 999);
+    return { total: mine.length, list: [...groups.values()].sort((a, b) => rank(a.key) - rank(b.key)) };
+  }
+  // "Country" and "State", or with the question's wording when a form asks
+  // where people live more than once.
+  const placeTitles = (list) => (list.filter((g) => g.place).length > 1 ? (g, part) => `${g.label}: ${part.toLowerCase()}` : (g, part) => part);
+  const answerBlock = (title, rows, answered) => h("div", { class: "an-answer" }, [
+    h("h3", { class: "an-answer__title", text: title }),
+    bars(rows, { value: (r) => r.n, label: (r) => r.key, total: answered, empty: "No answers yet.", limit: 12 }),
+  ]);
+
+  function answersView(e, regs) {
+    if (!e) return h("p", { class: "an-empty", text: "No events yet." });
+    const { total, list } = answerBreakdown(e, regs);
+    if (!(e.formFields || []).length && !list.length) {
+      return h("p", { class: "an-empty", text: "This event's registration form asks nothing beyond name, email and phone. Add questions under Events → Registration form." });
+    }
+    if (!total) return h("p", { class: "an-empty", text: "No registrations for this event yet." });
+    const part = placeTitles(list);
+    const blocks = list.flatMap((g) => {
+      if (g.place) return [answerBlock(part(g, "Country"), toRows(g.counts), g.answered), answerBlock(part(g, "State"), toRows(g.states), g.answered)];
+      if (g.counts.size) return [answerBlock(g.label, toRows(g.counts), g.answered)];
+      return [h("div", { class: "an-answer" }, [
+        h("h3", { class: "an-answer__title", text: g.label }),
+        h("p", { class: "an-card__sub", text: `${plural(g.answered, "person", "people")} answered. The answers are in the registrations spreadsheet (Inbox → Registrations).` }),
+      ])];
+    });
+    return h("div", {}, [
+      h("p", { class: "an-card__sub", text: `From ${plural(total, "registration")} so far. Shares are of the people who answered each question.` }),
+      h("div", { class: "an-answers" }, blocks),
+    ]);
+  }
+  function answerCsvRows(e, regs) {
+    const { list } = answerBreakdown(e, regs);
+    const title = placeTitles(list);
+    return list.flatMap((g) => (g.place ? [[title(g, "Country"), g.counts], [title(g, "State"), g.states]] : [[g.label, g.counts]])
+      .flatMap(([question, m]) => toRows(m).map((r) => ({ question, answer: r.key, n: r.n, of: g.answered }))));
+  }
+
+  const APPLICANT_PARTS = [["Track", (a) => a.track], ["Gender", (a) => a.gender], ["Age category", (a) => a.ageCategory], ["Country", (a) => a.country], ["State", (a) => a.state]];
+  function applicantRows(apps) {
+    return APPLICANT_PARTS.map(([title, of]) => {
+      const m = new Map();
+      apps.forEach((a) => { const v = of(a); if (v) bump(m, String(v)); });
+      return [title, toRows(m)];
+    });
+  }
+  function applicantsView(apps) {
+    if (!apps.length) return h("p", { class: "an-empty", text: "No Talent Quest applications yet." });
+    return h("div", {}, [
+      h("p", { class: "an-card__sub", text: `From ${plural(apps.length, "application")} so far.` }),
+      h("div", { class: "an-answers" }, applicantRows(apps).map(([title, rows]) => answerBlock(title, rows, apps.length))),
+    ]);
   }
 
   /* ===================================================================
@@ -621,7 +707,11 @@
     async signups({ cur, b }) {
       const g = cur.goals || {};
       const f = cur.funnels || { talent: [0, 0, 0], events: [0, 0, 0], booking: [0, 0, 0] };
-      const [regs, events] = await Promise.all([Backend.forms.list("registrations").catch(() => []), currentEvents()]);
+      const [regs, events, apps] = await Promise.all([
+        Backend.forms.list("registrations").catch(() => []),
+        currentEvents(),
+        Backend.forms.list("applications").catch(() => null),
+      ]);
       const madeNow = regs.filter((r) => { const at = Date.parse(r.registeredAt); return r.status === "registered" && at >= b.from && at < b.to; });
       const cameNow = madeNow.filter((r) => r.checkedIn).length;
       const evRows = events.filter((e) => e.visible !== false).map((e) => {
@@ -646,6 +736,28 @@
       eventSel.addEventListener("change", drawChart);
       drawChart();
 
+      // The registration form's answers, for one event at a time.
+      const asked = pickable.filter((e) => (e.formFields || []).length);
+      const firstAsked = asked.find((e) => (e.endDate || e.date) >= today) || asked[asked.length - 1] || soonest;
+      const answersSel = h("select", { class: "admin-select", "aria-label": "Event" }, pickable.map((e) => h("option", { value: e.id, selected: firstAsked && e.id === firstAsked.id }, `${plain(e.name)} · ${dayLabel(e.date, { day: "numeric", month: "short", year: "numeric" })}`)));
+      const answersHost = h("div");
+      const pickedForAnswers = () => pickable.find((x) => x.id === answersSel.value);
+      const drawAnswers = () => answersHost.replaceChildren(answersView(pickedForAnswers(), regs));
+      answersSel.addEventListener("change", drawAnswers);
+      drawAnswers();
+      const answersCsv = h("button", {
+        type: "button", class: "pe-small-btn",
+        onclick: () => {
+          const e = pickedForAnswers();
+          if (!e) return;
+          downloadCsv(`answers-${slug(plain(e.name)) || e.id}-${lagosDay(Date.now())}.csv`,
+            [["Event", () => plain(e.name)], ["Question", (r) => r.question], ["Answer", (r) => r.answer], ["People", (r) => r.n], ["Share of those who answered", (r) => pct(r.n, r.of, 0)]],
+            answerCsvRows(e, regs));
+        },
+      }, "Spreadsheet");
+      const applicantsCsv = apps ? csvButton("talent-quest-applicants-summary", [["Question", (r) => r.q], ["Answer", (r) => r.key], ["Applicants", (r) => r.n]],
+        applicantRows(apps).flatMap(([q, rows]) => rows.map((r) => ({ ...r, q })))) : null;
+
       return [
         h("div", { class: "an-kpis" }, GOALS.map(([k, label]) => kpi(label, fmt(g[k] || 0)))),
         grid([
@@ -664,6 +776,14 @@
           sub: "“Tapped Register” and “Registered online” are for this period; the rest are every registration so far, from the inbox, including people the team added.",
         }),
         card("Registrations so far", h("div", {}, [h("div", { class: "an-card__tools" }, [eventSel]), chartHost]), { wide: true, sub: "Registrations day by day, against the guests expected and the places." }),
+        card("Registration form answers", h("div", {}, [h("div", { class: "an-card__tools" }, [answersSel]), answersHost]), {
+          wide: true, csv: answersCsv, id: "registration-answers",
+          sub: "How people answered the questions on an event's registration form (Events → Registration form): where they live, gender, age category and the rest.",
+        }),
+        ...(apps ? [card("Talent Quest applicants", applicantsView(apps), {
+          wide: true, csv: applicantsCsv,
+          sub: "Every application so far, by track, gender, age category and where applicants live.",
+        })] : []),
         grid([
           card("Newsletter sign-ups by page", bars(cur.newsletterBy, { value: (n) => n.signups, label: (n) => pageName(n.key) })),
           card("Sign-ups by channel", bars([...cur.channels].filter((c) => c.conversions).sort((a, b2) => b2.conversions - a.conversions), {

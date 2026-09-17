@@ -572,12 +572,24 @@
     return list.includes(v) ? v : list[0];
   };
   const FORM_KEYS = { enquiries: "enquiries", applications: "talentApplications", registrations: "registrations", subscribers: "newsletter" };
+  // The answers to an event's own questions, kept to a sensible size (the
+  // database trims them the same way, setup-4.sql).
+  function cleanAnswers(list) {
+    return (Array.isArray(list) ? list : []).filter((a) => a && a.id).slice(0, 40).map((a) => ({
+      id: String(a.id).slice(0, 80),
+      label: String(a.label || "").slice(0, 200),
+      type: String(a.type || "text").slice(0, 20),
+      value: a.value && typeof a.value === "object"
+        ? { state: String(a.value.state || "").slice(0, 100), country: String(a.value.country || "").slice(0, 100) }
+        : String(a.value == null ? "" : a.value).slice(0, 2000),
+    }));
+  }
 
   function fromDemo(kind, r) {
     if (kind === "subscribers") return typeof r === "string" ? { email: r, source: "", subscribedAt: null, unsubscribedAt: null } : { unsubscribedAt: null, ...r };
     if (kind === "enquiries") return { ...r, status: statusOf(r.status, STATUS.enquiries), note: r.note || "" };
     if (kind === "applications") return { ...r, status: statusOf(r.status, STATUS.applications), rating: r.rating || 0, note: r.note || "", files: r.files || [] };
-    if (kind === "registrations") return { ...r, status: r.status || "registered", note: r.note || "", source: r.source || "website" };
+    if (kind === "registrations") return { ...r, status: r.status || "registered", note: r.note || "", source: r.source || "website", answers: Array.isArray(r.answers) ? r.answers : [] };
     return r;
   }
   const demoKeyOf = (kind, r) => (kind === "subscribers" ? (typeof r === "string" ? r : r.email) : r.id);
@@ -615,6 +627,7 @@
       const reg = {
         id: newRef("REG"), eventId: event.id, eventName: event.name,
         name: String(attendee.name).trim(), email: String(attendee.email).trim(), phone: String(attendee.phone || "").trim(),
+        answers: cleanAnswers(attendee.answers),
         status: "registered", checkedIn: false, checkedInAt: null, source, note: "", registeredAt: now(),
       };
       list.push(reg);
@@ -677,7 +690,8 @@
   };
 
   // Calls a database function as a visitor (no sign-in, no client library).
-  async function rpc(name, args) {
+  // quiet: the caller handles a function that's missing or older.
+  async function rpc(name, args, { quiet = false } = {}) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
       method: "POST",
       headers: { ...publicHeaders(), "Content-Type": "application/json" },
@@ -689,13 +703,16 @@
     if (!res.ok) {
       const code = body && body.code;
       if (code === "PGRST202" || res.status === 404) {
-        console.error(`[backend] ${name}() isn't in the database: run supabase/setup-2.sql in Supabase.`);
-        throw new Error("Sorry, this can't be sent just now. Please try again later.");
+        if (!quiet) console.error(`[backend] ${name}() isn't in the database, or is an older version: run the supabase/setup-*.sql files in Supabase.`);
+        const err = new Error("Sorry, this can't be sent just now. Please try again later.");
+        err.code = "PGRST202";
+        throw err;
       }
       throw new Error((body && body.message) || `Request failed (${res.status}).`);
     }
     return body;
   }
+  const answersMissing = () => console.error("[backend] Registration saved without the form's answers: run supabase/setup-4.sql in Supabase so they're kept.");
 
   // Talent Quest samples go straight into the private "applications" folder.
   async function uploadSample(file) {
@@ -723,7 +740,7 @@
       return { ...d, id: r.id, fullName: r.full_name, email: r.email, phone: r.phone || "", location: r.location || "", track: r.track || "", status: r.status, rating: r.rating || 0, note: r.note || "", files: d.files || [], submittedAt: r.submitted_at, updatedAt: r.updated_at, updatedBy: r.updated_by };
     }
     if (kind === "registrations") {
-      return { id: r.id, eventId: r.event_id, eventName: r.event_name, name: r.name, email: r.email, phone: r.phone || "", status: r.status, checkedIn: r.checked_in, checkedInAt: r.checked_in_at, source: r.source, note: r.note || "", registeredAt: r.registered_at, updatedAt: r.updated_at };
+      return { id: r.id, eventId: r.event_id, eventName: r.event_name, name: r.name, email: r.email, phone: r.phone || "", answers: Array.isArray(r.answers) ? r.answers : [], status: r.status, checkedIn: r.checked_in, checkedInAt: r.checked_in_at, source: r.source, note: r.note || "", registeredAt: r.registered_at, updatedAt: r.updated_at };
     }
     if (kind === "subscribers") return { email: r.email, source: r.source || "", subscribedAt: r.subscribed_at, unsubscribedAt: r.unsubscribed_at };
     return r;
@@ -741,12 +758,24 @@
       if (r === "exists") throw new Error("You're already on the list.");
       return { email: lower(email) };
     },
+    // Before setup-4.sql has run, the database's register_for_event doesn't
+    // take answers: the registration still goes through, without them.
     async registerForEvent(event, attendee) {
-      return rpc("register_for_event", { p_event_id: event.id, p_event_name: event.name, p_name: attendee.name, p_email: attendee.email, p_phone: attendee.phone || null });
+      const args = { p_event_id: event.id, p_event_name: event.name, p_name: attendee.name, p_email: attendee.email, p_phone: attendee.phone || null };
+      try {
+        return await rpc("register_for_event", { ...args, p_answers: cleanAnswers(attendee.answers) }, { quiet: true });
+      } catch (err) {
+        if (err.code !== "PGRST202") throw err;
+        answersMissing();
+        return rpc("register_for_event", args);
+      }
     },
     async addRegistration(event, attendee) {
       const sb = await client();
-      return must(await sb.rpc("register_for_event", { p_event_id: event.id, p_event_name: event.name, p_name: attendee.name, p_email: attendee.email, p_phone: attendee.phone || null }));
+      const args = { p_event_id: event.id, p_event_name: event.name, p_name: attendee.name, p_email: attendee.email, p_phone: attendee.phone || null };
+      const first = await sb.rpc("register_for_event", { ...args, p_answers: cleanAnswers(attendee.answers) });
+      if (first.error && first.error.code === "PGRST202") { answersMissing(); return must(await sb.rpc("register_for_event", args)); }
+      return must(first);
     },
     async submitApplication(payload, files = []) {
       const uploaded = [];
