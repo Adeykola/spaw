@@ -289,6 +289,11 @@ p { text-wrap: pretty; }
 .register-note { margin-top: 0.5rem; font-size: 0.8rem; line-height: 1.4; color: var(--gray-on-dark); max-width: 34ch; }
 .hero__phone .register-note { margin-top: -0.25rem; }
 
+/* Spotify, in its own green: her artist page, and songs that are on it. */
+.btn-spotify { background: #1db954; color: #0a0908; }
+.btn-spotify:hover { background: #1ed760; transform: translateY(-2px); }
+.btn-spotify::before { content: "\25B6"; font-size: 0.7em; }
+
 /* ---- Forms (Symphony application, event registration, admin) ---- */
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-m) var(--space-l); }
 .field { display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; }

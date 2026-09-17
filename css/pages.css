@@ -173,6 +173,25 @@ body.has-persistent-player { padding-bottom: 92px; }
 .video-card__cat { font-size: var(--step--1); color: var(--gold); }
 .video-card__title { font-family: var(--font-display); font-size: var(--step-1); font-style: italic; margin-top: 2px; }
 
+.page-hero__actions { margin-top: var(--space-l); display: flex; flex-wrap: wrap; gap: var(--space-s) var(--space-m); }
+.song-hero__actions { margin-top: var(--space-l); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-s) var(--space-m); }
+
+/* ---- The Talent Quest's prizes (Symphony page) ---- */
+.prize-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--space-m); }
+.prize-card {
+  position: relative;
+  padding: var(--space-m) var(--space-s) var(--space-s);
+  border: 1px solid var(--paper-line);
+  background: color-mix(in srgb, var(--paper-dim) 55%, var(--paper));
+}
+.prize-card--first { border-color: color-mix(in srgb, var(--red) 55%, transparent); }
+.prize-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--paper-line); }
+.prize-card--first::before { background: var(--red); }
+.prize-card__place { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+.prize-card__amount { font-size: var(--step-3); line-height: 1; margin-top: var(--space-2xs); color: var(--ink); }
+.prize-card--first .prize-card__amount { color: var(--red); }
+.prize-card__extra { margin-top: var(--space-2xs); font-size: var(--step--1); line-height: 1.45; color: var(--gray-on-light); }
+
 /* ---- The ticket page (ticket.html, linked from the ticket email) ---- */
 .ticket-hero { min-height: 40svh; }
 .ticket-page { padding-block: var(--space-xl); }

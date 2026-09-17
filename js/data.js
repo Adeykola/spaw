@@ -25,6 +25,7 @@ const DB = {
       youtube: "https://youtube.com/@drajokesings",
       tiktok: "https://tiktok.com/@drajokesings",
       twitter: "https://twitter.com/drajokesings",
+      spotify: "https://open.spotify.com/artist/2100bZJXO99ZBmNZRzvT4L",
     },
   },
 
@@ -63,25 +64,25 @@ const DB = {
       id: "track-001", title: "Alagbara", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: true,
       releaseDate: "2026-08-28", duration: null, lyrics: [], description: "Her newest release, featuring Pelumi Deborah.",
       artwork: "assets/images/Alagbara.jpeg", audioSrc: "assets/audio/sample-01.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=rWDUeppY2Gk", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=rWDUeppY2Gk", spotify: "https://open.spotify.com/track/2I32OFptWA6b91uN9b2DVg", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-002", title: "Awesome Forever", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: "2026-07-17", duration: null, lyrics: [], description: "",
       artwork: "assets/images/Awesome-forever.jpeg", audioSrc: "assets/audio/sample-02.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=QTTEkv4eSJU", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=QTTEkv4eSJU", spotify: "https://open.spotify.com/track/3eVXqbGyibPP7wJYAbvjIu", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-004", title: "Iba Re", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: "2026-07-31", duration: null, lyrics: [], description: "",
       artwork: "assets/images/songs/iba-re.jpg", audioSrc: "assets/audio/sample-03.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=XgggH0xKA3I", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=XgggH0xKA3I", spotify: "https://open.spotify.com/track/6rtjBd1OZbavS0eo17lfA5", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-003", title: "You Are God", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: "2026-08-14", duration: null, lyrics: [], description: "",
       artwork: "assets/images/you-are-god.jpeg", audioSrc: "assets/audio/sample-04.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=yi8cQe-5QwQ", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=yi8cQe-5QwQ", spotify: "https://open.spotify.com/track/5PjNboubZGiRkK1zIYuDMd", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-005", title: "Glory", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
@@ -105,37 +106,37 @@ const DB = {
       id: "track-008", title: "Oba Nla", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: "2025-07-18", duration: null, lyrics: [], description: "",
       artwork: "assets/images/songs/oba-nla.jpg", audioSrc: "assets/audio/sample-02.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=GHeRQA2G9LI", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=GHeRQA2G9LI", spotify: "https://open.spotify.com/track/54RBwOOP8BjnOWt7cZDgcD", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-009", title: "Lifted", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: "2025-08-08", duration: null, lyrics: [], description: "",
       artwork: "assets/images/songs/lifted.jpg", audioSrc: "assets/audio/sample-03.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=VgGv1ZV3umY", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=VgGv1ZV3umY", spotify: "https://open.spotify.com/track/0iIZexW7OZveiJs7AtDFco", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-010", title: "Eledumare", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: "2025-08-01", duration: null, lyrics: [], description: "",
       artwork: "assets/images/songs/eledumare.jpg", audioSrc: "assets/audio/sample-04.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=Q2iz7ntwk50", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=Q2iz7ntwk50", spotify: "https://open.spotify.com/track/3yjLeTxEjwqjJWWzDJ3RsI", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-011", title: "Osuba Re", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: "2025-07-18", duration: null, lyrics: [], description: "",
       artwork: "assets/images/songs/osuba-re.jpg", audioSrc: "assets/audio/sample-05.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=TfsTEKgkOpc", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=TfsTEKgkOpc", spotify: "https://open.spotify.com/track/0swMZSXOn3pfN6pNo5kXHL", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-012", title: "Jesus Wept", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: "2026-04-05", duration: null, lyrics: [], description: "",
       artwork: "assets/images/songs/jesus-wept.jpg", audioSrc: "assets/audio/sample-06.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=vT8jEObVvJA", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=vT8jEObVvJA", spotify: "https://open.spotify.com/track/6uHxvY4buZHzqWacZjROZh", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-013", title: "Osuba Re Praise Medley", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: null, duration: null, lyrics: [], description: "",
       artwork: "assets/images/motion.jpeg", audioSrc: "assets/audio/sample-01.mp3",
-      links: { youtube: null, spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: null, spotify: "https://open.spotify.com/track/5W7Kls0ADcMF4AGnOYgkZk", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-014", title: "Great and Mighty", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
@@ -331,6 +332,13 @@ const DB = {
       title: "The Talent Quest",
       tagline: "Applications are open. Come on board: a yearly search for the next generation of worship voices.",
       description: "Calling singers, songwriters, instrumentalists and producers: come on board and apply. Four tracks, one cohort, and one clear prize: your own recording, finished properly, and a place on the Symphony stage in front of a full house. The Quest is held live at Regal Hall, Daystar Christian Center, the day before the concert, and every applicant hears back, whichever way the answer goes.",
+      // What the winners take home. Shown on the homepage's Talent Quest
+      // slide and on the Symphony page; edited in admin → Symphony.
+      prizes: [
+        { place: "Winner", amount: "₦750,000", extra: "plus song recording, mixing and mastering" },
+        { place: "Runner-up", amount: "₦500,000", extra: "plus a studio session" },
+        { place: "Second runner-up", amount: "₦350,000", extra: "plus a studio session" },
+      ],
       benefits: [
         { title: "Funded studio time", body: "Studio days toward one original recording, cut with the Symphony house team in Lagos." },
         { title: "The Symphony stage", body: "A performance slot at the SPAW Global Concert, backed by the full fourteen-piece band." },

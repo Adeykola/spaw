@@ -156,6 +156,21 @@ function renderQuest(quest, info, fmt) {
     );
   }
 
+  // The prizes (admin → Symphony). The homepage slide carries the same
+  // three, in its own HTML.
+  const prizesEl = document.querySelector("[data-quest-prizes]");
+  if (prizesEl && Array.isArray(quest.prizes) && quest.prizes.length) {
+    prizesEl.replaceChildren(
+      ...quest.prizes.map((p, i) =>
+        el("article", { class: `prize-card${i === 0 ? " prize-card--first" : ""}` }, [
+          el("p", { class: "prize-card__place", text: p.place }),
+          el("p", { class: "prize-card__amount display", text: p.amount }),
+          p.extra ? el("p", { class: "prize-card__extra", text: p.extra }) : null,
+        ].filter(Boolean))
+      )
+    );
+  }
+
   const benefitsEl = document.querySelector("[data-quest-benefits]");
   if (benefitsEl) {
     benefitsEl.replaceChildren(

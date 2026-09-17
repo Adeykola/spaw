@@ -253,6 +253,17 @@
         },
         {
           key: "quest", label: "The Talent Quest", type: "group", fields: [
+            {
+              key: "prizes", label: "Prizes", type: "list", itemName: "a prize",
+              help: "Shown on the Symphony page and on the homepage's Talent Quest slide. The homepage slide's own copy is in index.html: change the two together.",
+              itemLabel: (p) => [tidyText(p.place), tidyText(p.amount)].filter(Boolean).join(" · "),
+              newItem: () => ({ place: "", amount: "", extra: "" }),
+              fields: [
+                { key: "place", label: "Place", type: "text", placeholder: "Winner" },
+                { key: "amount", label: "Prize", type: "text", placeholder: "₦750,000" },
+                { key: "extra", label: "And", type: "text", placeholder: "plus a studio session" },
+              ],
+            },
             { key: "title", label: "Name", type: "text" },
             { key: "tagline", label: "Tagline", type: "text" },
             { key: "description", label: "About the Quest", type: "textarea", rows: 4 },

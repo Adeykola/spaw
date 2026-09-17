@@ -203,11 +203,19 @@ async function renderSongDetail() {
       el("a", { href: "music", text: "\u2190 Back to all music" }),
     ]);
 
+    // Play it here, or on Spotify where the song is there (data.js links).
+    const actions = [playBtn];
+    if (track.links && track.links.spotify) {
+      actions.push(el("a", {
+        class: "btn btn-solid btn-spotify", href: track.links.spotify, target: "_blank", rel: "noopener",
+        text: "Play on Spotify", "data-stream": "Spotify", "data-song": track.title,
+      }));
+    }
     const heroContent = el("div", {}, [
       el("p", { class: "eyebrow" }, [document.createTextNode(track.isSingle ? "Single" : "Album Track")]),
       el("h1", { class: "song-hero__title display", text: track.title }),
       meta,
-      el("div", { style: "margin-top: var(--space-l);" }, [playBtn]),
+      el("div", { class: "song-hero__actions" }, actions),
     ]);
 
     root.replaceChildren(
