@@ -22,14 +22,14 @@ The site is built and served by **Vercel** from this GitHub repository (every pu
    - add an **A** record: name `mail`, value `135.125.230.200`;
    - change the **MX** record for `dr-ajokesings.com` to point to `mail.dr-ajokesings.com` (same priority, 0).
    - Leave the SPF **TXT** record as it is. Wait an hour, then send a test email to `hello@dr-ajokesings.com` to check it still arrives. (If the email app or phone signs in with the server name `dr-ajokesings.com`, change that to `mail.dr-ajokesings.com` too.)
-2. **Add the domain in Vercel.** In the Vercel project (**spaw**) → **Settings → Domains**, add `dr-ajokesings.com` and `www.dr-ajokesings.com`, and choose to redirect `www` to `dr-ajokesings.com`. Vercel then shows the records it wants; normally:
-   - **A** record, name `@` (the bare domain): `76.76.21.21`, replacing the old `135.125.230.200`;
-   - **CNAME** record, name `www`: `cname.vercel-dns.com`, replacing the old `www` record.
-   Use the values Vercel shows if they differ. Within an hour or so Vercel says *Valid configuration* and issues the HTTPS certificate by itself.
+2. **Add the domain in Vercel.** In the Vercel project (**spaw**) → **Settings → Domains**, add `dr-ajokesings.com` and `www.dr-ajokesings.com`, and choose to redirect `www` to `dr-ajokesings.com` (the redirect between the two is set here only, not in `vercel.json`, so the two can't send visitors back and forth). Vercel then shows the records it wants for **both** names, for example:
+   - **A** record, name `@` (the bare domain): the address Vercel shows (such as `216.198.79.1` or `76.76.21.21`), replacing the old `135.125.230.200`;
+   - **CNAME** record, name `www`: the name Vercel shows (such as `…vercel-dns-017.com`). **Delete the old `www` record first**: Truehost's default `www` points back at the old server, and while it's there, anyone sent to `www` gets the old server, where the site's CSS and scripts don't exist, so the page looks broken.
+   Within an hour or so Vercel says *Valid configuration* for both names and issues the HTTPS certificates by itself.
 3. **Supabase.** In **Authentication → URL Configuration**, set *Site URL* to `https://dr-ajokesings.com` and add `https://dr-ajokesings.com/admin` to *Redirect URLs* (keep the vercel.app ones while testing). And set up the emails the forms send: [`supabase/README.md`](supabase/README.md), "Emails" (Resend's DNS records go in the same Truehost DNS).
 4. **Check.** `https://dr-ajokesings.com`, `https://www.dr-ajokesings.com` (should land on the first), an admin sign-in, a test registration (its ticket email), and a test email to the mailbox.
 
-The old site on the cPanel server stays there, untouched, but no longer shows at the address. `vercel.json` also redirects `www` to the bare domain, and `robots.txt` / `sitemap.xml` name the domain for search engines.
+The old site on the cPanel server stays there, untouched, but no longer shows at the address. `robots.txt` / `sitemap.xml` name the domain for search engines.
 
 ## Pages
 
