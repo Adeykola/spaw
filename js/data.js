@@ -146,9 +146,45 @@ const DB = {
     },
     {
       id: "track-015", title: "Joy to the World", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
-      releaseDate: null, duration: null, lyrics: [], description: "",
-      artwork: "assets/images/gallery/spaw-stage-gold.jpeg", audioSrc: "assets/audio/sample-03.mp3",
+      releaseDate: "2024-12-21", duration: null, lyrics: [], description: "The title song of her Christmas release.",
+      artwork: "assets/images/songs/joy-to-the-world.jpg", audioSrc: "assets/audio/sample-03.mp3",
       links: { youtube: null, spotify: "https://open.spotify.com/track/5XyRPAvE8x2Jrbl5BiNb1h", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-016", title: "All Creation", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2025-07-18", duration: null, lyrics: [], description: "From Osuba Re (Live), recorded with the full band.",
+      artwork: "assets/images/songs/all-creation.jpg", audioSrc: "assets/audio/sample-04.mp3",
+      links: { youtube: null, spotify: "https://open.spotify.com/track/1qmrTpNBfX5WhMhTFSIbmS", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-017", title: "Worship Experience", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2026-07-17", duration: null, lyrics: [], description: "",
+      artwork: "assets/images/songs/worship-experience.jpg", audioSrc: "assets/audio/sample-05.mp3",
+      links: { youtube: "https://www.youtube.com/watch?v=2pF3om8bbYM", spotify: "https://open.spotify.com/track/23NwrOuSUjbDbq9H16FLCC", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-018", title: "Hark the Herald", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2024-12-21", duration: null, lyrics: [], description: "From her Christmas release, Joy to the World.",
+      artwork: "assets/images/songs/joy-to-the-world.jpg", audioSrc: "assets/audio/sample-06.mp3",
+      links: { youtube: null, spotify: "https://open.spotify.com/track/3hwCkgzoOj56FMjsrQpGWT", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-019", title: "Holy Night", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2024-12-21", duration: null, lyrics: [], description: "From her Christmas release, Joy to the World.",
+      artwork: "assets/images/songs/joy-to-the-world.jpg", audioSrc: "assets/audio/sample-01.mp3",
+      links: { youtube: null, spotify: "https://open.spotify.com/track/79xRc7EPRuSY73QRJSki0r", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-020", title: "Mary Did You Know", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2024-12-21", duration: null, lyrics: [], description: "From her Christmas release, Joy to the World.",
+      artwork: "assets/images/songs/joy-to-the-world.jpg", audioSrc: "assets/audio/sample-02.mp3",
+      links: { youtube: null, spotify: "https://open.spotify.com/track/7rtuKYWikNgS7xmYeQqGt6", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+    },
+    {
+      id: "track-021", title: "Silent Night", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
+      releaseDate: "2024-12-21", duration: null, lyrics: [], description: "From her Christmas release, Joy to the World.",
+      artwork: "assets/images/songs/joy-to-the-world.jpg", audioSrc: "assets/audio/sample-03.mp3",
+      links: { youtube: null, spotify: "https://open.spotify.com/track/3Ht6I9pGhRdkdwYcwKCAUV", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
   ],
 
