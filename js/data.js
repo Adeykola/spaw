@@ -142,13 +142,13 @@ const DB = {
       id: "track-014", title: "Great and Mighty", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: "2025-08-15", duration: null, lyrics: [], description: "",
       artwork: "assets/images/songs/great-and-mighty.jpg", audioSrc: "assets/audio/sample-02.mp3",
-      links: { youtube: "https://www.youtube.com/watch?v=HJ2G6GieNrQ", spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: "https://www.youtube.com/watch?v=HJ2G6GieNrQ", spotify: "https://open.spotify.com/track/7hIe3D6pRlCzsh468WWCBS", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
     {
       id: "track-015", title: "Joy to the World", artist: "Dr AjokeSings", albumId: null, isSingle: true, featured: false,
       releaseDate: null, duration: null, lyrics: [], description: "",
       artwork: "assets/images/gallery/spaw-stage-gold.jpeg", audioSrc: "assets/audio/sample-03.mp3",
-      links: { youtube: null, spotify: null, appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
+      links: { youtube: null, spotify: "https://open.spotify.com/track/5XyRPAvE8x2Jrbl5BiNb1h", appleMusic: null, boomplay: null, audiomack: null, deezer: null, amazonMusic: null },
     },
   ],
 
