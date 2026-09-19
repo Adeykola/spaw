@@ -176,6 +176,36 @@ body.has-persistent-player { padding-bottom: 92px; }
 .page-hero__actions { margin-top: var(--space-l); display: flex; flex-wrap: wrap; gap: var(--space-s) var(--space-m); }
 .song-hero__actions { margin-top: var(--space-l); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-s) var(--space-m); }
 
+/* ---- The SPAW seal (Symphony page) ----
+   The mark traced from the official logo, in the page's light ink; the
+   words around it in gold with red dots. The ring turns once, rests, and
+   turns again; it holds still for anyone who asks for reduced motion. */
+.spaw-seal { width: var(--seal, clamp(150px, 27vw, 420px)); pointer-events: none; }
+.page-hero--spaw { --seal: clamp(220px, 27vw, 420px); }
+.page-hero--spaw .spaw-seal { position: absolute; right: var(--edge); top: 52%; translate: 0 -50%; }
+/* The words beside it stop short of the seal. */
+.page-hero--spaw .page-hero__sub { max-width: min(52ch, calc(100% - var(--seal) - var(--space-xl))); }
+.page-hero--spaw .page-hero__title { max-width: min(16ch, calc(100% - var(--seal) - var(--space-l))); }
+.spaw-seal__svg { display: block; width: 100%; height: auto; overflow: visible; }
+.spaw-seal__words { font-family: var(--font-ui); font-weight: 800; font-size: var(--seal-words, 74px); fill: var(--gold); }
+.spaw-seal__dot { fill: var(--red-bright); }
+.spaw-seal__mark path { fill: var(--paper); }
+.spaw-seal__with { font-family: var(--font-display); font-size: 24px; letter-spacing: 2px; fill: var(--paper); }
+.spaw-seal__sig use { fill: var(--paper); }
+.spaw-seal__ring { transform-origin: 500px 500px; animation: spawSealTurn 16s infinite; }
+@keyframes spawSealTurn {
+  0% { transform: rotate(0deg); animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); }
+  68%, 100% { transform: rotate(360deg); }
+}
+@media (max-width: 900px) {
+  .page-hero--spaw .spaw-seal { position: static; translate: none; width: min(46vw, 190px); margin-bottom: var(--space-m); }
+  .page-hero--spaw .page-hero__sub { max-width: 52ch; }
+  .page-hero--spaw .page-hero__title { max-width: 16ch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spaw-seal__ring { animation: none; }
+}
+
 /* ---- The Talent Quest's prizes (Symphony page) ---- */
 .prize-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--space-m); }
 .prize-card {
