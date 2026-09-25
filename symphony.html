@@ -213,32 +213,20 @@
             <textarea id="app-bio" name="bio" placeholder="Your story, your sound, and why Symphony now."></textarea>
             <p class="field-error" data-field-error="bio"></p>
           </div>
+          <div class="field field--full">
+            <label for="app-youtube">Your entry on YouTube *</label>
+            <input type="url" id="app-youtube" name="youtube" placeholder="https://www.youtube.com/watch?v=…" inputmode="url" autocomplete="off">
+            <p class="field-hint">A song or a performance of yours. Put it on YouTube (unlisted is fine, as long as the link works) and paste the link here.</p>
+            <p class="field-error" data-field-error="youtube"></p>
+          </div>
+
           <div class="field">
             <label for="app-social">Social link</label>
             <input type="url" id="app-social" name="socialLink" placeholder="https://instagram.com/you">
           </div>
           <div class="field">
-            <label for="app-project">Link to your best work</label>
-            <input type="url" id="app-project" name="projectLink" placeholder="https://youtube.com/...">
-          </div>
-
-          <div class="field field--full">
-            <label>Audio sample (optional, max 50MB)</label>
-            <div class="upload-field" data-upload-field data-max-mb="50">
-              <input type="file" accept="audio/*" aria-label="Upload audio sample">
-              <p class="upload-field__label">Drag a file here or click to browse</p>
-              <p class="upload-field__file" data-upload-filename></p>
-              <div class="upload-progress"><div class="upload-progress__fill" data-upload-fill></div></div>
-            </div>
-          </div>
-          <div class="field field--full">
-            <label>Video sample (optional, max 50MB)</label>
-            <div class="upload-field" data-upload-field data-max-mb="50">
-              <input type="file" accept="video/*" aria-label="Upload video sample">
-              <p class="upload-field__label">Drag a file here or click to browse</p>
-              <p class="upload-field__file" data-upload-filename></p>
-              <div class="upload-progress"><div class="upload-progress__fill" data-upload-fill></div></div>
-            </div>
+            <label for="app-project">Anything else of yours</label>
+            <input type="url" id="app-project" name="projectLink" placeholder="https://open.spotify.com/…">
           </div>
 
           <div class="field field--full">

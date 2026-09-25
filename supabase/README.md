@@ -16,7 +16,7 @@ Supabase's free plan is enough to start. Nothing here needs a server of your own
 2. In Supabase, open **SQL Editor → New query**, paste the whole file, and press **Run**. It should finish with "Success. No rows returned".
 3. Do the same with [`setup-2.sql`](setup-2.sql), then [`setup-3.sql`](setup-3.sql), then [`setup-4.sql`](setup-4.sql). There's nothing to change in any of them.
 
-`setup.sql` creates the tables for content, drafts, history, people and the activity log; the security rules that decide who can do what; and a public `media` folder for uploads. `setup-2.sql` adds the inbox: contact and booking enquiries, Talent Quest applications with a private folder for their audio and video samples, event registrations and check-in, and the newsletter list. `setup-3.sql` adds the analytics (anonymous visits and what happens in them, and the report the admin reads) and campaign links. `setup-4.sql` adds event registration and the Talent Quest application as they are now: registration that follows an event's status, closing date and places (stopping once it's sold out) and keeps the answers to the event's own registration questions, and applications that keep gender, age category, state and country. Running any of them again later is safe.
+`setup.sql` creates the tables for content, drafts, history, people and the activity log; the security rules that decide who can do what; and a public `media` folder for uploads. `setup-2.sql` adds the inbox: contact and booking enquiries, Talent Quest applications (their entry is a YouTube link), event registrations and check-in, and the newsletter list. `setup-3.sql` adds the analytics (anonymous visits and what happens in them, and the report the admin reads) and campaign links. `setup-4.sql` adds event registration and the Talent Quest application as they are now: registration that follows an event's status, closing date and places (stopping once it's sold out) and keeps the answers to the event's own registration questions, and applications that keep gender, age category, state and country and the entry’s YouTube link. Running any of them again later is safe.
 
 **Set up before a part existed?** Run the parts you haven't yet, in order. Until `setup-2.sql` has run, the website's forms can't save anything; until `setup-3.sql` has, visits aren't counted and the Analytics screen says so; until `setup-4.sql` has, registrations are saved without the answers to the event's own questions, and applications without gender, age category, state and country.
 
@@ -108,11 +108,11 @@ The database enforces this on every request, whatever a browser sends. Visitors 
 | `content_versions` | A full copy of the live content at every publish, for bringing an earlier version back |
 | `activity` | Sign-ins, publishing, uploads, changes to people, and inbox status changes and check-ins |
 | `enquiries` | Contact messages and booking requests, with their status and the team's notes |
-| `applications` | Talent Quest applications: details, samples, stage, rating, notes |
+| `applications` | Talent Quest applications: details, the entry’s YouTube link, stage, rating, notes |
 | `registrations` | Event registrations: ticket ID, check-in time, cancelled or not |
 | `subscribers` | The newsletter list |
 | storage bucket `media` | Uploaded pictures and files (public) |
-| storage bucket `applications` | Talent Quest samples (private: only the admin team can open them) |
+| storage bucket `applications` | Samples from applications sent before entries became YouTube links (private) |
 | `analytics_sessions` | One row per visit: a random visit and browser name, where it came from, device, browser, language, estimated country |
 | `analytics_events` | What happened in each visit: page views, time and scroll, taps, plays, searches, sign-up steps, speed, errors |
 | `campaign_links` | The campaign links and flyer QR codes the team has made |

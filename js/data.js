@@ -778,17 +778,19 @@ const api = {
     return true;
   },
 
-  // files: File objects from the upload fields, each tagged .kind "audio" or
-  // "video". Live they upload to the private applications folder first.
-  async submitTalentApplication(payload, files = []) {
+  // The entry itself is a YouTube link (payload.youtube), not an upload.
+  async submitTalentApplication(payload) {
     await this._delay(300);
-    const required = ["fullName", "email", "phone", "gender", "ageCategory", "state", "country", "location", "track", "bio"];
+    const required = ["fullName", "email", "phone", "gender", "ageCategory", "state", "country", "location", "track", "bio", "youtube"];
     const missing = required.filter((key) => !payload[key] || !String(payload[key]).trim());
     if (missing.length) throw new Error("Please complete all required fields before submitting.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) throw new Error("That email address doesn't look right.");
+    if (!/(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|live\/|shorts\/|embed\/|v\/)|youtu\.be\/)[A-Za-z0-9_-]{11}/i.test(payload.youtube)) {
+      throw new Error("That doesn't look like a YouTube link.");
+    }
     if (!payload.agreedToTerms) throw new Error("You need to agree to the terms to submit your application.");
     if (!this.applicationsOpen()) throw new Error("Applications for this Talent Quest are closed.");
-    const application = await Backend.forms.submitApplication(payload, files);
+    const application = await Backend.forms.submitApplication(payload);
     if (window.Track) Track.event("applied", { label: payload.track });
     Backend.email.send("applications", application.id); // "application received"
     return application;

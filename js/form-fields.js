@@ -235,6 +235,17 @@
       .filter((a) => (a.type === "checkbox" ? true : filled(a.value)));
   }
 
+  // A YouTube link's video id, from any of the shapes people paste
+  // (watch?v=, youtu.be/, /live/, /shorts/, /embed/). null if it isn't one.
+  function youtubeId(url) {
+    const s = String(url || "").trim();
+    if (!s) return null;
+    const m = s.match(/(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|live\/|shorts\/|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+    return m ? m[1] : null;
+  }
+  const youtubeWatch = (url) => (youtubeId(url) ? `https://www.youtube.com/watch?v=${youtubeId(url)}` : "");
+  const youtubeEmbed = (url) => (youtubeId(url) ? `https://www.youtube-nocookie.com/embed/${youtubeId(url)}` : "");
+
   function formatValue(v) {
     if (v == null) return "";
     if (typeof v === "object") return [v.state, v.country].filter(Boolean).join(", ");
@@ -242,5 +253,5 @@
     return String(v);
   }
 
-  window.FormFields = { COUNTRIES, NG_STATES, GENDERS, AGE_CATEGORIES, TYPES, PRESETS, preset, render, answersOf, formatValue, phoneValue, filled, make };
+  window.FormFields = { COUNTRIES, NG_STATES, GENDERS, AGE_CATEGORIES, TYPES, PRESETS, preset, render, answersOf, formatValue, phoneValue, filled, make, youtubeId, youtubeWatch, youtubeEmbed };
 })();

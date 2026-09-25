@@ -209,7 +209,6 @@ export function compose(kind: string, row: Row, content: Content, env: Pick<Sett
     const d = row.data || {};
     const s = content.symphony || {};
     const venue = s.concert && s.concert.venue ? `${s.concert.venue}${s.concert.city ? `, ${s.concert.city}` : ""}` : "";
-    const files = Array.isArray(d.files) ? d.files.length : 0;
     const next = [
       s.applicationCloses ? `Applications close on ${longDate(s.applicationCloses)}.` : "",
       "The team reviews every application, and every applicant hears back, whichever way the answer goes.",
@@ -224,7 +223,7 @@ export function compose(kind: string, row: Row, content: Content, env: Pick<Sett
         para(`Hi ${firstName(row.full_name)}, thank you for applying to the SPAW Talent Quest with Dr AjokeSings. Your application has arrived safely, and the team will go through everything you've sent.`),
         facts([
           ["Application ID", row.id], ["Track", row.track], ["Gender", d.gender], ["Age category", d.ageCategory],
-          ["From", row.location], ["Samples", files ? `${files} file${files === 1 ? "" : "s"} received` : ""],
+          ["From", row.location], ["Your entry", d.youtube || ""],
         ]),
         heading("What happens next"),
         para(next),

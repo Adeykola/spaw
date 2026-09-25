@@ -549,6 +549,11 @@ textarea.admin-input { resize: vertical; line-height: 1.5; }
 .an-card__sub { margin-top: 4px; font-size: 0.8rem; color: var(--gray-on-light); max-width: 70ch; }
 .an-card__tools { margin-bottom: var(--space-s); }
 .an-card__tools .admin-select { max-width: 100%; }
+/* A Talent Quest entry, played in the applicant's details. */
+.inbox-entry { display: grid; gap: var(--space-2xs); justify-items: start; }
+.inbox-video { width: 100%; max-width: 420px; aspect-ratio: 16 / 9; background: #000; border-radius: 2px; overflow: hidden; }
+.inbox-video iframe { display: block; width: 100%; height: 100%; border: 0; }
+
 /* Registration form answers and Talent Quest applicants, question by question. */
 .an-answers { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: var(--space-m) var(--space-l); margin-top: var(--space-s); }
 .an-answer { min-width: 0; }

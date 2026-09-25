@@ -189,9 +189,10 @@ begin
       'ageCategory', left(nullif(trim(coalesce(payload ->> 'ageCategory', '')), ''), 60),
       'state', left(nullif(trim(coalesce(payload ->> 'state', '')), ''), 100),
       'country', left(nullif(trim(coalesce(payload ->> 'country', '')), ''), 100),
+      'youtube', left(nullif(trim(coalesce(payload ->> 'youtube', '')), ''), 300),
       'socialLink', nullif(payload ->> 'socialLink', ''),
       'projectLink', nullif(payload ->> 'projectLink', ''),
-      'files', payload -> 'files'
+      'files', payload -> 'files'   -- applications sent before entries became YouTube links
     ))
   );
   return jsonb_build_object('id', ref, 'email', mail, 'submittedAt', now());

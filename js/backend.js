@@ -635,13 +635,9 @@
       return reg;
     },
     async addRegistration(event, attendee) { return demo.forms.registerForEvent(event, attendee, "admin"); },
-    async submitApplication(payload, files = []) {
+    async submitApplication(payload) {
       const list = Store.read(FORM_KEYS.applications, []);
-      // A browser can't hold audio or video for the demo: the names are kept.
-      const application = {
-        id: newRef("SYM"), submittedAt: now(), status: "received", rating: 0, note: "", ...payload,
-        files: files.map((f) => ({ name: f.name, size: f.size, type: f.type, kind: f.kind || "", path: null })),
-      };
+      const application = { id: newRef("SYM"), submittedAt: now(), status: "received", rating: 0, note: "", ...payload };
       list.push(application);
       mustWrite(FORM_KEYS.applications, list);
       return application;
@@ -777,11 +773,9 @@
       if (first.error && first.error.code === "PGRST202") { answersMissing(); return must(await sb.rpc("register_for_event", args)); }
       return must(first);
     },
-    async submitApplication(payload, files = []) {
-      const uploaded = [];
-      for (const f of files) uploaded.push(await uploadSample(f));
-      const r = await rpc("submit_application", { payload: { ...payload, files: uploaded } });
-      return { ...payload, id: r.id, submittedAt: r.submittedAt, files: uploaded };
+    async submitApplication(payload) {
+      const r = await rpc("submit_application", { payload });
+      return { ...payload, id: r.id, submittedAt: r.submittedAt };
     },
     async eventCounts() {
       const rows = await rpc("event_counts", {});

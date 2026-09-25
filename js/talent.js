@@ -1,17 +1,15 @@
 /**
  * talent.js
  * ----------------------------------------------------------------------
- * Drives symphony.html: renders the Symphony info block, wires the
- * simulated file-upload widgets, and runs the full application journey
- * — client-side validation, a real (simulated) submit request through
- * api.submitTalentApplication, and a confirmation screen with a
- * generated application ID. Everything persists to localStorage via
- * data.js so admin.html can list real submissions.
+ * Drives symphony.html: renders the Symphony info block and runs the
+ * application journey — the questions everyone answers, the YouTube link
+ * to their entry, client-side validation, the submit through
+ * api.submitTalentApplication, and a confirmation screen with the
+ * application's reference. The team watches the entries in the admin.
  * ----------------------------------------------------------------------
  */
 document.addEventListener("DOMContentLoaded", () => {
   renderSymphonyInfo();
-  wireUploadFields();
   wireApplicationForm();
   wireYear();
 });
@@ -186,48 +184,6 @@ function renderQuest(quest, info, fmt) {
 }
 
 /* ---------------------------------------------------------------------
- * Sample upload fields (audio / video). Choosing a file checks it and
- * keeps it on the field; it travels with the application when the form
- * is sent (live, into the private applications folder).
- * ------------------------------------------------------------------- */
-function wireUploadFields() {
-  document.querySelectorAll("[data-upload-field]").forEach((field) => {
-    const input = field.querySelector("input[type='file']");
-    const label = field.querySelector("[data-upload-filename]");
-    const fill = field.querySelector("[data-upload-fill]");
-    if (!input) return;
-    const kind = (input.getAttribute("accept") || "").split("/")[0] || "file"; // "audio" or "video"
-
-    input.addEventListener("change", () => {
-      const file = input.files && input.files[0];
-      field.file = null;
-      if (fill) fill.style.width = "0%";
-      if (!file) { delete field.dataset.status; if (label) label.textContent = ""; return; }
-
-      const maxMB = Number(field.dataset.maxMb || 50);
-      if (file.size > maxMB * 1024 * 1024) {
-        field.dataset.status = "error";
-        if (label) label.textContent = `That file is ${Math.ceil(file.size / 1048576)} MB. Keep it under ${maxMB} MB.`;
-        input.value = "";
-        return;
-      }
-      if (kind !== "file" && file.type && !file.type.startsWith(`${kind}/`)) {
-        field.dataset.status = "error";
-        if (label) label.textContent = `That doesn't look like ${kind === "audio" ? "an audio" : "a video"} file.`;
-        input.value = "";
-        return;
-      }
-
-      file.kind = kind;
-      field.file = file;
-      field.dataset.status = "done";
-      if (label) label.textContent = `${file.name} · ${(file.size / 1048576).toFixed(1)} MB. It's sent with your application.`;
-      if (fill) fill.style.width = "100%";
-    });
-  });
-}
-
-/* ---------------------------------------------------------------------
  * Application form — validate -> submit -> success/error
  * ------------------------------------------------------------------- */
 // Phone (with its country code), gender, state and country, and age
@@ -269,6 +225,7 @@ function wireApplicationForm() {
     email: form.querySelector("#app-email"),
     track: form.querySelector("#app-track"),
     bio: form.querySelector("#app-bio"),
+    youtube: form.querySelector("#app-youtube"),
     socialLink: form.querySelector("#app-social"),
     projectLink: form.querySelector("#app-project"),
   };
@@ -290,6 +247,8 @@ function wireApplicationForm() {
     Object.values(appQuestions).forEach((q) => { if (q.check()) valid = false; });
     if (!fields.track.value) { setFieldError("track", "Choose a track."); valid = false; }
     if (!fields.bio.value.trim() || fields.bio.value.trim().length < 30) { setFieldError("bio", "Tell us a bit more — at least 30 characters."); valid = false; }
+    if (!fields.youtube.value.trim()) { setFieldError("youtube", "Add the YouTube link to your entry."); valid = false; }
+    else if (!FormFields.youtubeId(fields.youtube.value)) { setFieldError("youtube", "That doesn't look like a YouTube link. It should look like https://www.youtube.com/watch?v=…"); valid = false; }
     if (!form.querySelector("#app-terms").checked) { setFieldError("terms", "You need to agree to the terms to continue."); valid = false; }
     return valid;
   }
@@ -318,16 +277,14 @@ function wireApplicationForm() {
       location: FormFields.formatValue(place),
       track: fields.track.value,
       bio: fields.bio.value.trim(),
+      youtube: FormFields.youtubeWatch(fields.youtube.value),
       socialLink: fields.socialLink.value.trim(),
       projectLink: fields.projectLink.value.trim(),
       agreedToTerms: form.querySelector("#app-terms").checked,
     };
 
-    const files = Array.from(form.querySelectorAll("[data-upload-field]")).map((f) => f.file).filter(Boolean);
-    if (files.length) submitBtn.textContent = files.length === 1 ? "Uploading your sample…" : "Uploading your samples…";
-
     try {
-      const application = await api.submitTalentApplication(payload, files);
+      const application = await api.submitTalentApplication(payload);
       form.hidden = true;
       if (confirmScreen) {
         confirmScreen.hidden = false;

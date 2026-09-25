@@ -310,6 +310,20 @@
         ], items, { onOpen: (a) => { openId = a.id; drawList(); drawDetail(a); }, isCurrent: (a) => a.id === openId }));
       }
 
+      // The entry itself: the applicant's YouTube link, playable here.
+      function entryVideo(url) {
+        const id = window.FormFields ? FormFields.youtubeId(url) : null;
+        if (!id) return safeLink(url);
+        return h("div", { class: "inbox-entry" }, [
+          h("div", { class: "inbox-video" }, [h("iframe", {
+            src: FormFields.youtubeEmbed(url), title: "The applicant's entry on YouTube", loading: "lazy",
+            allow: "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture", allowfullscreen: true,
+            referrerpolicy: "strict-origin-when-cross-origin",
+          })]),
+          safeLink(FormFields.youtubeWatch(url)),
+        ]);
+      }
+
       function fileRow(f) {
         const label = `${f.kind === "video" ? "Video" : f.kind === "audio" ? "Audio" : "File"}: ${f.name}${f.size ? ` · ${(f.size / 1048576).toFixed(1)} MB` : ""}`;
         if (!f.path) return h("li", {}, [h("span", { text: label }), h("small", { text: " (demo mode keeps the name only)" })]);
@@ -329,8 +343,10 @@
           details([
             ["Application", a.id], ["Email", mailto(a.email, "Your Symphony Talent Quest application")], ["Phone", tel(a.phone)],
             ["From", a.location], ["Gender", a.gender], ["Age category", a.ageCategory], ["Track", a.track], ["About them", a.bio],
-            ["Social", a.socialLink ? safeLink(a.socialLink) : ""], ["Best work", a.projectLink ? safeLink(a.projectLink) : ""],
-            ["Samples", files.length ? h("ul", { class: "inbox-files" }, files.map(fileRow)) : "None sent"],
+            ["Their entry", a.youtube ? entryVideo(a.youtube) : undefined],
+            ["Social", a.socialLink ? safeLink(a.socialLink) : ""], ["Anything else", a.projectLink ? safeLink(a.projectLink) : ""],
+            // Applications sent before entries became YouTube links.
+            ["Samples", files.length ? h("ul", { class: "inbox-files" }, files.map(fileRow)) : undefined],
             ["Applied", Admin.fmtDate(a.submittedAt)],
           ]),
           h("div", { class: "pe-actions-row inbox-actions" }, [
@@ -346,7 +362,7 @@
         ["Name", (a) => a.fullName], ["Email", (a) => a.email], ["Phone", (a) => a.phone],
         ["State", (a) => a.state], ["Country", (a) => a.country], ["From", (a) => a.location],
         ["Gender", (a) => a.gender], ["Age category", (a) => a.ageCategory], ["Track", (a) => a.track],
-        ["About them", (a) => a.bio], ["Social", (a) => a.socialLink], ["Best work", (a) => a.projectLink],
+        ["About them", (a) => a.bio], ["Entry on YouTube", (a) => a.youtube], ["Social", (a) => a.socialLink], ["Anything else", (a) => a.projectLink],
         ["Samples", (a) => (a.files || []).map((f) => f.name).join("; ")], ["Notes", (a) => a.note],
       ], shown()));
 
