@@ -278,6 +278,16 @@
       ],
     },
     {
+      id: "volunteering", key: "volunteering", title: "Volunteering", kind: "object", preview: "spaw-volunteer",
+      sub: "The volunteer sign-up page (/spaw-volunteer): open or closed, and the teams to choose from. The days come from the Symphony dates. Volunteers themselves are under Inbox → Volunteers; the page's other words, and the terms page, are edited under Pages.",
+      fields: [
+        { key: "open", label: "Accept volunteers", type: "check", defaultOn: true, help: "Sign-up also closes by itself after the closing date, and the page then says so." },
+        { key: "closes", label: "Sign-up closes", type: "date" },
+        { key: "teams", label: "Teams volunteers choose from", type: "lines", rows: 9, help: "One per line. “Wherever I'm needed” is always offered too." },
+        { key: "termsVersion", label: "Version of the volunteer terms", type: "text", help: "Kept with each volunteer's signature. Change it whenever you change the words of the terms page, so you know which version each person signed." },
+      ],
+    },
+    {
       id: "about", key: "about", title: "About page lists", kind: "object", preview: "about",
       sub: "The timeline, what the work is built on, the photographs and recognition. The About page's other words are edited under Pages.",
       fields: [
@@ -403,7 +413,7 @@
       fields: [
         { key: "text", label: "Message", type: "text", help: "One short sentence." },
         { key: "linkLabel", label: "Link label", type: "text", placeholder: "Find out more" },
-        { key: "link", label: "Link goes to", type: "text", help: "A page on this site (e.g. events?register=event-004) or a full web address. Optional." },
+        { key: "link", label: "Link goes to", type: "text", help: "A page on this site (e.g. register?event=event-004) or a full web address. Optional." },
         { key: "start", label: "Show from", type: "date" },
         { key: "end", label: "Show until", type: "date", help: "Leave empty to keep it up until you switch it off." },
         { key: "active", label: "Switched on", type: "check", defaultOn: true },

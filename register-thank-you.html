@@ -21,11 +21,17 @@
 
   gtag('config', 'G-MWT8ZM5N43');
 </script>
-<title>Events — Dr AjokeSings</title>
+<title>You're registered — Dr AjokeSings</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="description" content="Upcoming events, listening nights, and worship gatherings from Dr AjokeSings.">
+<meta name="description" content="Your registration is confirmed: your ticket, to show at the door or keep on your phone.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="You're registered — Dr AjokeSings">
+<meta property="og:description" content="Your registration is confirmed: your ticket, to show at the door or keep on your phone.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://dr-ajokesings.com/register-thank-you">
+<meta property="og:image" content="https://dr-ajokesings.com/assets/images/spaw-logo-original.jpeg">
 <meta name="theme-color" content="#0a0908">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -61,9 +67,6 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="cursor" data-cursor aria-hidden="true"></div>
 <div class="cursor__label" data-cursor-label aria-hidden="true"></div>
-<svg style="display:none" aria-hidden="true">
-  <symbol id="icon-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.5" fill="none"/></symbol>
-</svg>
 
 <header class="site-header" data-site-header>
   <div class="wrap">
@@ -75,7 +78,7 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
         <li><a href="media">Media</a></li>
         <li><a href="ministry">Ministry</a></li>
         <li><a href="symphony">Symphony</a></li>
-        <li><a href="events" aria-current="page">Events</a></li>
+        <li><a href="events">Events</a></li>
         <li><a href="about">About</a></li>
       </ul>
     </nav>
@@ -93,18 +96,41 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
   </ul>
 </nav>
 
-<main id="main">
-  <section class="page-hero" style="min-height:46svh;" aria-label="Events">
-    <div class="page-hero__media"><img src="assets/images/spaw-duet.webp" alt="" loading="eager"></div>
-    <div class="page-hero__scrim"></div>
+<main id="main" data-register-done>
+  <!-- ============================= CONFIRMED ============================= -->
+  <section class="page-hero page-hero--plain" aria-label="Registration confirmed">
     <div class="page-hero__content">
-      <p class="eyebrow page-hero__eyebrow">Calendar</p>
-      <h1 class="page-hero__title display">Where we <em>gather.</em></h1>
+      <p class="eyebrow page-hero__eyebrow" data-reg-name>Registration confirmed</p>
+      <h1 class="page-hero__title display" data-done-title>You're registered.</h1>
+      <p class="page-hero__sub" data-reg-when hidden></p>
+      <p class="reg-hero__where" data-reg-where hidden></p>
     </div>
   </section>
 
-  <section class="section section--light" aria-label="Upcoming events">
-    <div class="wrap" data-events-full-list></div>
+  <!-- ============================= THE TICKET ============================= -->
+  <section class="section section--light ticket-page" aria-label="Your ticket" data-quest-call-away>
+    <div class="wrap ticket-page__wrap">
+      <div class="ticket-page__text">
+        <p class="ticket-page__lede" data-done-body>Thank you for registering.</p>
+        <p class="done-id" data-done-id></p>
+        <p class="done-emailed" data-done-emailed role="status" hidden></p>
+        <div class="ticket-page__actions">
+          <button type="button" class="btn btn-solid" data-done-download data-cta="Download ticket (after registering)">Download your ticket</button>
+          <button type="button" class="btn btn-line" data-done-calendar>Add to calendar</button>
+          <a class="btn btn-line" href="events" data-done-event>See the event</a>
+        </div>
+        <p class="ticket-page__note" data-done-ticket-note>One ticket admits one person. Can&rsquo;t make it? Reply to your ticket email and we&rsquo;ll free your place for someone else.</p>
+        <div class="whatsapp-cta">
+          <p class="whatsapp-cta__title">Join us on WhatsApp</p>
+          <p class="whatsapp-cta__text">Follow the Dr AjokeSings WhatsApp channel for event reminders, updates and news before anyone else.</p>
+          <a class="whatsapp-cta__link" href="https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e" target="_blank" rel="noopener" data-cta="WhatsApp channel (after registering)">Join the WhatsApp channel</a>
+        </div>
+      </div>
+      <figure class="ticket-page__figure" data-done-ticket>
+        <img alt="" hidden>
+        <p class="state-msg" data-done-ticket-status>Preparing your ticket&hellip;</p>
+      </figure>
+    </div>
   </section>
 </main>
 
@@ -121,6 +147,7 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 <script src="js/config.js" defer></script>
 <script src="js/data.js" defer></script>
 <script src="js/backend.js" defer></script>
@@ -131,7 +158,7 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 <script src="js/app.js" defer></script>
 <script src="js/form-fields.js" defer></script>
 <script src="js/register.js" defer></script>
-<script src="js/events.js" defer></script>
+<script src="js/ticket.js" defer></script>
 <script src="js/animations.js" defer></script>
 </body>
 </html>

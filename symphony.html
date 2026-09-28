@@ -77,7 +77,7 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
       </ul>
     </nav>
     <div class="nav-actions">
-      <a href="#apply" class="btn btn-solid" data-magnetic>Apply Now</a>
+      <a href="spaw-apply" class="btn btn-solid" data-magnetic>Apply Now</a>
       <button class="menu-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -117,7 +117,7 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
       <div class="page-hero__actions">
         <a href="#concert" class="btn btn-line" data-magnetic>About the Global Concert</a>
         <a href="#quest" class="btn btn-line" data-magnetic>About the Talent Quest</a>
-        <a href="#apply" class="btn btn-solid btn-quest" data-magnetic data-cta="Talent Quest: apply (Symphony page top)">Apply to the Talent Quest</a>
+        <a href="spaw-apply" class="btn btn-solid btn-quest" data-magnetic data-cta="Talent Quest: apply (Symphony page top)">Apply to the Talent Quest</a>
       </div>
     </div>
   </section>
@@ -142,7 +142,7 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
           <p class="concert-feature__desc" data-concert-desc></p>
           <dl class="concert-facts" data-concert-facts></dl>
           <div class="concert-feature__actions">
-            <a href="events?register=event-004" class="btn btn-solid" data-magnetic data-register-event="symphony-concert" data-cta="SPAW Global Concert: register (Symphony page)">Reserve your seat</a>
+            <a href="register?event=event-004" class="btn btn-solid" data-magnetic data-register-event="symphony-concert" data-cta="SPAW Global Concert: register (Symphony page)">Reserve your seat</a>
             <a href="media#watch" class="btn btn-line" data-magnetic>Watch last year's night</a>
           </div>
         </div>
@@ -196,7 +196,7 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
       <div class="benefit-grid" data-quest-benefits></div>
 
       <div style="margin-top: var(--space-xl);">
-        <a href="#apply" class="btn btn-solid btn-quest" data-magnetic data-cta="Talent Quest: apply (Talent Quest section)">Apply to take part</a>
+        <a href="spaw-apply" class="btn btn-solid btn-quest" data-magnetic data-cta="Talent Quest: apply (Talent Quest section)">Apply to take part</a>
       </div>
     </div>
   </section>
@@ -215,90 +215,19 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
     </div>
   </section>
 
-  <section class="section" id="apply" aria-label="Apply to Symphony">
-    <div class="wrap" style="max-width: 760px;">
-      <p class="eyebrow" style="margin-bottom: var(--space-s);">Talent Quest application</p>
-      <h2 class="display" style="font-size: var(--step-3); margin-bottom: var(--space-l);">Tell us who you are.</h2>
-      <p style="color: var(--gray-on-dark); max-width: 52ch; margin-top: calc(var(--space-l) * -1 + var(--space-s)); margin-bottom: var(--space-l);">Come on board: applications are open until 1 November. The Talent Quest takes place on Friday 27 November at Regal Hall, Daystar Christian Center, Oregun, Ikeja, and every applicant hears back either way.</p>
-
-      <form data-application-form novalidate>
-        <p class="form-error-banner" data-form-error role="alert"></p>
-
-        <div class="form-grid">
-          <div class="field">
-            <label for="app-name">Full name *</label>
-            <input type="text" id="app-name" name="fullName" autocomplete="name">
-            <p class="field-error" data-field-error="fullName"></p>
-          </div>
-          <div class="field">
-            <label for="app-email">Email *</label>
-            <input type="email" id="app-email" name="email" autocomplete="email">
-            <p class="field-error" data-field-error="email"></p>
-          </div>
-          <!-- Phone with its country code, gender, state and country, and age
-               category: drawn by talent.js (form-fields.js). -->
-          <div class="field field--full" data-app-question="phone"></div>
-          <div class="field" data-app-question="gender"></div>
-          <div class="field" data-app-question="age"></div>
-          <div class="field field--full" data-app-question="location"></div>
-          <div class="field field--full">
-            <label for="app-track">Track *</label>
-            <select id="app-track" name="track" data-track-select><option value="">Select a track</option></select>
-            <p class="field-error" data-field-error="track"></p>
-          </div>
-          <div class="field field--full">
-            <label for="app-bio">Tell us about yourself *</label>
-            <textarea id="app-bio" name="bio" placeholder="Your story, your sound, and why Symphony now."></textarea>
-            <p class="field-error" data-field-error="bio"></p>
-          </div>
-          <div class="field field--full">
-            <label for="app-youtube">Your entry on YouTube *</label>
-            <input type="url" id="app-youtube" name="youtube" placeholder="https://www.youtube.com/watch?v=…" inputmode="url" autocomplete="off">
-            <p class="field-hint">A song or a performance of yours. Put it on YouTube (unlisted is fine, as long as the link works) and paste the link here.</p>
-            <p class="field-error" data-field-error="youtube"></p>
-          </div>
-
-          <div class="field">
-            <label for="app-social">Social link</label>
-            <input type="url" id="app-social" name="socialLink" placeholder="https://instagram.com/you">
-          </div>
-          <div class="field">
-            <label for="app-project">Anything else of yours</label>
-            <input type="url" id="app-project" name="projectLink" placeholder="https://open.spotify.com/…">
-          </div>
-
-          <div class="field field--full">
-            <div class="checkbox-field">
-              <input type="checkbox" id="app-terms">
-              <label for="app-terms" data-symphony-terms>Loading terms&hellip;</label>
-            </div>
-            <p class="field-error" data-field-error="terms"></p>
-          </div>
+<!-- ============================= VOLUNTEERS ============================= -->
+  <section class="section section--light" id="volunteer" aria-label="Volunteer at SPAW">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Volunteers</p>
+          <h2 class="section-head__title display">Not on the stage? Serve behind it.</h2>
         </div>
-
-        <div class="form-submit-row">
-          <button type="submit" class="btn btn-solid">Submit application</button>
-          <p class="field-hint">We'll email you within two weeks of the application deadline.</p>
-        </div>
-        <p class="form-disclaimer" data-quest-disclaimer><strong>Disclaimer:</strong> Contestants are responsible for their logistics to and from the event. DrAjokesings Productions Limited bears no responsibility for transportation or related costs.</p>
-      </form>
-
-      <div class="confirm-screen" data-confirm-screen hidden>
-        <div class="confirm-screen__icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12l5 5L19 7" stroke="var(--red-bright)" stroke-width="2"/></svg>
-        </div>
-        <h2 class="confirm-screen__title display">Application received.</h2>
-        <p class="confirm-screen__body">Thank you for applying to Symphony of Praise &amp; Worship. We'll be in touch at <strong data-confirm-email></strong> as the Talent Quest approaches.</p>
-        <p class="confirm-screen__id">Application ID: <span data-confirm-id></span></p>
-        <div class="confirm-screen__actions">
-          <a href="./" class="btn btn-line">Back to home</a>
-          <a href="events" class="btn btn-line">View the event dates</a>
-        </div>
-        <div class="whatsapp-cta">
-          <p class="whatsapp-cta__title">Join us on WhatsApp</p>
-          <p class="whatsapp-cta__text">Follow the Dr AjokeSings WhatsApp channel for Talent Quest updates, reminders and news before anyone else.</p>
-          <a class="whatsapp-cta__link" href="https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e" target="_blank" rel="noopener" data-cta="WhatsApp channel (after applying)">Join the WhatsApp channel</a>
-        </div>
+        <p class="section-head__note">Ushers, hosts, photographers and stage hands make SPAW happen. Sign up to serve on either day, or both.</p>
+      </div>
+      <div class="vol-band__actions">
+        <a href="spaw-volunteer" class="btn btn-solid" data-magnetic data-cta="Volunteer: sign up (Symphony page)">Sign up to volunteer</a>
+        <a href="spaw-volunteer-terms" class="btn btn-line" data-magnetic>The volunteer terms</a>
       </div>
     </div>
   </section>
@@ -317,7 +246,6 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 <script src="js/config.js" defer></script>
 <script src="js/data.js" defer></script>
 <script src="js/backend.js" defer></script>
@@ -328,7 +256,6 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 <script src="js/app.js" defer></script>
 <script src="js/form-fields.js" defer></script>
 <script src="js/register.js" defer></script>
-<script src="js/ticket.js" defer></script>
 <script src="js/talent.js" defer></script>
 <script src="js/animations.js" defer></script>
 </body>

@@ -2,7 +2,7 @@
  * admin-inbox.js
  * ----------------------------------------------------------------------
  * The inbox: contact and booking enquiries, Talent Quest applicants,
- * event registrations, newsletter sign-ups, and check-in at the door (by
+ * volunteers, event registrations, newsletter sign-ups, and check-in at the door (by
  * typing a ticket's ID or scanning its QR code with a camera). Each list
  * filters, searches and downloads as a spreadsheet (CSV). The dashboard
  * gets a "Needs attention" summary, and the sidebar counts what's new.
@@ -16,6 +16,7 @@
     enquiries: { new: "New", replied: "Replied", confirmed: "Confirmed", declined: "Declined", archived: "Archived" },
     applications: { received: "To review", shortlisted: "Shortlisted", invited: "Invited", selected: "Selected", "not-selected": "Not selected" },
     registrations: { registered: "Registered", cancelled: "Cancelled" },
+    volunteers: { new: "New", contacted: "Contacted", confirmed: "On the team", declined: "Not this time" },
   };
   const pill = (kind, status) => h("span", { class: `status-pill status-pill--${status}`, text: LABELS[kind][status] || status });
   const day = (iso) => (iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—");
@@ -164,6 +165,10 @@
       Admin.setBadge("enquiries", enquiries.filter((e) => e.status === "new").length);
       Admin.setBadge("talent", applications.filter((a) => a.status === "received").length);
     } catch (_) { /* not set up yet, or offline */ }
+    try {
+      const volunteers = await Backend.forms.list("volunteers");
+      Admin.setBadge("volunteers", volunteers.filter((v) => v.status === "new").length);
+    } catch (_) { /* setup-5.sql not run yet */ }
   }
   Admin.onBadges(refreshCounts);
 
@@ -369,6 +374,120 @@
       [status, track].forEach((s) => s.addEventListener("change", drawList));
       q.addEventListener("input", drawList);
       panel.replaceChildren(title, h("div", { class: "inbox-bar" }, [status, track, q, count, csv]), h("div", { class: "admin-layout inbox-layout" }, [listHost, detailHost]));
+      drawList();
+      const first = shown()[0];
+      if (first) { openId = first.id; drawList(); }
+      drawDetail(first || null);
+    },
+  });
+
+  /* ===================================================================
+   * Volunteers (spaw-volunteer.html)
+   * =================================================================== */
+  // Live, before supabase/setup-5.sql has run there's no table to read.
+  const volunteersMissing = (err) => /volunteers/.test(err.message || "") && /schema cache|does not exist|not find/i.test(err.message || "");
+  async function listVolunteers() {
+    try { return await Backend.forms.list("volunteers"); } catch (err) {
+      if (volunteersMissing(err)) throw new Error("Volunteers aren't kept yet: run supabase/setup-5.sql in Supabase (SQL Editor), then open this screen again. Until then the sign-up page can't send.");
+      throw err;
+    }
+  }
+  const listText = (v) => (Array.isArray(v) ? v.filter(Boolean).join(", ") : v || "");
+  // "SPAW Talent Quest · Friday 27 November" -> "Fri 27 Nov", for the list and the filter.
+  const shortDay = (d) => {
+    const m = String(d).match(/·\s*(\w{3})\w*\s+(\d{1,2})\s+(\w{3})/);
+    return m ? `${m[1]} ${m[2]} ${m[3]}` : String(d).split(/[,·]/)[0].trim();
+  };
+  const whatsappLink = (phone) => {
+    const digits = String(phone || "").replace(/[^\d]/g, "");
+    return digits.length >= 8 ? `https://wa.me/${digits}` : "";
+  };
+
+  Admin.register("volunteers", {
+    async render(panel) {
+      const title = head("Volunteers", "Everyone who has signed up to serve at SPAW, with the terms they signed. Move them on as the team is confirmed; notes are only for the admin team.");
+      const all = await loadOr(panel, title, listVolunteers);
+      if (!all) return;
+      all.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+      let openId = null;
+
+      const teams = [...new Set(all.flatMap((v) => v.teams || []))];
+      const days = [...new Set(all.flatMap((v) => v.days || []))];
+      const status = select([["all", "Every status"], ...Object.entries(LABELS.volunteers)], "all", "Status");
+      const team = select([["all", "Every team"], ...teams.map((t) => [t, t])], "all", "Team");
+      const when = select([["all", "Every day"], ...days.map((d) => [d, shortDay(d)])], "all", "Day");
+      const q = searchBox("Find a name, email, phone or city");
+      const count = h("span", { class: "inbox-count" });
+      const listHost = h("div");
+      const detailHost = h("div", { class: "detail-panel" });
+
+      const shown = () => all.filter((v) =>
+        (status.value === "all" || v.status === status.value) &&
+        (team.value === "all" || (v.teams || []).includes(team.value)) &&
+        (when.value === "all" || (v.days || []).includes(when.value)) &&
+        (!q.value.trim() || [v.fullName, v.email, v.phone, v.location, v.church, v.id].join(" ").toLowerCase().includes(q.value.trim().toLowerCase())));
+
+      function drawList() {
+        const items = shown();
+        count.textContent = plural(items.length, "volunteer");
+        if (!items.length) {
+          listHost.replaceChildren(h("p", { class: "admin-empty", text: all.length ? "Nothing matches these filters." : "No one has signed up to volunteer yet. The sign-up page is at /spaw-volunteer." }));
+          return;
+        }
+        listHost.replaceChildren(table([
+          ["Name", (v) => v.fullName],
+          ["Teams", (v) => listText(v.teams)],
+          ["Can serve", (v) => (v.days || []).map(shortDay).join(", ")],
+          ["From", (v) => v.location],
+          ["Status", (v) => pill("volunteers", v.status)],
+          ["Signed up", (v) => day(v.submittedAt)],
+        ], items, { onOpen: (v) => { openId = v.id; drawList(); drawDetail(v); }, isCurrent: (v) => v.id === openId }));
+      }
+
+      // The signature: the name they typed, when, and which terms.
+      const signature = (v) => h("div", { class: "inbox-signature" }, [
+        h("span", { class: "inbox-signature__name", text: v.signature || "—" }),
+        h("small", { text: [Admin.fmtDate(v.signedAt || v.submittedAt), v.termsVersion].filter(Boolean).join(" · ") }),
+        h("a", { href: "spaw-volunteer-terms", target: "_blank", rel: "noopener", text: "The Terms and Conditions for Volunteers ↗" }),
+      ]);
+
+      function drawDetail(v) {
+        if (!v) { detailHost.replaceChildren(h("p", { class: "detail-panel__empty", text: "Choose a volunteer to see everything they sent." })); return; }
+        const wa = whatsappLink(v.phone);
+        detailHost.replaceChildren(
+          h("p", { class: "admin-card__title", text: v.fullName }),
+          h("div", { class: "admin-field" }, [h("span", { text: "Status" }), statusControl("volunteers", v, drawList)]),
+          details([
+            ["Reference", v.id], ["Email", mailto(v.email, "Volunteering at SPAW")], ["Phone", tel(v.phone)],
+            ["From", v.location], ["Gender", v.gender], ["Age category", v.ageCategory], ["Church or fellowship", v.church],
+            ["Teams", listText(v.teams)], ["Can serve", listText(v.days)], ["Experience", v.experience],
+            ["In an emergency", v.emergencyName ? h("span", {}, [`${v.emergencyName} · `, tel(v.emergencyPhone)]) : ""],
+            ["Signed", signature(v)],
+            ["Signed up", Admin.fmtDate(v.submittedAt)],
+          ]),
+          h("div", { class: "pe-actions-row inbox-actions" }, [
+            h("a", { class: "btn btn-solid", href: `mailto:${v.email}?subject=${encodeURIComponent("Volunteering at SPAW")}` }, "Email them"),
+            wa ? h("a", { class: "pe-small-btn", href: wa, target: "_blank", rel: "noopener" }, "WhatsApp them") : null,
+            deleteControl("volunteers", v, "this volunteer", () => { all.splice(all.indexOf(v), 1); openId = null; drawList(); drawDetail(null); }),
+          ].filter(Boolean)),
+          noteControl("volunteers", v)
+        );
+      }
+
+      const csv = btn("Download spreadsheet", () => downloadCsv(`volunteers-${stamp()}.csv`, [
+        ["Reference", (v) => v.id], ["Signed up", (v) => v.submittedAt], ["Status", (v) => LABELS.volunteers[v.status]],
+        ["Name", (v) => v.fullName], ["Email", (v) => v.email], ["Phone", (v) => v.phone],
+        ["State", (v) => v.state], ["Country", (v) => v.country], ["From", (v) => v.location],
+        ["Gender", (v) => v.gender], ["Age category", (v) => v.ageCategory], ["Church or fellowship", (v) => v.church],
+        ["Teams", (v) => (v.teams || []).join("; ")], ["Can serve", (v) => (v.days || []).join("; ")], ["Experience", (v) => v.experience],
+        ["Emergency contact", (v) => v.emergencyName], ["Emergency phone", (v) => v.emergencyPhone],
+        ["Signature", (v) => v.signature], ["Signed at", (v) => v.signedAt || v.submittedAt], ["Terms version", (v) => v.termsVersion],
+        ["Notes", (v) => v.note],
+      ], shown()));
+
+      [status, team, when].forEach((s) => s.addEventListener("change", drawList));
+      q.addEventListener("input", drawList);
+      panel.replaceChildren(title, h("div", { class: "inbox-bar" }, [status, team, when, q, count, csv]), h("div", { class: "admin-layout inbox-layout" }, [listHost, detailHost]));
       drawList();
       const first = shown()[0];
       if (first) { openId = first.id; drawList(); }

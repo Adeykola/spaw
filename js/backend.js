@@ -555,7 +555,8 @@
   /* ===================================================================
    * FORMS AND THE INBOX
    * What visitors send (enquiries, event registrations, Talent Quest
-   * applications, newsletter sign-ups) and what the team does with it.
+   * applications, volunteers, newsletter sign-ups) and what the team does
+   * with it.
    * Live, visitors send it through database functions that check the
    * details and never let them read anything back (supabase/setup-2.sql);
    * the team reads and updates it signed in. Demo keeps it in this
@@ -565,13 +566,14 @@
     enquiries: ["new", "replied", "confirmed", "declined", "archived"],
     applications: ["received", "shortlisted", "invited", "selected", "not-selected"],
     registrations: ["registered", "cancelled"],
+    volunteers: ["new", "contacted", "confirmed", "declined"],
   };
   const newRef = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 6).toUpperCase()}${Date.now().toString(36).slice(-4).toUpperCase()}`;
   const statusOf = (s, list) => {
     const v = String(s || "").toLowerCase().replace(/\s+/g, "-");
     return list.includes(v) ? v : list[0];
   };
-  const FORM_KEYS = { enquiries: "enquiries", applications: "talentApplications", registrations: "registrations", subscribers: "newsletter" };
+  const FORM_KEYS = { enquiries: "enquiries", applications: "talentApplications", registrations: "registrations", subscribers: "newsletter", volunteers: "volunteers" };
   // The answers to an event's own questions, kept to a sensible size (the
   // database trims them the same way, setup-4.sql).
   function cleanAnswers(list) {
@@ -590,6 +592,7 @@
     if (kind === "enquiries") return { ...r, status: statusOf(r.status, STATUS.enquiries), note: r.note || "" };
     if (kind === "applications") return { ...r, status: statusOf(r.status, STATUS.applications), rating: r.rating || 0, note: r.note || "", files: r.files || [] };
     if (kind === "registrations") return { ...r, status: r.status || "registered", note: r.note || "", source: r.source || "website", answers: Array.isArray(r.answers) ? r.answers : [] };
+    if (kind === "volunteers") return { ...r, status: statusOf(r.status, STATUS.volunteers), note: r.note || "", teams: r.teams || [], days: r.days || [] };
     return r;
   }
   const demoKeyOf = (kind, r) => (kind === "subscribers" ? (typeof r === "string" ? r : r.email) : r.id);
@@ -641,6 +644,17 @@
       list.push(application);
       mustWrite(FORM_KEYS.applications, list);
       return application;
+    },
+    async submitVolunteer(payload) {
+      const list = Store.read(FORM_KEYS.volunteers, []);
+      if (list.some((v) => lower(v.email) === lower(payload.email))) {
+        throw new Error("You've already registered to volunteer with that email. The team will be in touch.");
+      }
+      const at = now();
+      const volunteer = { id: newRef("VOL"), submittedAt: at, signedAt: at, status: "new", note: "", ...payload };
+      list.push(volunteer);
+      mustWrite(FORM_KEYS.volunteers, list);
+      return volunteer;
     },
     async eventCounts() {
       const counts = {};
@@ -739,10 +753,14 @@
       return { id: r.id, eventId: r.event_id, eventName: r.event_name, name: r.name, email: r.email, phone: r.phone || "", answers: Array.isArray(r.answers) ? r.answers : [], status: r.status, checkedIn: r.checked_in, checkedInAt: r.checked_in_at, source: r.source, note: r.note || "", registeredAt: r.registered_at, updatedAt: r.updated_at };
     }
     if (kind === "subscribers") return { email: r.email, source: r.source || "", subscribedAt: r.subscribed_at, unsubscribedAt: r.unsubscribed_at };
+    if (kind === "volunteers") {
+      const d = r.data || {};
+      return { ...d, id: r.id, fullName: r.full_name, email: r.email, phone: r.phone || "", location: r.location || "", teams: d.teams || [], days: d.days || [], signature: r.signature, termsVersion: r.terms_version || "", signedAt: r.signed_at, status: r.status, note: r.note || "", submittedAt: r.submitted_at, updatedAt: r.updated_at, updatedBy: r.updated_by };
+    }
     return r;
   }
   const ROW_FIELDS = { status: "status", note: "note", rating: "rating", checkedIn: "checked_in", checkedInAt: "checked_in_at", unsubscribedAt: "unsubscribed_at" };
-  const ORDER = { enquiries: "submitted_at", applications: "submitted_at", registrations: "registered_at", subscribers: "subscribed_at" };
+  const ORDER = { enquiries: "submitted_at", applications: "submitted_at", registrations: "registered_at", subscribers: "subscribed_at", volunteers: "submitted_at" };
 
   live.forms = {
     async submitEnquiry(payload) {
@@ -776,6 +794,10 @@
     async submitApplication(payload) {
       const r = await rpc("submit_application", { payload });
       return { ...payload, id: r.id, submittedAt: r.submittedAt };
+    },
+    async submitVolunteer(payload) {
+      const r = await rpc("submit_volunteer", { payload });
+      return { ...payload, id: r.id, submittedAt: r.submittedAt, signedAt: r.submittedAt };
     },
     async eventCounts() {
       const rows = await rpc("event_counts", {});
@@ -934,10 +956,12 @@
     async send(kind, id) {
       if (!LIVE || !id) return { sent: false, demo: !LIVE };
       try {
+        // keepalive: it finishes even when the page moves on to its thank-you page.
         const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
           method: "POST",
           headers: { ...publicHeaders(), "Content-Type": "application/json" },
           body: JSON.stringify({ kind, id }),
+          keepalive: true,
         });
         const body = await res.json().catch(() => ({}));
         if (!body.sent && body.reason !== "already sent") console.warn(`[backend] No email for ${kind} ${id}: ${body.reason || `the send-email function answered ${res.status}`}. See supabase/README.md, "Emails".`);

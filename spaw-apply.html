@@ -21,11 +21,16 @@
 
   gtag('config', 'G-MWT8ZM5N43');
 </script>
-<title>Events — Dr AjokeSings</title>
+<title>Apply to the SPAW Talent Quest — Dr AjokeSings</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="description" content="Upcoming events, listening nights, and worship gatherings from Dr AjokeSings.">
+<meta name="description" content="Singers, songwriters, instrumentalists and producers: apply to take the stage at the SPAW Talent Quest with Dr AjokeSings, at Regal Hall, Lagos. Cash prizes and studio time for the top three.">
+<meta property="og:title" content="Apply to the SPAW Talent Quest — Dr AjokeSings">
+<meta property="og:description" content="Singers, songwriters, instrumentalists and producers: apply to take the stage at the SPAW Talent Quest with Dr AjokeSings, at Regal Hall, Lagos. Cash prizes and studio time for the top three.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://dr-ajokesings.com/spaw-apply">
+<meta property="og:image" content="https://dr-ajokesings.com/assets/images/spaw-logo-original.jpeg">
 <meta name="theme-color" content="#0a0908">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -61,9 +66,6 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="cursor" data-cursor aria-hidden="true"></div>
 <div class="cursor__label" data-cursor-label aria-hidden="true"></div>
-<svg style="display:none" aria-hidden="true">
-  <symbol id="icon-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.5" fill="none"/></symbol>
-</svg>
 
 <header class="site-header" data-site-header>
   <div class="wrap">
@@ -75,12 +77,12 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
         <li><a href="media">Media</a></li>
         <li><a href="ministry">Ministry</a></li>
         <li><a href="symphony">Symphony</a></li>
-        <li><a href="events" aria-current="page">Events</a></li>
+        <li><a href="events">Events</a></li>
         <li><a href="about">About</a></li>
       </ul>
     </nav>
     <div class="nav-actions">
-      <a href="contact#booking" class="btn btn-solid" data-magnetic>Book Ministration</a>
+      <a href="#apply" class="btn btn-solid" data-magnetic>Apply Now</a>
       <button class="menu-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -94,17 +96,91 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 </nav>
 
 <main id="main">
-  <section class="page-hero" style="min-height:46svh;" aria-label="Events">
-    <div class="page-hero__media"><img src="assets/images/spaw-duet.webp" alt="" loading="eager"></div>
+  <!-- ============================= PAGE HERO ============================= -->
+  <section class="page-hero page-hero--stage" aria-label="Apply to the Talent Quest">
+    <div class="page-hero__media"><img src="assets/images/spaw-stage-01.webp" alt="Two singers laughing together on the SPAW stage" loading="eager"></div>
     <div class="page-hero__scrim"></div>
     <div class="page-hero__content">
-      <p class="eyebrow page-hero__eyebrow">Calendar</p>
-      <h1 class="page-hero__title display">Where we <em>gather.</em></h1>
+      <p class="eyebrow page-hero__eyebrow">SPAW Talent Quest &middot; Applications</p>
+      <h1 class="page-hero__title display">Come on <em>board.</em></h1>
+      <p class="page-hero__sub">Singers, songwriters, instrumentalists and producers: apply to take the stage at the SPAW Talent Quest with Dr AjokeSings, live at Regal Hall the day before the concert.</p>
+      <p class="apply-hero__prizes" data-apply-prizes></p>
+      <div class="page-hero__meta" data-symphony-dates></div>
+      <div class="page-hero__actions">
+        <a href="#apply" class="btn btn-solid btn-quest" data-magnetic data-cta="Talent Quest: apply (application page top)">Start your application</a>
+        <a href="symphony#quest" class="btn btn-line" data-magnetic>About the Talent Quest</a>
+      </div>
     </div>
   </section>
 
-  <section class="section section--light" aria-label="Upcoming events">
-    <div class="wrap" data-events-full-list></div>
+  <section class="section" id="apply" aria-label="The application">
+    <div class="wrap" style="max-width: 760px;">
+      <p class="eyebrow" style="margin-bottom: var(--space-s);">Talent Quest application</p>
+      <h2 class="display" style="font-size: var(--step-3); margin-bottom: var(--space-l);">Tell us who you are.</h2>
+      <p style="color: var(--gray-on-dark); max-width: 52ch; margin-top: calc(var(--space-l) * -1 + var(--space-s)); margin-bottom: var(--space-l);">Come on board: applications are open until 1 November. The Talent Quest takes place on Friday 27 November at Regal Hall, Daystar Christian Center, Oregun, Ikeja, and every applicant hears back either way.</p>
+
+      <form data-application-form novalidate>
+        <p class="form-error-banner" data-form-error role="alert"></p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="app-name">Full name *</label>
+            <input type="text" id="app-name" name="fullName" autocomplete="name">
+            <p class="field-error" data-field-error="fullName"></p>
+          </div>
+          <div class="field">
+            <label for="app-email">Email *</label>
+            <input type="email" id="app-email" name="email" autocomplete="email">
+            <p class="field-error" data-field-error="email"></p>
+          </div>
+          <!-- Phone with its country code, gender, state and country, and age
+               category: drawn by talent.js (form-fields.js). -->
+          <div class="field field--full" data-app-question="phone"></div>
+          <div class="field" data-app-question="gender"></div>
+          <div class="field" data-app-question="age"></div>
+          <div class="field field--full" data-app-question="location"></div>
+          <div class="field field--full">
+            <label for="app-track">Track *</label>
+            <select id="app-track" name="track" data-track-select><option value="">Select a track</option></select>
+            <p class="field-error" data-field-error="track"></p>
+          </div>
+          <div class="field field--full">
+            <label for="app-bio">Tell us about yourself *</label>
+            <textarea id="app-bio" name="bio" placeholder="Your story, your sound, and why Symphony now."></textarea>
+            <p class="field-error" data-field-error="bio"></p>
+          </div>
+          <div class="field field--full">
+            <label for="app-youtube">Your entry on YouTube *</label>
+            <input type="url" id="app-youtube" name="youtube" placeholder="https://www.youtube.com/watch?v=…" inputmode="url" autocomplete="off">
+            <p class="field-hint">A song or a performance of yours. Put it on YouTube (unlisted is fine, as long as the link works) and paste the link here.</p>
+            <p class="field-error" data-field-error="youtube"></p>
+          </div>
+
+          <div class="field">
+            <label for="app-social">Social link</label>
+            <input type="url" id="app-social" name="socialLink" placeholder="https://instagram.com/you">
+          </div>
+          <div class="field">
+            <label for="app-project">Anything else of yours</label>
+            <input type="url" id="app-project" name="projectLink" placeholder="https://open.spotify.com/…">
+          </div>
+
+          <div class="field field--full">
+            <div class="checkbox-field">
+              <input type="checkbox" id="app-terms">
+              <label for="app-terms" data-symphony-terms>Loading terms&hellip;</label>
+            </div>
+            <p class="field-error" data-field-error="terms"></p>
+          </div>
+        </div>
+
+        <div class="form-submit-row">
+          <button type="submit" class="btn btn-solid">Submit application</button>
+          <p class="field-hint">We'll email you within two weeks of the application deadline.</p>
+        </div>
+        <p class="form-disclaimer" data-quest-disclaimer><strong>Disclaimer:</strong> Contestants are responsible for their logistics to and from the event. DrAjokesings Productions Limited bears no responsibility for transportation or related costs.</p>
+      </form>
+    </div>
   </section>
 </main>
 
@@ -130,8 +206,7 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 <script src="js/consent.js" defer></script>
 <script src="js/app.js" defer></script>
 <script src="js/form-fields.js" defer></script>
-<script src="js/register.js" defer></script>
-<script src="js/events.js" defer></script>
+<script src="js/talent.js" defer></script>
 <script src="js/animations.js" defer></script>
 </body>
 </html>

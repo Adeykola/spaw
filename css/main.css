@@ -360,27 +360,9 @@ p { text-wrap: pretty; }
 .confirm-screen__body { color: var(--gray-on-dark); margin-top: var(--space-s); max-width: 48ch; }
 .section--light .confirm-screen__body { color: var(--gray-on-light); }
 .confirm-screen__id { font-family: var(--font-display); font-style: italic; font-size: var(--step-2); color: var(--red-bright); margin-top: var(--space-m); }
-.confirm-screen__qr { background: var(--paper); padding: var(--space-m); display: inline-block; margin-top: var(--space-l); }
 .confirm-screen__actions { display: flex; gap: var(--space-m); margin-top: var(--space-l); flex-wrap: wrap; }
 
-/* ---- The registration form (register.js), over any page ---- */
-.video-modal.reg-modal { display: block; overflow-y: auto; overscroll-behavior: contain; padding: 4vh var(--space-s); }
-.reg-modal__panel { position: relative; width: min(560px, 100%); margin: 0 auto; padding: var(--space-l); box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8); }
-.reg-modal__close {
-  position: absolute; top: 0.5rem; right: 0.5rem;
-  width: 2.75rem; height: 2.75rem;
-  display: grid; place-items: center;
-  font-size: 1.7rem; line-height: 1; color: var(--ink);
-}
-.reg-modal__meta { margin-top: var(--space-2xs); padding-right: 2rem; }
-.reg-modal form > .eyebrow { padding-right: 2.5rem; }
-.reg-modal .form-error-banner { margin-top: var(--space-s); }
-.reg-modal__fields { display: grid; gap: var(--space-s); margin-block: var(--space-m); }
-.reg-modal__submit { width: 100%; justify-content: center; }
-.reg-modal .btn-line { --btn-fg: var(--ink); }
-.reg-modal__emailed { margin-top: var(--space-2xs); font-size: var(--step--1); font-weight: 600; color: #1f7a45; }
-
-/* The WhatsApp channel, after registering or applying, and on the ticket page. */
+/* The WhatsApp channel, on the thank-you pages and the ticket page. */
 .whatsapp-cta {
   margin-top: var(--space-l);
   padding: var(--space-s) var(--space-s) var(--space-s) calc(var(--space-s) + 2px);
@@ -413,13 +395,6 @@ p { text-wrap: pretty; }
 .form-disclaimer strong { color: var(--paper); }
 .section--light .form-disclaimer { border-color: var(--paper-line); color: var(--gray-on-light); }
 .section--light .form-disclaimer strong { color: var(--ink); }
-.reg-modal .confirm-screen__title { font-size: var(--step-2); }
-.reg-modal .confirm-screen__id { font-size: var(--step-0); }
-.reg-modal .confirm-screen__qr { border: 1px solid var(--paper-line); }
-@media (max-width: 560px) {
-  .video-modal.reg-modal { padding: var(--space-2xs); }
-  .reg-modal__panel { padding: var(--space-m) var(--space-s); }
-}
 
 /* ---- The Talent Quest's call to apply ----
    Every button asking people to apply to the Talent Quest (.btn-quest)

@@ -1,121 +1,48 @@
 /**
  * register.js
  * ----------------------------------------------------------------------
- * Event registration, wherever a Register button is: the Events page, the
- * homepage's concert slide and its "See more" sheet, the Symphony page.
- *
- *   EventRegister.open(eventOrId)  opens the form over the page
- *   <a data-register-event="event-004">  a button that opens it (its href
- *     stays as the way in without JavaScript); "symphony-concert" means the
- *     event chosen for the concert in admin → Symphony
+ * Event registration. Every event has a registration page of its own,
+ *   register?event=event-004
+ * and every Register button on the site is a link to it:
+ *   <a data-register-event="event-004">  its href becomes the event's
+ *     page; "symphony-concert" means the event chosen for the concert in
+ *     admin → Symphony
  *   <span data-register-status="…">  shows "Sold out" or "Registration
  *     closed" once the event stops taking registrations
+ * Once an event is sold out or registration has closed, its buttons are
+ * disabled and say why.
  *
- * The form asks for a name, an email and (unless the event says not to) a
- * phone number with its country code, then the event's own questions
- * (admin → Events → Registration form). Once an event is sold out or
- * registration has closed, its buttons are disabled and say so.
+ * register.html asks for a name, an email and (unless the event says not
+ * to) a phone number with its country code, then the event's own
+ * questions (admin → Events → Registration form). Sent, it goes on to the
+ * event's thank-you page, register-thank-you?event=event-004: the ticket
+ * (QR code, download, calendar file) or, for an event without tickets, a
+ * confirmation. The Talent Quest takes applications, not registrations:
+ * its page sends people to apply.
  * ----------------------------------------------------------------------
  */
 (() => {
   "use strict";
   const { make } = window.FormFields;
-
-  let modal = null;
-  let parts = null;
-  let current = null;
-  let rendered = [];
-  let opener = null;
+  const params = new URLSearchParams(location.search);
 
   const resolveId = (value) => {
     if (value === "symphony-concert") return (window.DB && DB.symphony && DB.symphony.concert && DB.symphony.concert.eventId) || "";
     return value || "";
   };
+  const pageOf = (id) => `register?event=${encodeURIComponent(id)}`;
+  const doneOf = (id) => `register-thank-you?event=${encodeURIComponent(id)}`;
 
-  function whenText(e) {
-    const day = new Date(`${e.date}T${e.time || "00:00"}:00`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-    return [e.time ? `${day}, ${e.time}` : day, [e.venue, e.city].filter(Boolean).join(", ")].filter(Boolean).join(" · ");
+  function dayText(e) {
+    const day = (d) => new Date(`${d}T00:00:00`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    const days = e.endDate && e.endDate !== e.date ? `${day(e.date)} – ${day(e.endDate)}` : day(e.date);
+    return e.time ? `${days} · ${e.time}${e.endTime ? `–${e.endTime}` : ""}` : `${days} · time to be announced`;
   }
-
-  function build() {
-    if (modal) return;
-    const close = make("button", { class: "reg-modal__close", type: "button", "aria-label": "Close", text: "×" });
-    const name = make("p", { class: "eyebrow", id: "reg-modal-title" });
-    const meta = make("p", { class: "field-hint reg-modal__meta" });
-    const error = make("p", { class: "form-error-banner", role: "alert" });
-    const fields = make("div", { class: "reg-modal__fields" });
-    const submit = make("button", { type: "submit", class: "btn btn-solid reg-modal__submit", text: "Confirm registration" });
-    const form = make("form", { novalidate: true }, [name, meta, error, fields, submit]);
-
-    const title = make("h2", { class: "confirm-screen__title display", text: "You're registered." });
-    const body = make("p", { class: "confirm-screen__body" });
-    const qr = make("div", { class: "confirm-screen__qr" });
-    const regId = make("span");
-    const idLine = make("p", { class: "confirm-screen__id" }, ["Ticket ID: ", regId]);
-    const emailed = make("p", { class: "reg-modal__emailed", role: "status", hidden: true });
-    const saveTicket = make("button", { type: "button", class: "btn btn-solid", text: "Download your ticket", "data-cta": "Download ticket (after registering)" });
-    const ics = make("button", { type: "button", class: "btn btn-line", text: "Add to calendar" });
-    const done = make("button", { type: "button", class: "btn btn-line", text: "Done" });
-    const confirm = make("div", { class: "reg-modal__confirm", hidden: true }, [
-      make("div", { class: "confirm-screen__icon" }, [svgTick()]),
-      title, body, qr, idLine, emailed,
-      make("div", { class: "confirm-screen__actions" }, [saveTicket, ics, done]),
-      whatsappBlock("after registering"),
-    ]);
-
-    modal = make("div", { class: "video-modal reg-modal", "data-register-modal": "", hidden: true, role: "dialog", "aria-modal": "true", "aria-labelledby": "reg-modal-title" }, [
-      make("div", { class: "reg-modal__panel section--light" }, [close, form, confirm]),
-    ]);
-    document.body.append(modal);
-    parts = { form, name, meta, error, fields, submit, confirm, title, body, qr, regId, idLine, emailed, saveTicket, ics, done };
-
-    [close, done].forEach((b) => b.addEventListener("click", hide));
-    modal.addEventListener("click", (e) => { if (e.target === modal) hide(); });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("is-open")) hide(); });
-    form.addEventListener("submit", send);
-  }
-
-  // The WhatsApp channel, for everyone who has just registered.
-  function whatsappBlock(where) {
-    const url = (window.DB && DB.siteSettings && DB.siteSettings.whatsappChannel) || "https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e";
-    return make("div", { class: "whatsapp-cta" }, [
-      make("p", { class: "whatsapp-cta__title", text: "Join us on WhatsApp" }),
-      make("p", { class: "whatsapp-cta__text", text: "Follow the Dr AjokeSings WhatsApp channel for event reminders, updates and news before anyone else." }),
-      make("a", { class: "whatsapp-cta__link", href: url, target: "_blank", rel: "noopener", text: "Join the WhatsApp channel", "data-cta": `WhatsApp channel (${where})` }),
-    ]);
-  }
-
-  function svgTick() {
-    const ns = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(ns, "svg");
-    svg.setAttribute("width", "20");
-    svg.setAttribute("height", "20");
-    svg.setAttribute("viewBox", "0 0 24 24");
-    svg.setAttribute("aria-hidden", "true");
-    const path = document.createElementNS(ns, "path");
-    path.setAttribute("d", "M5 12l5 5L19 7");
-    path.setAttribute("stroke", "var(--red)");
-    path.setAttribute("stroke-width", "2");
-    path.setAttribute("fill", "none");
-    svg.append(path);
-    return svg;
-  }
-
-  function show() {
-    modal.hidden = false;
-    // A frame later, so the fade-in runs.
-    requestAnimationFrame(() => modal.classList.add("is-open"));
-    document.body.classList.add("no-scroll");
-    document.dispatchEvent(new CustomEvent("register:open"));
-  }
-
-  function hide() {
-    if (!modal || !modal.classList.contains("is-open")) return;
-    modal.classList.remove("is-open");
-    document.body.classList.remove("no-scroll");
-    setTimeout(() => { modal.hidden = true; }, 250);
-    document.dispatchEvent(new CustomEvent("register:close"));
-    if (opener && document.contains(opener) && typeof opener.focus === "function") opener.focus();
+  const placeText = (e) => [e.venue, e.address, e.city].filter(Boolean).join(", ");
+  function admissionText(e) {
+    if (e.admission === "ticketed") return e.price ? `Tickets: ${e.price}` : "Ticketed";
+    if (e.admission === "free") return e.price || "Free entry";
+    return e.price || "";
   }
 
   // The questions, in order: who they are, then the event's own.
@@ -130,133 +57,7 @@
     return [...base, ...extra];
   }
 
-  async function open(target, from) {
-    if (typeof api === "undefined") return;
-    build();
-    opener = from || document.activeElement;
-    let e = target && typeof target === "object" ? target : null;
-
-    parts.form.hidden = false;
-    parts.confirm.hidden = true;
-    parts.error.textContent = "";
-    parts.fields.replaceChildren();
-    parts.name.textContent = e ? e.name : "Loading the event…";
-    parts.meta.textContent = e ? whenText(e) : "";
-    parts.submit.disabled = true;
-    show();
-
-    if (!e) {
-      try {
-        e = await api.getEventById(resolveId(String(target)));
-      } catch (err) {
-        parts.name.textContent = "Registration";
-        parts.error.textContent = err.message || "That event couldn't be found.";
-        return;
-      }
-    }
-    current = e;
-    if (window.Track) Track.event("register_open", { label: e.name, props: { id: e.id } });
-    parts.name.textContent = e.name;
-    parts.meta.textContent = whenText(e);
-
-    rendered = questionsFor(e).map((q) => FormFields.render(q, { prefix: "reg" }));
-    parts.fields.replaceChildren(...rendered.map((r) => r.node));
-
-    const state = api.eventState(e);
-    parts.submit.textContent = state.open ? "Confirm registration" : state.label;
-    parts.submit.disabled = !state.open;
-    if (!state.open) {
-      parts.error.textContent = state.reason;
-      rendered.forEach((r) => r.disable(true));
-      return;
-    }
-    // Not on a phone: the keyboard would cover the form as it opens.
-    if (!window.matchMedia("(max-width: 700px)").matches) setTimeout(() => rendered[0] && rendered[0].focus(), 60);
-  }
-
-  async function send(ev) {
-    ev.preventDefault();
-    if (!current) return;
-    parts.error.textContent = "";
-    const problems = rendered.filter((r) => r.check());
-    if (problems.length) {
-      problems[0].focus();
-      parts.error.textContent = problems.length === 1 ? "One answer needs another look." : `${problems.length} answers need another look.`;
-      return;
-    }
-    const byId = (id) => rendered.find((r) => r.question.id === id);
-    const attendee = {
-      name: byId("name").read(),
-      email: byId("email").read(),
-      phone: byId("phone") ? byId("phone").read() : "",
-      answers: FormFields.answersOf(rendered.filter((r) => !["name", "email", "phone"].includes(r.question.id))),
-    };
-
-    const label = parts.submit.textContent;
-    parts.submit.disabled = true;
-    parts.submit.textContent = "Registering…";
-    try {
-      const registration = await api.registerForEvent(current.id, attendee);
-      confirmed(registration);
-      markButtons();
-    } catch (err) {
-      parts.error.textContent = err.message || "Something went wrong. Please try again.";
-    } finally {
-      parts.submit.disabled = false;
-      parts.submit.textContent = label;
-    }
-  }
-
-  function confirmed(registration) {
-    const e = current;
-    // Events that send tickets (admin → Events → "Send a ticket") show the
-    // QR code and the ticket to download; the others just confirm.
-    const withTicket = e.ticketRequired !== false;
-    parts.form.hidden = true;
-    parts.confirm.hidden = false;
-    parts.title.textContent = withTicket ? "You're registered. Here's your ticket." : "You're registered.";
-    parts.body.textContent = withTicket
-      ? `See you there, ${registration.name}. Show this QR code at the door, or download your ticket to keep it on your phone.`
-      : `See you there, ${registration.name}. Your place is confirmed.`;
-    parts.idLine.firstChild.textContent = withTicket ? "Ticket ID: " : "Reference: ";
-    parts.regId.textContent = registration.id;
-    parts.qr.hidden = !withTicket;
-    parts.saveTicket.hidden = !withTicket || !window.Ticket;
-    parts.qr.replaceChildren();
-    if (withTicket && typeof QRCode !== "undefined") {
-      new QRCode(parts.qr, { text: registration.id, width: 148, height: 148, colorDark: "#0a0908", colorLight: "#faf7f2" });
-    } else if (withTicket) {
-      parts.qr.replaceChildren(make("p", { class: "state-msg", text: `Show ID ${registration.id} at check-in.` }));
-    }
-    parts.saveTicket.onclick = async () => {
-      parts.saveTicket.disabled = true;
-      parts.saveTicket.textContent = "Preparing your ticket…";
-      try { await Ticket.download({ id: registration.id, name: registration.name, event: e }); } finally {
-        parts.saveTicket.disabled = false;
-        parts.saveTicket.textContent = "Download your ticket";
-      }
-    };
-    // Once the email has gone (live, with emails set up), say so.
-    parts.emailed.hidden = true;
-    if (registration.emailing && typeof registration.emailing.then === "function") {
-      registration.emailing.then((r) => {
-        if (!r || !r.sent || parts.confirm.hidden) return;
-        parts.emailed.textContent = withTicket ? `We've also emailed your ticket to ${registration.email}.` : `We've emailed a confirmation to ${registration.email}.`;
-        parts.emailed.hidden = false;
-      });
-    }
-    parts.ics.onclick = () => {
-      const url = URL.createObjectURL(new Blob([calendarFile(e, registration)], { type: "text/calendar" }));
-      const a = make("a", { href: url, download: `${e.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.ics` });
-      document.body.append(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    };
-    (parts.saveTicket.hidden ? parts.done : parts.saveTicket).focus();
-  }
-
-  function calendarFile(event, registration) {
+  function calendarFile(event, id) {
     const fmt = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
     // No announced time yet: an all-day entry rather than an invented start.
     let when;
@@ -273,33 +74,202 @@
     }
     return [
       "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//DrAjokeSings//Events//EN", "BEGIN:VEVENT",
-      `UID:${registration.id}@dr-ajokesings.com`, `DTSTAMP:${fmt(new Date())}`, ...when,
-      `SUMMARY:${event.name}`, `LOCATION:${[event.venue, event.address, event.city].filter(Boolean).join(", ")}`,
+      `UID:${id}@dr-ajokesings.com`, `DTSTAMP:${fmt(new Date())}`, ...when,
+      `SUMMARY:${event.name}`, `LOCATION:${placeText(event)}`,
       `DESCRIPTION:${event.description || ""}`, "END:VEVENT", "END:VCALENDAR",
     ].join("\r\n");
   }
+  function saveCalendar(event, id) {
+    const url = URL.createObjectURL(new Blob([calendarFile(event, id)], { type: "text/calendar" }));
+    const a = make("a", { href: url, download: `${event.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.ics` });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
 
-  /* ---- Register buttons ---------------------------------------------- */
+  // The event at the top of its page (and its thank-you page).
+  function showEvent(root, e) {
+    const set = (sel, text) => { const n = root.querySelector(sel); if (n) { n.textContent = text; n.hidden = !text; } };
+    set("[data-reg-name]", e.name);
+    set("[data-reg-when]", dayText(e));
+    set("[data-reg-where]", placeText(e));
+    set("[data-reg-admission]", admissionText(e));
+    set("[data-reg-desc]", e.description || "");
+    const img = root.querySelector("[data-reg-image]");
+    if (img && e.image) img.src = e.image;
+  }
+
+  /* ---- register?event=… ------------------------------------------------ */
+  async function registerPage(root) {
+    const form = root.querySelector("[data-register-form]");
+    const fields = form.querySelector("[data-reg-fields]");
+    const banner = form.querySelector("[data-form-error]");
+    const submit = form.querySelector("button[type='submit']");
+    const note = form.querySelector("[data-reg-note]");
+    const other = root.querySelector("[data-reg-other]");
+    const id = resolveId(String(params.get("event") || "").trim());
+
+    // No event, or one that isn't on the site: the events taking registrations.
+    const chooser = async (message) => {
+      form.hidden = true;
+      other.hidden = false;
+      other.querySelector("[data-reg-other-note]").textContent = message;
+      const list = other.querySelector("[data-reg-other-list]");
+      try {
+        const open = (await api.getAllEvents()).filter((e) => api.eventState(e).open && !api.isTalentQuest(e));
+        list.replaceChildren(...open.map((e) => make("li", {}, [make("a", { href: pageOf(e.id), text: e.name }), make("span", { text: ` · ${dayText(e)}` })])));
+        if (!open.length) list.replaceChildren(make("li", { text: "No events are taking registrations just now." }));
+      } catch (_) { list.replaceChildren(); }
+    };
+    if (!id) { await chooser("Choose the event you'd like to register for."); return; }
+    let e;
+    try { e = await api.getEventById(id); } catch (_) { await chooser("That event isn't on the site any more. These are taking registrations:"); return; }
+
+    showEvent(root, e);
+    document.title = `Register: ${e.name} — Dr AjokeSings`;
+
+    // The Talent Quest: apply, don't register.
+    if (api.isTalentQuest(e)) {
+      form.hidden = true;
+      const box = root.querySelector("[data-reg-quest]");
+      box.hidden = false;
+      if (!api.applicationsOpen()) {
+        const a = box.querySelector("a");
+        a.classList.remove("btn-quest");
+        a.href = "symphony#quest";
+        a.textContent = "About the Talent Quest";
+      }
+      return;
+    }
+
+    if (window.Track) Track.event("register_open", { label: e.name, props: { id: e.id } });
+    const rendered = questionsFor(e).map((q) => FormFields.render(q, { prefix: "reg" }));
+    fields.replaceChildren(...rendered.map((r) => r.node));
+    const withTicket = e.ticketRequired !== false;
+    note.textContent = withTicket
+      ? "You'll get your ticket straight away, with a QR code to show at the door."
+      : "You'll get a confirmation straight away.";
+
+    const state = api.eventState(e);
+    if (!state.open) {
+      submit.textContent = state.label;
+      submit.disabled = true;
+      banner.textContent = state.reason;
+      rendered.forEach((r) => r.disable(true));
+      return;
+    }
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      banner.textContent = "";
+      const problems = rendered.filter((r) => r.check());
+      if (problems.length) {
+        problems[0].focus();
+        banner.textContent = problems.length === 1 ? "One answer needs another look." : `${problems.length} answers need another look.`;
+        return;
+      }
+      const byId = (qid) => rendered.find((r) => r.question.id === qid);
+      const attendee = {
+        name: byId("name").read(),
+        email: byId("email").read(),
+        phone: byId("phone") ? byId("phone").read() : "",
+        answers: FormFields.answersOf(rendered.filter((r) => !["name", "email", "phone"].includes(r.question.id))),
+      };
+      const label = submit.textContent;
+      submit.disabled = true;
+      submit.textContent = "Registering…";
+      try {
+        const reg = await api.registerForEvent(e.id, attendee);
+        FormDone.go("registrations", e.id, { id: reg.id, name: reg.name, email: reg.email, eventId: e.id, eventName: e.name }, doneOf(e.id));
+      } catch (err) {
+        banner.textContent = err.message || "Something went wrong. Please try again.";
+        submit.disabled = false;
+        submit.textContent = label;
+      }
+    });
+  }
+
+  /* ---- register-thank-you?event=… -------------------------------------- */
+  async function thankYouPage(root) {
+    const eventId = String(params.get("event") || "").trim();
+    const reg = FormDone.read("registrations", eventId);
+    const $ = (sel) => root.querySelector(sel);
+    let e = null;
+    try { e = eventId ? await api.getEventById(eventId) : null; } catch (_) { e = null; }
+    if (e) showEvent(root, e);
+    const withTicket = !e || e.ticketRequired !== false;
+
+    // Counted once, as it happens: the Meta Pixel's Lead.
+    if (reg && FormDone.first("registrations", eventId)) api._lead("Event registration", reg.eventName || (e && e.name) || "", reg.id);
+
+    $("[data-done-title]").textContent = reg && withTicket ? "You're registered. Here's your ticket." : "You're registered.";
+    if (!reg) {
+      // Opened some other way than straight after registering.
+      $("[data-done-body]").textContent = "Thank you for registering. Your ticket, or your confirmation, is in your email.";
+      $("[data-done-ticket]").hidden = true;
+      $("[data-done-download]").hidden = true;
+      $("[data-done-id]").hidden = true;
+      $("[data-done-ticket-note]").hidden = true;
+    } else {
+      $("[data-done-body]").textContent = withTicket
+        ? `See you there, ${reg.name}. Show the QR code at the door, or download your ticket to keep it on your phone.`
+        : `See you there, ${reg.name}. Your place is confirmed.`;
+      $("[data-done-id]").textContent = `${withTicket ? "Ticket ID" : "Reference"}: ${reg.id}`;
+      const figure = $("[data-done-ticket]");
+      const save = $("[data-done-download]");
+      if (withTicket && window.Ticket) {
+        const data = { id: reg.id, name: reg.name, event: e || { name: reg.eventName || "Your event" } };
+        try {
+          const img = figure.querySelector("img");
+          img.src = (await Ticket.draw(data)).toDataURL("image/png");
+          img.alt = `Ticket ${reg.id} for ${data.event.name}, ${reg.name}`;
+          img.hidden = false;
+          figure.querySelector("[data-done-ticket-status]").hidden = true;
+          save.addEventListener("click", async () => {
+            save.disabled = true;
+            save.textContent = "Preparing your ticket…";
+            try { await Ticket.download(data); } finally { save.disabled = false; save.textContent = "Download your ticket"; }
+          });
+        } catch (err) {
+          console.error("[register] couldn't draw the ticket", err);
+          figure.querySelector("[data-done-ticket-status]").textContent = `Your ticket ID is ${reg.id}. Show it at the door.`;
+          save.hidden = true;
+        }
+      } else {
+        figure.hidden = true;
+        save.hidden = true;
+        $("[data-done-ticket-note]").hidden = true;
+      }
+      FormDone.emailed("registrations", eventId).then((sent) => {
+        if (!sent) return;
+        const line = $("[data-done-emailed]");
+        line.textContent = withTicket ? `We've also emailed your ticket to ${reg.email}.` : `We've emailed a confirmation to ${reg.email}.`;
+        line.hidden = false;
+      });
+    }
+    const cal = $("[data-done-calendar]");
+    if (e) cal.addEventListener("click", () => saveCalendar(e, reg ? reg.id : e.id));
+    else cal.hidden = true;
+    const back = $("[data-done-event]");
+    back.href = e ? `events?id=${encodeURIComponent(e.id)}` : "events";
+  }
+
+  /* ---- Register buttons ------------------------------------------------ */
   document.addEventListener("click", (e) => {
     const b = e.target.closest && e.target.closest("[data-register-event]");
-    if (!b) return;
-    if (b.getAttribute("aria-disabled") === "true") { e.preventDefault(); return; }
-    const id = resolveId(b.dataset.registerEvent);
-    if (!id || typeof api === "undefined") return; // the link still goes to the Events page
-    e.preventDefault();
-    // A "See more" sheet sits above everything else: it steps aside first.
-    const sheet = b.closest("dialog[open]");
-    if (sheet) sheet.close();
-    open(id, b);
+    if (b && b.getAttribute("aria-disabled") === "true") e.preventDefault();
   });
 
-  // Buttons for an event that has stopped taking registrations are disabled
-  // and say why, with a line underneath.
+  // Each button goes to its event's page; one for an event that has
+  // stopped taking registrations is disabled and says why, with a line
+  // underneath.
   async function markButtons() {
     const buttons = [...document.querySelectorAll("[data-register-event]")];
     const labels = [...document.querySelectorAll("[data-register-status]")];
     if (!buttons.length && !labels.length) return;
     try { await window.ContentReady; } catch (_) { /* the built-in events */ }
+    buttons.forEach((b) => { const id = resolveId(b.dataset.registerEvent); if (id) b.setAttribute("href", pageOf(id)); });
     const ids = [...new Set([...buttons.map((b) => b.dataset.registerEvent), ...labels.map((l) => l.dataset.registerStatus)].map(resolveId).filter(Boolean))];
     for (const id of ids) {
       let e;
@@ -314,15 +284,22 @@
         const next = b.nextElementSibling;
         if (next && next.matches("[data-register-note]")) next.textContent = state.reason;
         else {
-          const note = make("p", { class: "register-note", "data-register-note": "", text: state.reason });
-          if (b.hasAttribute("data-hero-anim")) note.setAttribute("data-hero-anim", b.getAttribute("data-hero-anim"));
-          b.after(note);
+          const n = make("p", { class: "register-note", "data-register-note": "", text: state.reason });
+          if (b.hasAttribute("data-hero-anim")) n.setAttribute("data-hero-anim", b.getAttribute("data-hero-anim"));
+          b.after(n);
         }
       });
       labels.filter((l) => resolveId(l.dataset.registerStatus) === id).forEach((l) => { l.textContent = state.label; });
     }
   }
 
-  document.addEventListener("DOMContentLoaded", markButtons);
-  window.EventRegister = { open, close: hide, refresh: markButtons };
+  document.addEventListener("DOMContentLoaded", () => {
+    markButtons();
+    const page = document.querySelector("[data-register-page]");
+    if (page) registerPage(page);
+    const done = document.querySelector("[data-register-done]");
+    if (done) thankYouPage(done);
+    if ((page || done) && typeof wireYear === "function") wireYear();
+  });
+  window.EventRegister = { page: pageOf, refresh: markButtons };
 })();

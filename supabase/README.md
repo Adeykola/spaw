@@ -14,11 +14,11 @@ Supabase's free plan is enough to start. Nothing here needs a server of your own
 
 1. Open [`setup.sql`](setup.sql) and, at the very bottom, replace `owner@example.com` and `Owner name` with the email address and name of the site's Owner.
 2. In Supabase, open **SQL Editor → New query**, paste the whole file, and press **Run**. It should finish with "Success. No rows returned".
-3. Do the same with [`setup-2.sql`](setup-2.sql), then [`setup-3.sql`](setup-3.sql), then [`setup-4.sql`](setup-4.sql). There's nothing to change in any of them.
+3. Do the same with [`setup-2.sql`](setup-2.sql), then [`setup-3.sql`](setup-3.sql), then [`setup-4.sql`](setup-4.sql), then [`setup-5.sql`](setup-5.sql). There's nothing to change in any of them.
 
-`setup.sql` creates the tables for content, drafts, history, people and the activity log; the security rules that decide who can do what; and a public `media` folder for uploads. `setup-2.sql` adds the inbox: contact and booking enquiries, Talent Quest applications (their entry is a YouTube link), event registrations and check-in, and the newsletter list. `setup-3.sql` adds the analytics (anonymous visits and what happens in them, and the report the admin reads) and campaign links. `setup-4.sql` adds event registration and the Talent Quest application as they are now: registration that follows an event's status, closing date and places (stopping once it's sold out) and keeps the answers to the event's own registration questions, and applications that keep gender, age category, state and country and the entry’s YouTube link. Running any of them again later is safe.
+`setup.sql` creates the tables for content, drafts, history, people and the activity log; the security rules that decide who can do what; and a public `media` folder for uploads. `setup-2.sql` adds the inbox: contact and booking enquiries, Talent Quest applications (their entry is a YouTube link), event registrations and check-in, and the newsletter list. `setup-3.sql` adds the analytics (anonymous visits and what happens in them, and the report the admin reads) and campaign links. `setup-4.sql` adds event registration and the Talent Quest application as they are now: registration that follows an event's status, closing date and places (stopping once it's sold out) and keeps the answers to the event's own registration questions, and applications that keep gender, age category, state and country and the entry’s YouTube link. `setup-5.sql` adds the volunteers who sign up at `/spaw-volunteer`, each with the name they typed to sign the volunteer terms, and when. Running any of them again later is safe.
 
-**Set up before a part existed?** Run the parts you haven't yet, in order. Until `setup-2.sql` has run, the website's forms can't save anything; until `setup-3.sql` has, visits aren't counted and the Analytics screen says so; until `setup-4.sql` has, registrations are saved without the answers to the event's own questions, and applications without gender, age category, state and country.
+**Set up before a part existed?** Run the parts you haven't yet, in order. Until `setup-2.sql` has run, the website's forms can't save anything; until `setup-3.sql` has, visits aren't counted and the Analytics screen says so; until `setup-4.sql` has, registrations are saved without the answers to the event's own questions, and applications without gender, age category, state and country; until `setup-5.sql` has, the volunteer sign-up page can't send (Inbox → Volunteers says so).
 
 ## 3. Sign-in settings
 
@@ -61,6 +61,7 @@ Everyone who sends a form on the site gets an email straight away, from `hello@d
 | --- | --- |
 | Event registration | **Their ticket**: the QR code to show at the door, the event's date, time and venue, and a button to the ticket page, where the designed ticket downloads to their phone. For an event with **Send a ticket** unticked (admin → Events), a confirmation instead. |
 | Talent Quest application | "Your application is in": their details, what happens next, and the travel disclaimer |
+| Volunteer sign-up | "Thank you for signing up to serve": their teams and days, their signature, what happens next, and a link to the terms they signed |
 | Contact message | "Thank you for your message", with their reference |
 | Booking request | "We've got your booking request", with the date and details they gave |
 | Newsletter | A welcome |
@@ -81,7 +82,7 @@ The emails are written and sent by a small program in Supabase, [`functions/send
    | `SITE_URL` | `https://dr-ajokesings.com` |
 
 4. **The database.** Run [`setup-4.sql`](setup-4.sql) (again, if it has run before): it adds the column that makes sure each form gets one email.
-5. **Try it.** Register for an event on the website with your own address. The success screen says "We've also emailed your ticket to …" once it has gone. If no email comes, **Edge Functions → send-email → Logs** says why, and so does the browser's console.
+5. **Try it.** Register for an event on the website with your own address. The thank-you page it goes on to says "We've also emailed your ticket to …" once it has gone. If no email comes, **Edge Functions → send-email → Logs** says why, and so does the browser's console.
 
 Until this is set up the site works as before, without the emails. The ticket email's details (date, venue) come from the events as published from the admin; publish the events list once so every event's details are there (the SPAW Global Concert's come from the Symphony page's settings either way).
 
@@ -110,6 +111,7 @@ The database enforces this on every request, whatever a browser sends. Visitors 
 | `enquiries` | Contact messages and booking requests, with their status and the team's notes |
 | `applications` | Talent Quest applications: details, the entry’s YouTube link, stage, rating, notes |
 | `registrations` | Event registrations: ticket ID, check-in time, cancelled or not |
+| `volunteers` | SPAW volunteers: details, teams, days, emergency contact, the signature and the version of the terms signed, status, notes |
 | `subscribers` | The newsletter list |
 | storage bucket `media` | Uploaded pictures and files (public) |
 | storage bucket `applications` | Samples from applications sent before entries became YouTube links (private) |
@@ -117,4 +119,4 @@ The database enforces this on every request, whatever a browser sends. Visitors 
 | `analytics_events` | What happened in each visit: page views, time and scroll, taps, plays, searches, sign-up steps, speed, errors |
 | `campaign_links` | The campaign links and flyer QR codes the team has made |
 
-Visitors never read the inbox or analytics tables. The forms send through database functions (`submit_enquiry`, `register_for_event`, `submit_application`, `subscribe`) that check the details first; registration also checks the event is shown, going ahead, open, not past its closing date, and has room. Visits arrive through `track()`, which keeps only the events it knows and drops a visit that sends far more than a person could; the admin reads them through `analytics_report()` and `analytics_live()`, which answer only people on the admin list. Visits older than 25 months are cleared away by themselves.
+Visitors never read the inbox or analytics tables. The forms send through database functions (`submit_enquiry`, `register_for_event`, `submit_application`, `submit_volunteer`, `subscribe`) that check the details first; registration also checks the event is shown, going ahead, open, not past its closing date, and has room. Visits arrive through `track()`, which keeps only the events it knows and drops a visit that sends far more than a person could; the admin reads them through `analytics_report()` and `analytics_live()`, which answer only people on the admin list. Visits older than 25 months are cleared away by themselves.

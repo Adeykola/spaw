@@ -376,7 +376,7 @@
       const came = mine.filter((r) => r.checkedIn).length;
       const target = Number(e.expectedGuests) || 0;
       const places = Number(e.capacity) || 0;
-      const regLink = new URL(`events?register=${encodeURIComponent(e.id)}`, Backend.root).href;
+      const regLink = new URL(`register?event=${encodeURIComponent(e.id)}`, Backend.root).href;
       box.replaceChildren(
         h("div", { class: "an-insight__stats" }, [
           stat("Registered", mine.length), stat("Checked in", came),
@@ -391,7 +391,7 @@
             type: "button", class: "pe-small-btn",
             onclick: () => navigator.clipboard.writeText(regLink).then(() => toast("Registration link copied."), () => toast(regLink)),
           }, "Copy the registration link"),
-          h("a", { class: "pe-small-btn", href: `#campaigns/${encodeURIComponent(`events?register=${e.id}`)}` }, "Make a campaign link"),
+          h("a", { class: "pe-small-btn", href: `#campaigns/${encodeURIComponent(`register?event=${e.id}`)}` }, "Make a campaign link"),
         ])
       );
     }).catch((err) => box.replaceChildren(h("p", { class: "pe-card__note", text: friendlyError(err) })));
@@ -986,9 +986,9 @@
     const events = (Array.isArray(pub.events) ? pub.events : DB.events).filter((e) => e.visible !== false && e.status !== "cancelled");
     const tracks = Array.isArray(pub.tracks) ? pub.tracks : DB.tracks;
     return [
-      ["Pages", [["", "Homepage"], ["events", "Events"], ["symphony", "Symphony"], ["symphony#apply", "Talent Quest application form"], ["music", "Music"],
+      ["Pages", [["", "Homepage"], ["events", "Events"], ["symphony", "Symphony"], ["spaw-apply", "Talent Quest application"], ["spaw-volunteer", "Volunteer sign-up"], ["music", "Music"],
         ["media", "Media (videos and photos)"], ["ministry", "Ministry"], ["about", "About"], ["contact", "Contact"], ["contact#booking", "Booking form"]]],
-      ["Register for an event", events.map((e) => [`events?register=${e.id}`, `${plain(e.name)} · ${e.date ? dayLabel(e.date, { day: "numeric", month: "short" }) : ""}`])],
+      ["Register for an event", events.map((e) => [`register?event=${e.id}`, `${plain(e.name)} · ${e.date ? dayLabel(e.date, { day: "numeric", month: "short" }) : ""}`])],
       ["A song", tracks.map((t) => [`song?id=${t.id}`, plain(t.title) || t.id])],
     ];
   }

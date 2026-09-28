@@ -155,16 +155,18 @@
     "people.delete": "Removed a person",
     "enquiries.status": "Changed an enquiry's status",
     "applications.status": "Moved an applicant on",
+    "volunteers.status": "Changed a volunteer's status",
     "registrations.status": "Changed a registration",
     "registration.checkin": "Checked someone in",
     "enquiries.delete": "Deleted an enquiry",
     "applications.delete": "Deleted an application",
+    "volunteers.delete": "Deleted a volunteer",
     "registrations.delete": "Deleted a registration",
     "subscribers.delete": "Deleted a newsletter address",
   };
   const KINDS = {
     all: ["Everything", () => true],
-    inbox: ["Inbox", (a) => /^(enquiries|applications|registrations|registration|subscribers)\./.test(a)],
+    inbox: ["Inbox", (a) => /^(enquiries|applications|registrations|registration|subscribers|volunteers)\./.test(a)],
     publishing: ["Publishing", (a) => ["publish", "discard", "restore"].includes(a)],
     uploads: ["Uploads", (a) => a.startsWith("media.")],
     people: ["People", (a) => a.startsWith("people.")],
@@ -173,7 +175,7 @@
   const STATUS_WORDS = {
     new: "new", replied: "replied", confirmed: "confirmed", declined: "declined", archived: "archived",
     received: "to review", shortlisted: "shortlisted", invited: "invited", selected: "selected", "not-selected": "not selected",
-    registered: "registered", cancelled: "cancelled",
+    registered: "registered", cancelled: "cancelled", contacted: "contacted",
   };
 
   function details(row) {

@@ -200,7 +200,9 @@
     if (!NAMES.has(ev.n)) return;
     queue.push(ev);
     touch();
-    if (now) flush();
+    // A sign-up goes at once, and finishes even as the page moves on to
+    // its thank-you page.
+    if (now) flush(GOALS.includes(ev.n));
     else if (!timer) timer = setTimeout(flush, 4000);
   }
 

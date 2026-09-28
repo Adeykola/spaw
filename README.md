@@ -39,12 +39,16 @@ The old site on the cPanel server stays there, untouched, but no longer shows at
 | `music.html` / `albums.html` / `song.html` | Catalogue with search and filters, album detail, song detail with lyrics |
 | `media.html` | Her YouTube videos (live from the channel, category filters, embedded player) and event photo galleries (lightbox), on one page |
 | `ministry.html` | Mission, pillars, the mentorship track, workshops, free resources |
-| `symphony.html` | The Symphony concert, the Talent Quest, and the application form |
-| `events.html` | Full calendar, registration with QR code, a designed ticket to download, and `.ics` download |
+| `symphony.html` | The Symphony concert and the Talent Quest (dates, tracks, prizes), with buttons to apply, to register for the concert and to volunteer |
+| `spaw-apply.html` | The Talent Quest application (`/spaw-apply`), a page of its own; sent, it goes on to `spaw-apply-thank-you.html` |
+| `register.html` | An event's registration form, one address per event (`/register?event=event-004`); sent, it goes on to `register-thank-you.html?event=…`, with the ticket to download and the calendar file |
+| `spaw-volunteer.html` | Volunteer sign-up for SPAW (`/spaw-volunteer`): who they are, the teams and days they can serve, an emergency contact, and signing the volunteer terms by typing their full name; sent, it goes on to `spaw-volunteer-thank-you.html` |
+| `spaw-volunteer-terms.html` | The Terms and Conditions for Volunteers (`/spaw-volunteer-terms`), with a print / save-as-PDF button |
+| `events.html` | Full calendar, each event with its Register link (the Talent Quest with Apply instead) |
 | `ticket.html` | The ticket page the ticket email links to: the designed ticket, ready to download |
 | `about.html` | Story, timeline, principles, recognition |
 | `contact.html` | Contact and booking as one form with two modes |
-| `admin.html` | The admin: sign-in with roles; Pages and "Edit this page" for every word, link and picture; header, menus and footer; songs, albums, videos, galleries, events, Symphony, About lists, Ministry, artists, contact-page options and an announcement bar; drafts with preview, publishing and history; events with status, tickets, expected guests, sold out, and a registration form with their own questions; the inbox (enquiries, Talent Quest applicants with their entry playing in the admin, registrations, QR check-in, newsletter) with spreadsheet downloads; analytics (traffic, sources and campaigns, audience, pages, music and video, sign-ups step by step, site speed and errors); campaign links with QR codes; media library; people & roles; activity log. Works on a phone |
+| `admin.html` | The admin: sign-in with roles; Pages and "Edit this page" for every word, link and picture; header, menus and footer; songs, albums, videos, galleries, events, Symphony, About lists, Ministry, artists, contact-page options and an announcement bar; drafts with preview, publishing and history; events with status, tickets, expected guests, sold out, and a registration form with their own questions; the inbox (enquiries, Talent Quest applicants with their entry playing in the admin, volunteers with the terms they signed, registrations, QR check-in, newsletter) with spreadsheet downloads; analytics (traffic, sources and campaigns, audience, pages, music and video, sign-ups step by step, site speed and errors); campaign links with QR codes; media library; people & roles; activity log. Works on a phone |
 
 ## Architecture
 
@@ -52,7 +56,7 @@ The old site on the cPanel server stays there, untouched, but no longer shows at
 - **Videos come from her YouTube channel.** `api._youtube()` in `data.js` asks the site's own `/api/youtube` ([`api/youtube.js`](api/youtube.js), which Vercel runs on its servers), caches the answer for 30 minutes, and merges it over the snapshot in `DB.videos`. New uploads therefore appear on the Media page and in the homepage video slot on their own, usually within the hour. `/api/youtube` uses the YouTube Data API when it has a key (see *Videos: the YouTube key* below) and otherwise the channel's public feed, which YouTube sometimes stops serving for days at a time (as in late September 2026). If both fail, the snapshot is shown. On a host without `/api` (or opened from disk) the browser reads the feed through the [rss2json](https://rss2json.com) relay instead. Videos play in an embedded player on a real host; opened from disk (`file://`), YouTube refuses embeds, so the links open YouTube instead.
 - **`js/app.js`** carries the shared DOM helpers (`el`, `showLoading`, `showError`, `showEmpty`) used by every page script. Rendering is done with `createElement`/`textContent` — never `innerHTML` with data-derived strings.
 - **Page scripts** (`music.js`, `media.js`, `events.js`, `talent.js`, `contact.js`, `about.js`, `hero.js`) each guard on their own hooks and no-op elsewhere, which is what lets one bundle load everywhere.
-- **Event registration is one form, wherever a Register button is** (`register.js`): the Events page, the homepage's concert slide and its "See more" sheet, the Symphony page. It asks for a name, an email and a phone number with its country code, then the event's own questions, set in admin → Events → Registration form (ready-made: where people live, gender, age category; or any short answer, list, choice, tick box, number or date). The answers are kept with the registration, shown in the inbox and its spreadsheet, and counted in Analytics → Sign-ups. Once an event is sold out (ticked in the admin, or every place taken) or registration is closed, its buttons are disabled and say so; the number registered isn't shown on the site. `form-fields.js` holds the shared pieces (countries and dialling codes, Nigeria's states, gender, age categories), also used by the Talent Quest application. After registering, the success screen shows the QR code, a designed ticket to download (`ticket.js`, also on `ticket.html`) and the WhatsApp channel.
+- **Every form has a page of its own, and so does its thank-you page** (their own addresses, for the analytics and for adverts to count). Event registration (`register.js`): every Register button (the Events page, the homepage's concert slide and its "See more" sheet, the Symphony page, the homepage's events) links to the event's page, `register?event=…`, which asks for a name, an email and a phone number with its country code, then the event's own questions, set in admin → Events → Registration form (ready-made: where people live, gender, age category; or any short answer, list, choice, tick box, number or date). The answers are kept with the registration, shown in the inbox and its spreadsheet, and counted in Analytics → Sign-ups. Once an event is sold out (ticked in the admin, or every place taken) or registration is closed, its buttons are disabled and say so, and so does its page; the number registered isn't shown on the site. Registered, the visitor goes on to `register-thank-you?event=…`: the designed ticket with its QR code, to download (`ticket.js`, also on `ticket.html`), a calendar file, and the WhatsApp channel. The Talent Quest takes applications, not registrations: it has no Register button, and its register page sends people to apply. The Talent Quest application is `spaw-apply` (thank-you: `spaw-apply-thank-you`), the volunteer sign-up `spaw-volunteer` (thank-you: `spaw-volunteer-thank-you`). A thank-you page's address carries no one's name or email (Google and Meta see addresses): what it shows is handed over in the browser tab (`FormDone` in `app.js`). Old links (`events?register=…`, `symphony#apply`) go to the new pages. `form-fields.js` holds the shared pieces (countries and dialling codes, Nigeria's states, gender, age categories).
 - **Every form sends an email** (`supabase/functions/send-email`, through Resend): the ticket for a registration, and a reply suited to the Talent Quest application, a message, a booking request or a newsletter sign-up. Set up in `supabase/README.md`, "Emails"; demo mode sends none.
 - **The Talent Quest calls for applicants.** While applications are open (admin → Symphony; they also close by themselves after the closing date), every Talent Quest apply button (`.btn-quest` in `main.css`) glows, has a light sweep across it and now and then wiggles, and `renderQuestCall()` in `app.js` puts a call to apply at the bottom of every page. The call steps aside for the homepage slider's controls and for the form itself, and a visitor can close it for the rest of their visit. Once applications close, the buttons stand still and point to the Quest's details. None of it moves under `prefers-reduced-motion`.
 - **Progressive enhancement throughout.** GSAP and the QR library are both optional — if either CDN fails the page still works. The intro film, hero slideshow, and all scroll animation respect `prefers-reduced-motion`.
@@ -92,14 +96,22 @@ What's counted: page views and time on each page (only while it's on screen), ho
 
 Separately from the above, and unlike it (both set cookies, so they ask first: see *Cookies* below), every public page carries the **Google tag** (`G-MWT8ZM5N43`, just after the `<meta name="viewport">`) and the **Meta Pixel** (`1354004723598509`, just before `</head>`), which counts a `PageView` on each page. `admin.html` has neither, so the team's own screens aren't counted and never load Meta's script beside people's details; nor does `videos.html`, which only forwards to Media.
 
-The pixel's one other event is the standard **`Lead`**, sent once a form has actually been saved (not when it's opened or sent with a mistake), from `api._lead()` in `js/data.js`:
+The pixel's one other event is the standard **`Lead`**, sent by the thank-you page once a form has actually been saved (not when it's opened or sent with a mistake, and once, not again on a reload), through `api._lead()` in `js/data.js`:
 
 | When | `content_category` | `content_name` | `eventID` |
 | --- | --- | --- | --- |
-| Someone registers for any event (the concert, "Register to watch" the Talent Quest, any other event) | `Event registration` | the event's name | the ticket ID (`REG-…`) |
+| Someone registers for an event (the concert, or any other event) | `Event registration` | the event's name | the ticket ID (`REG-…`) |
 | Someone applies to the Talent Quest | `Talent Quest application` | `SPAW Talent Quest` | the application ID (`SYM-…`) |
 
 In Events Manager, a custom conversion on *Lead* filtered by `content_category` (or `content_name`) tells the two apart, for optimising one campaign on applications and another on concert registrations. The `eventID` is what Meta uses to count a lead once if the server ever reports it as well (Conversions API). Registrations made by hand in the admin aren't leads and aren't sent.
+
+Each thank-you page has an address of its own, so Google Analytics can count them as conversions too (Admin → Events → create an event on `page_view` where `page_location` contains the address, then mark it as a key event), and Meta can make custom conversions from them:
+
+| Thank-you page | After |
+| --- | --- |
+| `/register-thank-you?event=event-004` | registering for that event (each event its own; `/register-thank-you` alone for any) |
+| `/spaw-apply-thank-you` | applying to the Talent Quest |
+| `/spaw-volunteer-thank-you` | signing up to volunteer |
 
 ### Cookies
 
@@ -120,6 +132,15 @@ Without a key the site reads her channel's public feed, which works most of the 
 3. **APIs & Services → Credentials → Create credentials → API key**. Under *API restrictions*, restrict it to **YouTube Data API v3** and save. Leave *Application restrictions* at none: the key is used from Vercel's servers, never from a browser.
 4. In Vercel, the **spaw** project → **Settings → Environment Variables**: add `YOUTUBE_API_KEY` with the key, for Production (and Preview if you like), then **Deployments → ⋯ → Redeploy** the latest one.
 5. Check: `https://dr-ajokesings.com/api/youtube` should start `{"source":"api"`. (`"feed"` means it's reading the feed; an `error` says what's wrong.)
+
+## Volunteers
+
+`/spaw-volunteer` is the page to share for volunteers; the Symphony page links to it at the bottom. Volunteers give their details (phone with its country code, gender, age category, state and country, church), tick the teams they'd like to serve in and the days they can give, and name someone to call in an emergency. They sign the [Terms and Conditions for Volunteers](spaw-volunteer-terms.html) by ticking the box and typing their full name, which has to match the name they gave; the signature is kept with the date, the time and the version of the terms. One sign-up per email address.
+
+- **Inbox → Volunteers** lists them, with filters by status, team and day, the full details and signature, buttons to email or WhatsApp them, notes, and a spreadsheet download. Statuses: New, Contacted, On the team, Not this time.
+- **Content → Volunteering** switches sign-up on or off, sets the closing date, edits the teams, and holds the version of the terms. The days come from the Symphony dates (Content → Symphony), so they follow them.
+- **Pages** edits the words of both pages. Changing the terms page's words? Change the version under Volunteering too, so each volunteer's record says which version they signed.
+- Live, volunteers need [`supabase/setup-5.sql`](supabase/setup-5.sql) run once: until then the sign-up page can't send, and Inbox → Volunteers says so.
 
 ## Prototype boundaries
 

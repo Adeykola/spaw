@@ -1,16 +1,25 @@
 /**
  * talent.js
  * ----------------------------------------------------------------------
- * Drives symphony.html: renders the Symphony info block and runs the
- * application journey — the questions everyone answers, the YouTube link
- * to their entry, client-side validation, the submit through
- * api.submitTalentApplication, and a confirmation screen with the
- * application's reference. The team watches the entries in the admin.
+ * The Symphony pages. symphony.html: the concert and the Talent Quest
+ * (dates, tracks, prizes, what a place gets you). spaw-apply.html: the
+ * Talent Quest application, a page of its own — the questions everyone
+ * answers, the YouTube link to their entry, the checks, and the submit
+ * through api.submitTalentApplication, which goes on to
+ * spaw-apply-thank-you.html with the application's reference. The team
+ * watches the entries in the admin.
  * ----------------------------------------------------------------------
  */
+// The form used to sit on the Symphony page (symphony#apply): links made
+// then go to its own page now.
+if (/(^|\/)symphony(\.html)?$/.test(location.pathname) && location.hash === "#apply") {
+  location.replace((location.protocol === "file:" ? "spaw-apply.html" : "spaw-apply") + location.search);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   renderSymphonyInfo();
   wireApplicationForm();
+  applicationThankYou();
   wireYear();
 });
 
@@ -19,7 +28,8 @@ async function renderSymphonyInfo() {
   const tracksEl = document.querySelector("[data-symphony-tracks]");
   const trackSelect = document.querySelector("[data-track-select]");
   const termsEl = document.querySelector("[data-symphony-terms]");
-  if (!datesEl && !tracksEl && !termsEl) return;
+  const prizesLine = document.querySelector("[data-apply-prizes]");
+  if (!datesEl && !tracksEl && !termsEl && !prizesLine) return;
 
   const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long" });
   const fmtLong = (d) => new Date(`${d}T00:00:00`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -40,6 +50,10 @@ async function renderSymphonyInfo() {
 
     renderConcert(info.concert, fmtLong);
     renderQuest(info.quest, info, fmt);
+    // The application page: the prizes in one line.
+    if (prizesLine && info.quest && Array.isArray(info.quest.prizes) && info.quest.prizes.length) {
+      prizesLine.textContent = info.quest.prizes.map((p) => `${p.place} ${p.amount}`).join(" · ");
+    }
 
     if (tracksEl) {
       tracksEl.replaceChildren(...info.tracks.map((t) => el("span", { class: "filter-pill", style: "cursor:default;", text: t })));
@@ -218,7 +232,6 @@ function wireApplicationForm() {
   form.addEventListener("input", started);
   form.addEventListener("change", started);
   const submitBtn = form.querySelector("button[type='submit']");
-  const confirmScreen = document.querySelector("[data-confirm-screen]");
 
   const fields = {
     fullName: form.querySelector("#app-name"),
@@ -285,17 +298,37 @@ function wireApplicationForm() {
 
     try {
       const application = await api.submitTalentApplication(payload);
-      form.hidden = true;
-      if (confirmScreen) {
-        confirmScreen.hidden = false;
-        confirmScreen.querySelector("[data-confirm-id]").textContent = application.id;
-        confirmScreen.querySelector("[data-confirm-email]").textContent = application.email;
-        confirmScreen.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      FormDone.go("applications", "", { id: application.id, email: application.email, name: application.fullName }, "spaw-apply-thank-you");
     } catch (err) {
       banner.textContent = err.message || "Something went wrong submitting your application. Please try again.";
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
     }
+  });
+}
+
+/* ---------------------------------------------------------------------
+ * spaw-apply-thank-you: after applying
+ * ------------------------------------------------------------------- */
+function applicationThankYou() {
+  const root = document.querySelector("[data-apply-done]");
+  if (!root) return;
+  const app = FormDone.read("applications");
+  const idLine = root.querySelector("[data-done-id]");
+  if (!app) {
+    // Opened some other way than straight after applying.
+    root.querySelector("[data-done-body]").textContent = "Thank you for applying to the SPAW Talent Quest. Every applicant hears back, whichever way the answer goes.";
+    idLine.hidden = true;
+    return;
+  }
+  // Counted once, as it happens: the Meta Pixel's Lead.
+  if (FormDone.first("applications")) api._lead("Talent Quest application", "SPAW Talent Quest", app.id);
+  root.querySelector("[data-done-email]").textContent = app.email;
+  idLine.querySelector("span").textContent = app.id;
+  FormDone.emailed("applications").then((sent) => {
+    if (!sent) return;
+    const line = root.querySelector("[data-done-emailed]");
+    line.textContent = `We've emailed a confirmation to ${app.email}.`;
+    line.hidden = false;
   });
 }

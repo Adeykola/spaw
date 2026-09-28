@@ -2,13 +2,17 @@
  * events.js
  * ----------------------------------------------------------------------
  * Drives events.html: the full event calendar, each with its Register
- * button. Registration itself (the form, the event's own questions, the
- * QR code and calendar file) is register.js, shared with the homepage.
- * An event that has stopped taking registrations (sold out, closed,
- * postponed…) keeps its button, disabled, with a line saying why.
+ * button, a link to the event's own registration page (register.js). An
+ * event that has stopped taking registrations (sold out, closed,
+ * postponed…) keeps its button, disabled, with a line saying why. The
+ * Talent Quest has no Register button: it calls people to apply.
  * ----------------------------------------------------------------------
  */
 document.addEventListener("DOMContentLoaded", () => {
+  // Registration links from before each event had its own page
+  // (events?register=event-004) go to that page.
+  const legacy = new URLSearchParams(location.search).get("register");
+  if (legacy) { location.replace(EventRegister.page(legacy)); return; }
   renderEventsList();
   wireYear();
 });
@@ -48,19 +52,19 @@ async function renderEventsList() {
       ...events.map((e) => {
         // Open, or why not (sold out, closed, postponed, over…): api.eventState.
         const state = api.eventState(e);
-        e.canRegister = state.open;
-        // The Talent Quest leads with "Apply" while applications are open (app.js).
-        const quest = questCallsFor(e);
-        const registerBtn = el("button", {
-          class: "btn btn-solid",
-          type: "button",
-          text: !state.open ? state.label : quest ? "Register to watch" : "Register",
-          disabled: !state.open,
-        });
-        registerBtn.addEventListener("click", () => EventRegister.open(e, registerBtn));
-        const actions = [registerBtn];
-        if (!state.open && state.label !== "Event over") actions.push(el("p", { class: "event-full-row__closed", text: state.reason }));
-        if (quest) actions.unshift(el("a", { class: "btn btn-solid btn-quest", href: "symphony#apply", text: "Apply to take part", "data-cta": "Talent Quest: apply (events page)" }));
+        const actions = [];
+        if (api.isTalentQuest(e)) {
+          // The Talent Quest takes applications, not registrations: "Apply"
+          // while applications are open (app.js), then its details.
+          actions.push(questCallsFor(e)
+            ? el("a", { class: "btn btn-solid btn-quest", href: "spaw-apply", text: "Apply to take part", "data-cta": "Talent Quest: apply (events page)" })
+            : el("a", { class: "btn btn-line", href: "symphony#quest", text: "About the Talent Quest" }));
+        } else if (state.open) {
+          actions.push(el("a", { class: "btn btn-solid", href: EventRegister.page(e.id), text: "Register", "data-cta": `Register: ${e.name} (events page)` }));
+        } else {
+          actions.push(el("button", { class: "btn btn-solid", type: "button", text: state.label, disabled: true }));
+          if (state.label !== "Event over") actions.push(el("p", { class: "event-full-row__closed", text: state.reason }));
+        }
         if (e.ticketUrl && e.status !== "cancelled") {
           actions.push(el("a", { class: "btn btn-line", href: e.ticketUrl, target: "_blank", rel: "noopener", text: "Get tickets", "data-cta": `Get tickets: ${e.name}` }));
         }
@@ -90,15 +94,9 @@ async function renderEventsList() {
       })
     );
 
-    // Arriving from a link to one event: events?id=… (the homepage
-    // calendar) brings its row into view, and events?register=… (shared
-    // registration links) opens its registration form as well.
-    const params = new URLSearchParams(window.location.search);
-    const wanted = events.findIndex((e) => e.id === (params.get("register") || params.get("id")));
-    if (wanted !== -1) {
-      list.children[wanted]?.scrollIntoView({ block: "center" });
-      if (params.has("register") && events[wanted].canRegister) EventRegister.open(events[wanted]);
-    }
+    // Arriving from a link to one event (events?id=…) brings its row into view.
+    const wanted = events.findIndex((e) => e.id === new URLSearchParams(window.location.search).get("id"));
+    if (wanted !== -1) list.children[wanted]?.scrollIntoView({ block: "center" });
   } catch (err) {
     console.error("[events] list failed", err);
     showError(list, "Couldn't load events.", renderEventsList);

@@ -29,38 +29,45 @@ document.addEventListener("DOMContentLoaded", () => {
  * button (.btn-quest) glows and now and then wiggles (main.css). Once
  * applications close, those buttons stand down and point to the Quest's
  * details instead. A visitor can put the bottom call away for the rest
- * of their visit; on the Symphony page it steps aside while the form
- * itself is on screen.
+ * of their visit. It isn't on the application page (spaw-apply) itself,
+ * and it steps aside while another form is on screen.
  * ------------------------------------------------------------------- */
 async function renderQuestCall() {
   if (document.querySelector("[data-admin-shell]") || typeof api === "undefined") return; // not in the admin
   try { await window.ContentReady; } catch (_) { /* the built-in content stands */ }
   if (!api.applicationsOpen()) {
     // Closed: the buttons stand still, and those sending people to the
-    // form from another page point to the Quest's details instead. (On the
-    // Symphony page, the form's own section says applications are closed.)
+    // application point to the Quest's details instead. (The application
+    // page itself says applications are closed.)
     document.querySelectorAll(".btn-quest").forEach((b) => {
       b.classList.remove("btn-quest");
       const href = b.getAttribute("href") || "";
-      if (/(^|\/)symphony(\.html)?#apply$/.test(href)) { b.setAttribute("href", href.replace(/#apply$/, "#quest")); b.textContent = "About the Talent Quest"; }
+      if (!/(^|\/)(symphony(\.html)?#apply|spaw-apply(\.html)?)$/.test(href)) return;
+      // Where the Quest's details are already at hand (the Symphony page, or
+      // a link beside it), the button just goes, rather than say it twice.
+      const beside = b.parentElement && [...b.parentElement.querySelectorAll("a")].some((a) => a !== b && /(^|\/)(symphony(\.html)?)?#quest$/.test(a.getAttribute("href") || ""));
+      if (beside || /(^|\/)symphony(\.html)?$/.test(location.pathname)) { b.remove(); return; }
+      b.setAttribute("href", "symphony#quest");
+      b.textContent = "About the Talent Quest";
     });
     return;
   }
   let away = false;
   try { away = sessionStorage.getItem("drajokesings:questCall") === "hidden"; } catch (_) { away = false; }
-  if (away || document.querySelector("[data-quest-call]")) return;
+  // Not on the application page itself, nor on a page that asks not to
+  // have it (the thank-you page after applying).
+  if (away || document.querySelector("[data-quest-call], [data-application-form], [data-no-quest-call]")) return;
 
   const closes = DB.symphony && DB.symphony.applicationCloses
     ? new Date(`${DB.symphony.applicationCloses}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long" })
     : "";
-  const onSymphony = Boolean(document.querySelector("[data-application-form]"));
   const close = el("button", { class: "quest-call__close", type: "button", text: "×", aria: { label: "Hide the Talent Quest call" } });
   const call = el("aside", { class: "quest-call", "data-quest-call": "", aria: { label: "Talent Quest applications" } }, [
     el("p", { class: "quest-call__text" }, [
       el("strong", { text: "SPAW Talent Quest: come on board" }),
       el("span", { text: closes ? `Applications are open until ${closes}` : "Applications are open" }),
     ]),
-    el("a", { class: "btn btn-solid btn-quest quest-call__btn", href: onSymphony ? "#apply" : "symphony#apply", text: "Apply now", "data-cta": "Talent Quest: apply (bottom of the page)" }),
+    el("a", { class: "btn btn-solid btn-quest quest-call__btn", href: "spaw-apply", text: "Apply now", "data-cta": "Talent Quest: apply (bottom of the page)" }),
     close,
   ]);
   close.addEventListener("click", () => {
@@ -73,9 +80,9 @@ async function renderQuestCall() {
   setTimeout(() => call.classList.add("is-shown"), 1400);
 
   // It steps aside while it would cover something that matters more: the
-  // form itself (Symphony page), and the homepage slider's controls at the
+  // form itself (Symphony page, and the volunteer sign-up), and the homepage slider's controls at the
   // foot of the first screen (it comes in once the page scrolls a little).
-  const form = document.getElementById("apply");
+  const form = document.getElementById("apply") || document.querySelector("[data-quest-call-away]");
   const controls = document.querySelector("[data-hero-controls]");
   let formInView = false;
   const place = () => {
@@ -418,6 +425,55 @@ async function renderEmergingArtists() {
 }
 
 /* ---------------------------------------------------------------------
+ * Thank-you pages
+ * A form that has been sent goes on to its own thank-you page, with an
+ * address of its own for the analytics and adverts to count:
+ *   register-thank-you?event=…   an event registration
+ *   spaw-apply-thank-you         a Talent Quest application
+ *   spaw-volunteer-thank-you     a volunteer sign-up
+ * The address never carries the person's details (Google and Meta see
+ * addresses): what the page shows is handed over in this tab's
+ * sessionStorage. kind is the form's table: "registrations",
+ * "applications", "volunteers"; part tells two of a kind apart (the
+ * event, for registrations).
+ * ------------------------------------------------------------------- */
+const FormDone = {
+  key: (kind, part = "") => `drajokesings:done:${kind}${part ? `:${part}` : ""}`,
+  go(kind, part, record, url) {
+    try { sessionStorage.setItem(FormDone.key(kind, part), JSON.stringify({ ...record, fresh: true })); } catch (_) { /* the thank-you page manages without */ }
+    location.assign(url);
+  },
+  // What the form handed over, or null (the page was opened some other way).
+  read(kind, part = "") {
+    try { return JSON.parse(sessionStorage.getItem(FormDone.key(kind, part)) || "null"); } catch (_) { return null; }
+  },
+  update(kind, part, patch) {
+    const r = FormDone.read(kind, part);
+    if (!r) return;
+    try { sessionStorage.setItem(FormDone.key(kind, part), JSON.stringify({ ...r, ...patch })); } catch (_) { /* fine */ }
+  },
+  // true the first time the page shows what was sent: the lead is counted
+  // once, not on every reload.
+  first(kind, part = "") {
+    const r = FormDone.read(kind, part);
+    if (!r || !r.fresh) return false;
+    FormDone.update(kind, part, { fresh: false });
+    return true;
+  },
+  // Has their email gone? The form asked for it; this asks after it once
+  // (the email goes once either way), and remembers the answer.
+  async emailed(kind, part = "") {
+    const r = FormDone.read(kind, part);
+    if (!r || !r.id || !window.Backend) return false;
+    if (typeof r.emailed === "boolean") return r.emailed;
+    const res = await Backend.email.send(kind, r.id).catch(() => null);
+    const sent = Boolean(res && (res.sent || res.reason === "already sent"));
+    FormDone.update(kind, part, { emailed: sent });
+    return sent;
+  },
+};
+
+/* ---------------------------------------------------------------------
  * Upcoming events
  * ------------------------------------------------------------------- */
 // The Talent Quest's own event calls for people to take part, not only to
@@ -442,9 +498,13 @@ async function renderEvents() {
         const { day, month } = formatEventDate(e.date);
         const state = api.eventState(e);
         const quest = questCallsFor(e);
+        const questEvent = api.isTalentQuest(e);
+        const href = quest ? "spaw-apply"
+          : questEvent ? "symphony#quest"
+          : state.open ? `register?event=${encodeURIComponent(e.id)}` : `events?id=${encodeURIComponent(e.id)}`;
         const link = el("a", {
           class: "event-row",
-          href: quest ? "symphony#apply" : `events?id=${encodeURIComponent(e.id)}`,
+          href,
           "data-cta": quest ? "Talent Quest: apply (homepage events)" : `Event: ${e.name}`,
         }, [
           el("div", { class: "event-row__date", text: day }, [
@@ -455,7 +515,7 @@ async function renderEvents() {
             el("p", { class: "event-row__venue", text: e.venue }),
           ]),
           el("p", { class: "event-row__city", text: e.city }),
-          el("span", { class: `event-row__cta btn-line${quest ? " btn-quest" : ""}`, text: quest ? "Apply to take part" : state.open ? "Register" : state.label }),
+          el("span", { class: `event-row__cta btn-line${quest ? " btn-quest" : ""}`, text: quest ? "Apply to take part" : questEvent ? "About the Talent Quest" : state.open ? "Register" : state.label }),
         ]);
         return link;
       })

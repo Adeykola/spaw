@@ -1,7 +1,7 @@
 /**
  * send-email — the email each visitor gets after sending a form on the site.
  *
- *   POST { kind, id }   kind: "registrations" | "applications" | "enquiries" | "subscribers"
+ *   POST { kind, id }   kind: "registrations" | "applications" | "enquiries" | "subscribers" | "volunteers"
  *                       id: the reference the database gave it (the address, for subscribers)
  *   GET  ?qr=REG-…      a ticket's QR code as a PNG, for the ticket email
  *
@@ -16,6 +16,8 @@
  *   Talent Quest        "application received", what happens next, and the
  *                       travel disclaimer
  *   Contact / booking   "we've got your message / booking request"
+ *   Volunteer           "thank you for signing up to serve", what they
+ *                       chose, and the terms they signed
  *   Newsletter          a welcome
  * Every one points to the WhatsApp channel.
  *
@@ -30,8 +32,8 @@
 
 const WHATSAPP = "https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e";
 const DISCLAIMER = "Disclaimer: Contestants are responsible for their logistics to and from the event. DrAjokesings Productions Limited bears no responsibility for transportation or related costs.";
-const KEY_OF: Record<string, string> = { registrations: "id", applications: "id", enquiries: "id", subscribers: "email" };
-const SENT_AT: Record<string, string> = { registrations: "registered_at", applications: "submitted_at", enquiries: "submitted_at", subscribers: "subscribed_at" };
+const KEY_OF: Record<string, string> = { registrations: "id", applications: "id", enquiries: "id", subscribers: "email", volunteers: "id" };
+const SENT_AT: Record<string, string> = { registrations: "registered_at", applications: "submitted_at", enquiries: "submitted_at", subscribers: "subscribed_at", volunteers: "submitted_at" };
 const MAX_AGE = 6 * 3600e3;
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -229,6 +231,29 @@ export function compose(kind: string, row: Row, content: Content, env: Pick<Sett
         para(next),
         button(`${site}/symphony#quest`, "Read about the Talent Quest"),
         disclaimer(),
+        whatsapp(),
+      ],
+      site, why,
+    });
+  }
+
+  if (kind === "volunteers") {
+    const d = row.data || {};
+    const list = (v: unknown) => (Array.isArray(v) ? v.map((x) => clean(x, 120)).filter(Boolean).join(", ") : "");
+    return layout({
+      subject: `Thank you for volunteering at SPAW (${row.id})`,
+      eyebrow: "SPAW volunteers",
+      title: "Thank you for signing up to serve.",
+      preheader: `Your volunteer registration is in. Reference ${row.id}.`,
+      blocks: [
+        para(`Hi ${firstName(row.full_name)}, thank you for offering to serve at Symphony of Praise & Worship with Dr AjokeSings. Your registration has reached the volunteer team.`),
+        facts([
+          ["Reference", row.id], ["Teams", list(d.teams)], ["Days", list(d.days)], ["From", row.location],
+          ["Signed", [row.signature, longDate(row.signed_at)].filter(Boolean).join(", ")],
+        ]),
+        heading("What happens next"),
+        para("The volunteer team will be in touch to confirm your place and your team, and to tell you where and when to report."),
+        button(`${site}/spaw-volunteer-terms`, "Read the volunteer terms you signed"),
         whatsapp(),
       ],
       site, why,

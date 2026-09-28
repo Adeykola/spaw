@@ -203,6 +203,7 @@ const DB = {
   },
 
   videos: [
+    { youtubeId: "QpU68fZoEVM", published: "2026-09-18", title: "Glory - DrAjokesings" },
     { youtubeId: "rWDUeppY2Gk", published: "2026-08-28", title: "Alagbara - DrAjokesings ft. Pelumi Deborah" },
     { youtubeId: "yi8cQe-5QwQ", published: "2026-08-14", title: "You are God - DrAjokesings" },
     { youtubeId: "XgggH0xKA3I", published: "2026-07-31", title: "Iba re - DrAjokesings" },
@@ -409,7 +410,7 @@ const DB = {
       time: null, // not yet announced
       capacity: 150,
       registered: 96,
-      description: "Calling vocalists, songwriters, instrumentalists and producers: apply to take the stage at the SPAW Talent Quest, held live the day before the concert. Everyone else can register to come and watch.",
+      description: "Calling vocalists, songwriters, instrumentalists and producers: apply to take the stage at the SPAW Talent Quest, held live the day before the concert.",
       image: "assets/images/spaw-stage-01.webp",
       ticketRequired: true,
       // The registration form's own questions (admin → Events → Registration form).
@@ -467,7 +468,7 @@ const DB = {
       {
         year: "2026", title: "The fourth Talent Quest — and the Global Concert",
         body: "Applications are open for Talent Quest Vol. IV — singers, songwriters, instrumentalists and producers, come on board — and the season comes home to Regal Hall, Daystar Christian Center: the Talent Quest on 27 November, and the SPAW Global Concert on the 28th.",
-        current: true, links: [{ label: "Apply to the Talent Quest", href: "symphony#apply" }, { label: "See the calendar", href: "events" }],
+        current: true, links: [{ label: "Apply to the Talent Quest", href: "spaw-apply" }, { label: "See the calendar", href: "events" }],
       },
     ],
     principles: [
@@ -501,11 +502,32 @@ const DB = {
       { question: "Does she travel with a band?", answer: "She can come solo, with a rhythm section, or with the full fourteen-piece ensemble. Tick what you are hoping for in the booking form and the team will send technical and hospitality riders for each option." },
       { question: "Can we record or livestream the ministration?", answer: "Almost always yes, with a short written agreement covering how the footage is used. Mention it up front so it is settled before the day rather than during soundcheck." },
       { question: "Where do I get photos, bio, and stage requirements?", answer: "Ask for the press kit through this form and it comes back as one link: approved biography at three lengths, high-resolution images, logo files, technical rider, and hospitality rider." },
-      { question: "I want mentorship. Is this the right form?", answer: 'Yes. Mentorship runs under the <a href="ministry">ministry</a>, with intake every January and July — send a message here and say which intake you are aiming for. It is a separate thing from the <a href="symphony">Symphony Talent Quest</a>, which has <a href="symphony#apply">its own application</a> because it collects your music — singers, songwriters, instrumentalists and producers are all welcome to apply.' },
+      { question: "I want mentorship. Is this the right form?", answer: 'Yes. Mentorship runs under the <a href="ministry">ministry</a>, with intake every January and July — send a message here and say which intake you are aiming for. It is a separate thing from the <a href="symphony">Symphony Talent Quest</a>, which has <a href="spaw-apply">its own application</a> because it collects your music — singers, songwriters, instrumentalists and producers are all welcome to apply.' },
     ],
     eventTypes: ["Sunday service", "Worship night", "Conference", "Concert", "Crusade / outreach", "Workshop / masterclass", "Wedding", "Corporate or private event", "Other"],
     budgets: ["Local church — whatever is possible", "Under ₦500,000", "₦500,000 – ₦1,500,000", "Above ₦1,500,000", "International — travel & accommodation covered"],
     needs: ["Full worship ministration", "Short set — two or three songs", "Workshop or masterclass", "Panel or speaking slot", "Full band required"],
+  },
+
+  /* Volunteering at SPAW (spaw-volunteer.html; admin → Volunteering). The
+   * days volunteers choose come from the Symphony dates (DB.symphony), so
+   * they follow them. termsVersion is recorded with each signature: change
+   * it whenever the volunteer terms (spaw-volunteer-terms.html) change. */
+  volunteering: {
+    open: true,
+    closes: "2026-11-20",
+    teams: [
+      "Ushering and seating",
+      "Registration and check-in",
+      "Protocol and hospitality",
+      "Photography and video",
+      "Social media and content",
+      "Sound, lights and stage",
+      "Logistics and set-up",
+      "Security and crowd control",
+      "Welfare and first aid",
+    ],
+    termsVersion: "SPAW volunteer terms, September 2026",
   },
 
   /* The bar across the top of every page. Each: { id, text, linkLabel,
@@ -577,10 +599,11 @@ const api = {
     return new Promise((resolve) => setTimeout(resolve, ms));
   },
 
-  // Meta Pixel "Lead" (the pixel is in each page's <head>): an event
-  // registration or a Talent Quest application, once it has been saved.
-  // The reference it was saved under is the eventID, so Meta can match the
-  // same lead if the server ever reports it too (Conversions API).
+  // Meta Pixel "Lead" (the pixel is in each page's <head>): sent by the
+  // thank-you pages of an event registration and a Talent Quest
+  // application, once, when the form has just been saved. The reference it
+  // was saved under is the eventID, so Meta can match the same lead if the
+  // server ever reports it too (Conversions API).
   _lead(category, name, id) {
     if (typeof window.fbq !== "function") return;
     try {
@@ -794,6 +817,47 @@ const api = {
     return DB.symphony;
   },
 
+  /* ---- Volunteering at SPAW ---- */
+  // The settings, with the days to choose from: the Talent Quest and the
+  // concert on their Symphony dates, and the set-up before them.
+  async getVolunteering() {
+    await this._delay(200);
+    const v = DB.volunteering || {};
+    const s = DB.symphony || {};
+    const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+    const days = [
+      s.questDate ? `SPAW Talent Quest · ${fmt(s.questDate)}` : "",
+      s.concert && s.concert.date ? `${s.concert.name || "SPAW Global Concert"} · ${fmt(s.concert.date)}` : "",
+      "Set-up and rehearsals, in the days before",
+    ].filter(Boolean);
+    return { ...v, teams: (v.teams || []).filter(Boolean), days, ageCategories: s.ageCategories };
+  },
+
+  // Open unless the admin has switched it off or the closing date is past.
+  volunteeringOpen() {
+    const v = DB.volunteering || {};
+    if (v.open === false) return false;
+    if (v.closes && new Date(`${v.closes}T23:59:59`).getTime() < Date.now()) return false;
+    return true;
+  },
+
+  // Signed by typing their full name, which has to match the name given.
+  async submitVolunteer(payload) {
+    await this._delay(300);
+    const required = ["fullName", "email", "phone", "gender", "ageCategory", "state", "country", "location", "emergencyName", "emergencyPhone", "signature"];
+    if (required.some((key) => !payload[key] || !String(payload[key]).trim())) throw new Error("Please complete all required fields before sending.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) throw new Error("That email address doesn't look right.");
+    if (!Array.isArray(payload.teams) || !payload.teams.length) throw new Error("Choose at least one team you'd like to serve in.");
+    if (!Array.isArray(payload.days) || !payload.days.length) throw new Error("Choose at least one day you can serve.");
+    if (!payload.agreedToTerms) throw new Error("You need to agree to the Terms and Conditions for Volunteers.");
+    const same = (a, b) => String(a).trim().replace(/\s+/g, " ").toLowerCase() === String(b).trim().replace(/\s+/g, " ").toLowerCase();
+    if (!same(payload.signature, payload.fullName)) throw new Error("To sign, type your full name exactly as you gave it above.");
+    if (!this.volunteeringOpen()) throw new Error("Volunteer registration is closed.");
+    const volunteer = await Backend.forms.submitVolunteer({ ...payload, termsVersion: (DB.volunteering || {}).termsVersion || "" });
+    Backend.email.send("volunteers", volunteer.id); // "thank you for volunteering"
+    return volunteer;
+  },
+
   // Open unless the admin has switched them off or the closing date is past.
   applicationsOpen() {
     const s = DB.symphony || {};
@@ -816,7 +880,6 @@ const api = {
     if (!this.applicationsOpen()) throw new Error("Applications for this Talent Quest are closed.");
     const application = await Backend.forms.submitApplication(payload);
     if (window.Track) Track.event("applied", { label: payload.track });
-    this._lead("Talent Quest application", "SPAW Talent Quest", application.id);
     Backend.email.send("applications", application.id); // "application received"
     return application;
   },
@@ -834,6 +897,13 @@ const api = {
     try { counts = await Backend.forms.eventCounts(); } catch (err) { console.warn("[api] registration counts unavailable:", err.message); }
     const live = Backend.mode === "live";
     return events.map((e) => ({ ...e, registered: (live ? 0 : (e.registered || 0)) + (counts[e.id] || 0) }));
+  },
+
+  // The Talent Quest's own event takes applications (spaw-apply), never
+  // registrations: it has no Register button anywhere, and its register
+  // page sends people to apply.
+  isTalentQuest(e) {
+    return Boolean(e) && (e.category === "Talent Quest" || /talent quest/i.test(e.name || ""));
   },
 
   // Where an event stands for registration. The database checks the same
@@ -906,9 +976,10 @@ const api = {
     if (missing.length) throw new Error(`Please answer: ${missing.map((q) => q.label).join(" · ")}`);
     const registration = await Backend.forms.registerForEvent(event, clean);
     if (window.Track) Track.event("registered", { label: event.name, props: { id: event.id } });
-    this._lead("Event registration", event.name, registration.id);
-    // The ticket (or confirmation) by email; the success screen says so once it's gone.
-    return { ...registration, emailing: Backend.email.send("registrations", registration.id) };
+    // The ticket (or confirmation) by email. It carries on while the page
+    // moves to the thank-you page, which asks again and says once it's gone.
+    Backend.email.send("registrations", registration.id);
+    return registration;
   },
 
   async getRegistrations(eventId = null) {

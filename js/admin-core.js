@@ -33,6 +33,7 @@
       items: [
         ["enquiries", "Contact & bookings", ALL],
         ["talent", "Talent applicants", ALL],
+        ["volunteers", "Volunteers", ALL],
         ["subscribers", "Newsletter", ALL],
       ],
     },
@@ -60,6 +61,7 @@
         ["videos", "Videos", EDIT],
         ["galleries", "Photo galleries", EDIT],
         ["symphony", "Symphony", EDIT],
+        ["volunteering", "Volunteering", EDIT],
         ["about", "About page lists", EDIT],
         ["ministry", "Ministry", EDIT],
         ["emerging", "Emerging artists", EDIT],
