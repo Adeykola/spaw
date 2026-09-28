@@ -49,7 +49,7 @@ The old site on the cPanel server stays there, untouched, but no longer shows at
 ## Architecture
 
 - **`js/data.js`** is the content layer and the seam to a real backend. Every read goes through an `api.*` method returning a Promise with simulated latency and real validation errors, so swapping `DB` for `fetch()` is mechanical rather than a rewrite. Anything visitors send (registrations, applications, enquiries, newsletter sign-ups) goes through `Backend.forms`: into the database when the site is live, into this browser's `localStorage` in demo mode.
-- **Videos come from her YouTube channel.** `api._youtube()` in `data.js` reads the channel's public feed through [rss2json](https://rss2json.com) (YouTube serves the feed without CORS headers, so a browser can't read it directly), caches it for 30 minutes, and merges it over the snapshot in `DB.videos`. New uploads therefore appear on the Media page and in the homepage video slot on their own, usually within the hour; if the relay is unreachable, the snapshot is shown. To drop the relay, replace `_fetchYouTubeFeed()` with the YouTube Data API or a small serverless function. Videos play in an embedded player on a real host; opened from disk (`file://`), YouTube refuses embeds, so the links open YouTube instead.
+- **Videos come from her YouTube channel.** `api._youtube()` in `data.js` asks the site's own `/api/youtube` ([`api/youtube.js`](api/youtube.js), which Vercel runs on its servers), caches the answer for 30 minutes, and merges it over the snapshot in `DB.videos`. New uploads therefore appear on the Media page and in the homepage video slot on their own, usually within the hour. `/api/youtube` uses the YouTube Data API when it has a key (see *Videos: the YouTube key* below) and otherwise the channel's public feed, which YouTube sometimes stops serving for days at a time (as in late September 2026). If both fail, the snapshot is shown. On a host without `/api` (or opened from disk) the browser reads the feed through the [rss2json](https://rss2json.com) relay instead. Videos play in an embedded player on a real host; opened from disk (`file://`), YouTube refuses embeds, so the links open YouTube instead.
 - **`js/app.js`** carries the shared DOM helpers (`el`, `showLoading`, `showError`, `showEmpty`) used by every page script. Rendering is done with `createElement`/`textContent` — never `innerHTML` with data-derived strings.
 - **Page scripts** (`music.js`, `media.js`, `events.js`, `talent.js`, `contact.js`, `about.js`, `hero.js`) each guard on their own hooks and no-op elsewhere, which is what lets one bundle load everywhere.
 - **Event registration is one form, wherever a Register button is** (`register.js`): the Events page, the homepage's concert slide and its "See more" sheet, the Symphony page. It asks for a name, an email and a phone number with its country code, then the event's own questions, set in admin → Events → Registration form (ready-made: where people live, gender, age category; or any short answer, list, choice, tick box, number or date). The answers are kept with the registration, shown in the inbox and its spreadsheet, and counted in Analytics → Sign-ups. Once an event is sold out (ticked in the admin, or every place taken) or registration is closed, its buttons are disabled and say so; the number registered isn't shown on the site. `form-fields.js` holds the shared pieces (countries and dialling codes, Nigeria's states, gender, age categories), also used by the Talent Quest application. After registering, the success screen shows the QR code, a designed ticket to download (`ticket.js`, also on `ticket.html`) and the WhatsApp channel.
@@ -87,6 +87,39 @@ The admin works on a phone: the sidebar folds into a bar with a Menu button, and
 What's counted: page views and time on each page (only while it's on screen), how far down people scroll, the homepage sections they reach, hero slides seen and tapped, buttons and phone-menu taps, where visitors came from (search, social, other sites, email, campaign links), device, browser, language, song plays and how much of each is heard, streaming-link taps by platform, video plays and "Watch on YouTube" taps, gallery opens, Music searches (including those that find nothing), every sign-up step (starting and sending a registration, application or booking; newsletter sign-ups), page speed and the errors visitors hit.
 
 *Analytics* in the admin shows all of it for any period, compared with the period before, and every table downloads as a spreadsheet. *Campaign links* makes a tagged link for each post, broadcast or flyer (with a QR code to print), so visits through it, and the sign-ups they lead to, are counted under its campaign. Analytics start from the day the tracking goes live; in demo mode the screens mix made-up visits with the ones made in that browser, and say so.
+
+### Google Analytics and the Meta Pixel
+
+Separately from the above, and unlike it (both set cookies, so they ask first: see *Cookies* below), every public page carries the **Google tag** (`G-MWT8ZM5N43`, just after the `<meta name="viewport">`) and the **Meta Pixel** (`1354004723598509`, just before `</head>`), which counts a `PageView` on each page. `admin.html` has neither, so the team's own screens aren't counted and never load Meta's script beside people's details; nor does `videos.html`, which only forwards to Media.
+
+The pixel's one other event is the standard **`Lead`**, sent once a form has actually been saved (not when it's opened or sent with a mistake), from `api._lead()` in `js/data.js`:
+
+| When | `content_category` | `content_name` | `eventID` |
+| --- | --- | --- | --- |
+| Someone registers for any event (the concert, "Register to watch" the Talent Quest, any other event) | `Event registration` | the event's name | the ticket ID (`REG-…`) |
+| Someone applies to the Talent Quest | `Talent Quest application` | `SPAW Talent Quest` | the application ID (`SYM-…`) |
+
+In Events Manager, a custom conversion on *Lead* filtered by `content_category` (or `content_name`) tells the two apart, for optimising one campaign on applications and another on concert registrations. The `eventID` is what Meta uses to count a lead once if the server ever reports it as well (Conversions API). Registrations made by hand in the admin aren't leads and aren't sent.
+
+### Cookies
+
+Google and Meta set cookies, so each page starts with theirs off, and [`js/consent.js`](js/consent.js) asks once, in a small panel at the bottom of the first page a visitor opens (after the homepage film): *Accept* or *Decline*, equally easy. The answer is remembered in the browser, and **Cookie settings**, beside *Admin* at the foot of every page, asks again.
+
+- **Before an answer, and after Decline:** Google Analytics counts visits without cookies (Google's Consent Mode; its reports model what it can't see), and the Meta Pixel sends nothing. A registration or application made before answering is held, and reaches Meta if they then accept.
+- **Accept:** both work as normal from then on, and Meta also gets what it held back on that page (the `PageView`, and a `Lead`).
+- **Decline after accepting:** their cookies are removed.
+
+This means Meta only sees the leads of people who accept. That's the cost of asking first, as Nigeria's data protection rules (and the UK's and EU's) expect of advertising cookies. The site's own counting (`js/track.js`) sets no cookies and doesn't ask.
+
+## Videos: the YouTube key
+
+Without a key the site reads her channel's public feed, which works most of the time; with one it uses the YouTube Data API, which doesn't go down with the feed. It's free (the site uses a few dozen of the 10,000 daily units). To add one, once:
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a project (for example `dr-ajokesings`).
+2. **APIs & Services → Library**: search for **YouTube Data API v3** and press **Enable**.
+3. **APIs & Services → Credentials → Create credentials → API key**. Under *API restrictions*, restrict it to **YouTube Data API v3** and save. Leave *Application restrictions* at none: the key is used from Vercel's servers, never from a browser.
+4. In Vercel, the **spaw** project → **Settings → Environment Variables**: add `YOUTUBE_API_KEY` with the key, for Production (and Preview if you like), then **Deployments → ⋯ → Redeploy** the latest one.
+5. Check: `https://dr-ajokesings.com/api/youtube` should start `{"source":"api"`. (`"feed"` means it's reading the feed; an `error` says what's wrong.)
 
 ## Prototype boundaries
 

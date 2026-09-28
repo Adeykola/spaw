@@ -531,6 +531,47 @@ p { text-wrap: pretty; }
   body:has(.edit-dock:not([hidden])) .quest-call { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 48px); }
 }
 
+/* The cookie question (consent.js): bottom left, across from the Talent
+   Quest call. Where the two would meet, the call waits for the answer. */
+.cookie-panel {
+  position: fixed;
+  left: max(16px, env(safe-area-inset-left));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 85;
+  display: grid;
+  gap: var(--space-xs);
+  width: min(26rem, calc(100vw - 32px));
+  padding: var(--space-s);
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 94%, transparent);
+  color: var(--paper);
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.75);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  opacity: 0;
+  translate: 0 24px;
+  visibility: hidden;
+  transition: opacity 0.5s var(--ease-soft), translate 0.7s var(--ease-cinema), visibility 0s linear 0.7s;
+}
+.cookie-panel.is-shown { opacity: 1; translate: 0 0; visibility: visible; transition-delay: 0s; }
+.cookie-panel__text { margin: 0; font-size: 0.85rem; line-height: 1.5; color: color-mix(in srgb, var(--paper) 86%, transparent); }
+.cookie-panel__actions { display: flex; gap: var(--space-2xs); }
+.cookie-panel__btn { flex: 1; justify-content: center; padding: 0.75rem 1.25rem; }
+.has-persistent-player .cookie-panel { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 96px); }
+body:has(.edit-dock:not([hidden])) .cookie-panel { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 52px); }
+@media (max-width: 960px) {
+  .has-cookie-panel .quest-call { opacity: 0; translate: 0 18px; visibility: hidden; transition-delay: 0s, 0s, 0.7s; }
+}
+@media (max-width: 560px) {
+  .cookie-panel { left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); width: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cookie-panel { translate: none; }
+}
+.footer-cookie-btn { transition: opacity var(--dur-s); }
+.footer-cookie-btn:hover { opacity: 0.6; }
+
 @media (prefers-reduced-motion: reduce) {
   .btn-quest,
   .btn-solid.btn-quest,

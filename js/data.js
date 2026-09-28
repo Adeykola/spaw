@@ -577,6 +577,17 @@ const api = {
     return new Promise((resolve) => setTimeout(resolve, ms));
   },
 
+  // Meta Pixel "Lead" (the pixel is in each page's <head>): an event
+  // registration or a Talent Quest application, once it has been saved.
+  // The reference it was saved under is the eventID, so Meta can match the
+  // same lead if the server ever reports it too (Conversions API).
+  _lead(category, name, id) {
+    if (typeof window.fbq !== "function") return;
+    try {
+      window.fbq("track", "Lead", { content_category: category, content_name: name }, { eventID: id });
+    } catch (_) { /* the pixel must never get in the way of a form */ }
+  },
+
   /* ---- Artist / homepage ---- */
   async getArtist() {
     await this._delay(200);
@@ -687,27 +698,40 @@ const api = {
       .sort((a, b) => b.date.localeCompare(a.date));
   },
 
-  // YouTube serves the feed without CORS headers, so a browser can't read
-  // it directly; rss2json relays it as JSON (free tier: the newest 10
-  // items, refreshed about every half hour). To drop the relay, replace
-  // this one method with the YouTube Data API or a small serverless
-  // function returning the same { youtubeId, published, title } list.
+  // The site's own /api/youtube (api/youtube.js, run by Vercel) reads the
+  // channel on the server: the YouTube Data API when a key is set, else the
+  // feed. Where that doesn't exist (another host, or opened from disk),
+  // the rss2json relay reads the feed instead, since YouTube serves it
+  // without CORS headers and a browser can't read it directly. Either
+  // failing leaves the snapshot. Both answer [{ youtubeId, published, title }].
   async _fetchYouTubeFeed() {
+    if (/^https?:$/.test(location.protocol)) {
+      const res = await this._fetchWithin("/api/youtube", 8000).catch(() => null);
+      if (res && res.status !== 404) {
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok || !Array.isArray(body.videos)) throw new Error(body.error || `HTTP ${res.status}`);
+        return body.videos.filter((v) => /^[\w-]{11}$/.test(v.youtubeId) && /^\d{4}-\d{2}-\d{2}$/.test(v.published));
+      }
+    }
     const feed = `https://www.youtube.com/feeds/videos.xml?channel_id=${DB.youtube.channelId}`;
+    const res = await this._fetchWithin(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}`, 6000);
+    const body = await res.json();
+    if (!res.ok || body.status !== "ok") throw new Error(body.message || `HTTP ${res.status}`);
+    return body.items
+      .filter((item) => !/\/shorts\//.test(item.link)) // Shorts are vertical clips, not library videos
+      .map((item) => ({
+        youtubeId: String(item.guid || "").replace("yt:video:", ""),
+        published: String(item.pubDate || "").slice(0, 10),
+        title: item.title,
+      }))
+      .filter((v) => /^[\w-]{11}$/.test(v.youtubeId) && /^\d{4}-\d{2}-\d{2}$/.test(v.published));
+  },
+
+  async _fetchWithin(url, ms) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 6000);
+    const timer = setTimeout(() => ctrl.abort(), ms);
     try {
-      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}`, { signal: ctrl.signal });
-      const body = await res.json();
-      if (!res.ok || body.status !== "ok") throw new Error(body.message || `HTTP ${res.status}`);
-      return body.items
-        .filter((item) => !/\/shorts\//.test(item.link)) // Shorts are vertical clips, not library videos
-        .map((item) => ({
-          youtubeId: String(item.guid || "").replace("yt:video:", ""),
-          published: String(item.pubDate || "").slice(0, 10),
-          title: item.title,
-        }))
-        .filter((v) => /^[\w-]{11}$/.test(v.youtubeId) && /^\d{4}-\d{2}-\d{2}$/.test(v.published));
+      return await fetch(url, { signal: ctrl.signal });
     } finally {
       clearTimeout(timer);
     }
@@ -792,6 +816,7 @@ const api = {
     if (!this.applicationsOpen()) throw new Error("Applications for this Talent Quest are closed.");
     const application = await Backend.forms.submitApplication(payload);
     if (window.Track) Track.event("applied", { label: payload.track });
+    this._lead("Talent Quest application", "SPAW Talent Quest", application.id);
     Backend.email.send("applications", application.id); // "application received"
     return application;
   },
@@ -881,6 +906,7 @@ const api = {
     if (missing.length) throw new Error(`Please answer: ${missing.map((q) => q.label).join(" · ")}`);
     const registration = await Backend.forms.registerForEvent(event, clean);
     if (window.Track) Track.event("registered", { label: event.name, props: { id: event.id } });
+    this._lead("Event registration", event.name, registration.id);
     // The ticket (or confirmation) by email; the success screen says so once it's gone.
     return { ...registration, emailing: Backend.email.send("registrations", registration.id) };
   },
