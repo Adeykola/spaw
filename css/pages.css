@@ -1093,7 +1093,7 @@ a.contact-list__value:hover { color: var(--red-bright); }
 
 /* "Print or save as PDF": the terms alone, black on white. */
 @media print {
-  .site-header, .mobile-nav, .site-footer, .announce, .quest-call, .cookie-panel, .cursor, .cursor__label, .grain,
+  .site-header, .mobile-nav, .site-footer, .announce, .quest-call, .cursor, .cursor__label, .grain,
   .scroll-progress, .skip-link, .page-hero__actions, .legal-doc__after, .persistent-player, .edit-dock, .edit-bar { display: none !important; }
   body, .page-hero, .section, .section--light { background: #fff !important; color: #000 !important; }
   .page-hero__content { padding: 0 0 12pt !important; }

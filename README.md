@@ -94,7 +94,7 @@ What's counted: page views and time on each page (only while it's on screen), ho
 
 ### Google Analytics and the Meta Pixel
 
-Separately from the above, and unlike it (both set cookies, so they ask first: see *Cookies* below), every public page carries the **Google tag** (`G-MWT8ZM5N43`, just after the `<meta name="viewport">`) and the **Meta Pixel** (`1354004723598509`, just before `</head>`), which counts a `PageView` on each page. `admin.html` has neither, so the team's own screens aren't counted and never load Meta's script beside people's details; nor does `videos.html`, which only forwards to Media.
+Separately from the above, and unlike it (both set cookies), every public page carries the **Google tag** (`G-MWT8ZM5N43`, just after the `<meta name="viewport">`) and the **Meta Pixel** (`1354004723598509`, just before `</head>`), which counts a `PageView` on each page. `admin.html` has neither, so the team's own screens aren't counted and never load Meta's script beside people's details; nor does `videos.html`, which only forwards to Media.
 
 The pixel's one other event is the standard **`Lead`**, sent by the thank-you page once a form has actually been saved (not when it's opened or sent with a mistake, and once, not again on a reload), through `api._lead()` in `js/data.js`:
 
@@ -112,16 +112,6 @@ Each thank-you page has an address of its own, so Google Analytics can count the
 | `/register-thank-you?event=event-004` | registering for that event (each event its own; `/register-thank-you` alone for any) |
 | `/spaw-apply-thank-you` | applying to the Talent Quest |
 | `/spaw-volunteer-thank-you` | signing up to volunteer |
-
-### Cookies
-
-Google and Meta set cookies, so each page starts with theirs off, and [`js/consent.js`](js/consent.js) asks once, in a small panel at the bottom of the first page a visitor opens (after the homepage film): *Accept* or *Decline*, equally easy. The answer is remembered in the browser, and **Cookie settings**, beside *Admin* at the foot of every page, asks again.
-
-- **Before an answer, and after Decline:** Google Analytics counts visits without cookies (Google's Consent Mode; its reports model what it can't see), and the Meta Pixel sends nothing. A registration or application made before answering is held, and reaches Meta if they then accept.
-- **Accept:** both work as normal from then on, and Meta also gets what it held back on that page (the `PageView`, and a `Lead`).
-- **Decline after accepting:** their cookies are removed.
-
-This means Meta only sees the leads of people who accept. That's the cost of asking first, as Nigeria's data protection rules (and the UK's and EU's) expect of advertising cookies. The site's own counting (`js/track.js`) sets no cookies and doesn't ask.
 
 ## Videos: the YouTube key
 
