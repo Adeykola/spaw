@@ -509,7 +509,7 @@ const DB = {
     needs: ["Full worship ministration", "Short set — two or three songs", "Workshop or masterclass", "Panel or speaking slot", "Full band required"],
   },
 
-  /* Volunteering at SPAW (spaw-volunteer.html; admin → Volunteering). The
+  /* Volunteering at SPAW (volunteer.html; admin → Volunteering). The
    * days volunteers choose come from the Symphony dates (DB.symphony), so
    * they follow them. termsVersion is recorded with each signature: change
    * it whenever the volunteer terms (spaw-volunteer-terms.html) change. */

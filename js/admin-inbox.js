@@ -382,7 +382,7 @@
   });
 
   /* ===================================================================
-   * Volunteers (spaw-volunteer.html)
+   * Volunteers (volunteer.html)
    * =================================================================== */
   // Live, before supabase/setup-5.sql has run there's no table to read.
   const volunteersMissing = (err) => /volunteers/.test(err.message || "") && /schema cache|does not exist|not find/i.test(err.message || "");
@@ -431,7 +431,7 @@
         const items = shown();
         count.textContent = plural(items.length, "volunteer");
         if (!items.length) {
-          listHost.replaceChildren(h("p", { class: "admin-empty", text: all.length ? "Nothing matches these filters." : "No one has signed up to volunteer yet. The sign-up page is at /spaw-volunteer." }));
+          listHost.replaceChildren(h("p", { class: "admin-empty", text: all.length ? "Nothing matches these filters." : "No one has signed up to volunteer yet. The sign-up page is at /volunteer." }));
           return;
         }
         listHost.replaceChildren(table([

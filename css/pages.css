@@ -1013,7 +1013,7 @@ a.contact-list__value:hover { color: var(--red-bright); }
 }
 
 /* ==========================================================================
-   VOLUNTEERS — spaw-volunteer.html (sign-up) and spaw-volunteer-terms.html
+   VOLUNTEERS — volunteer.html (sign-up) and spaw-volunteer-terms.html
    ========================================================================== */
 .benefit-grid--three { grid-template-columns: repeat(3, 1fr); }
 .benefit-card__body a { color: var(--red); text-decoration: underline; text-underline-offset: 2px; }

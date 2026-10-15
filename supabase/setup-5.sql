@@ -1,6 +1,6 @@
 -- ============================================================================
 -- Dr AjokeSings: Supabase setup, part 5 — volunteers
--- People who register to volunteer at SPAW (spaw-volunteer.html). Each one
+-- People who register to volunteer at SPAW (volunteer.html). Each one
 -- signs the Terms and Conditions for Volunteers (spaw-volunteer-terms.html)
 -- by ticking the box and typing their full name, which is kept with the
 -- date, time and version of the terms they signed.

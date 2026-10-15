@@ -1,7 +1,7 @@
 /**
  * volunteer.js
  * ----------------------------------------------------------------------
- * Drives spaw-volunteer.html: the teams and days to choose from (admin →
+ * Drives volunteer.html: the teams and days to choose from (admin →
  * Volunteering, and the Symphony dates), the questions everyone answers
  * (form-fields.js), signing the Terms and Conditions for Volunteers by
  * ticking the box and typing their full name, and the submit through

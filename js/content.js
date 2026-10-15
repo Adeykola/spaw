@@ -33,8 +33,11 @@
     let rel = new URL(href, location.href).pathname;
     rel = rel.startsWith(rootPath) ? rel.slice(rootPath.length) : rel.replace(/^.*\//, "");
     rel = rel.replace(/\/+$/, "").replace(/\.html$/, "");
-    return rel.split("/").pop() || "index";
+    const name = rel.split("/").pop() || "index";
+    // A page whose address changed keeps the name its saved words are kept under.
+    return PAGE_ALIASES[name] || name;
   }
+  const PAGE_ALIASES = { volunteer: "spaw-volunteer" };
   const PAGE = pageName();
 
   const PAGES = [
@@ -47,7 +50,7 @@
     { page: "symphony", label: "Symphony", file: "symphony.html", path: "symphony" },
     { page: "spaw-apply", label: "Talent Quest application", file: "spaw-apply.html", path: "spaw-apply" },
     { page: "spaw-apply-thank-you", label: "Talent Quest: thank you", file: "spaw-apply-thank-you.html", path: "spaw-apply-thank-you" },
-    { page: "spaw-volunteer", label: "Volunteer sign-up", file: "spaw-volunteer.html", path: "spaw-volunteer" },
+    { page: "spaw-volunteer", label: "Volunteer sign-up", file: "volunteer.html", path: "volunteer" },
     { page: "spaw-volunteer-thank-you", label: "Volunteers: thank you", file: "spaw-volunteer-thank-you.html", path: "spaw-volunteer-thank-you" },
     { page: "spaw-volunteer-terms", label: "Volunteer terms", file: "spaw-volunteer-terms.html", path: "spaw-volunteer-terms" },
     { page: "events", label: "Events", file: "events.html", path: "events" },

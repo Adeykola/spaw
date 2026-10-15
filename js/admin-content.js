@@ -279,7 +279,7 @@
     },
     {
       id: "volunteering", key: "volunteering", title: "Volunteering", kind: "object", preview: "spaw-volunteer",
-      sub: "The volunteer sign-up page (/spaw-volunteer): open or closed, and the teams to choose from. The days come from the Symphony dates. Volunteers themselves are under Inbox → Volunteers; the page's other words, and the terms page, are edited under Pages.",
+      sub: "The volunteer sign-up page (/volunteer): open or closed, and the teams to choose from. The days come from the Symphony dates. Volunteers themselves are under Inbox → Volunteers; the page's other words, and the terms page, are edited under Pages.",
       fields: [
         { key: "open", label: "Accept volunteers", type: "check", defaultOn: true, help: "Sign-up also closes by itself after the closing date, and the page then says so." },
         { key: "closes", label: "Sign-up closes", type: "date" },
