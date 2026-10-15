@@ -6,6 +6,7 @@
 @media (max-width: 1200px) {
   .footer-top { grid-template-columns: 1.2fr 1fr 1fr; }
   .footer-col:nth-child(4) { display: none; }
+  .primary-nav__list { gap: var(--space-s); }
 }
 
 @media (max-width: 1024px) {
