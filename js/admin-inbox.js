@@ -67,6 +67,37 @@
   };
   const searchBox = (placeholder) => h("input", { type: "search", class: "admin-input inbox-search", placeholder, "aria-label": placeholder });
 
+  // Pages for a long list: how many to a page, previous and next, and where
+  // you are. pager.slice(items) gives this page's rows; reset() goes back to
+  // the first page (when a filter changes).
+  function pager(onChange, { sizes = [25, 50, 100, 250], size = 50 } = {}) {
+    let page = 0;
+    let total = 0;
+    const per = select(sizes.map((n) => [String(n), `${n} a page`]), String(size), "Rows a page");
+    const where = h("span", { class: "inbox-count" });
+    const prev = btn("← Previous", () => { page -= 1; onChange(); });
+    const next = btn("Next →", () => { page += 1; onChange(); });
+    per.addEventListener("change", () => { page = 0; onChange(); });
+    const node = h("div", { class: "inbox-pager" }, [where, h("div", { class: "inbox-pager__nav" }, [per, prev, next])]);
+    return {
+      node,
+      reset() { page = 0; },
+      slice(items) {
+        const n = Number(per.value);
+        total = items.length;
+        const pages = Math.max(1, Math.ceil(total / n));
+        page = Math.min(Math.max(0, page), pages - 1);
+        const from = page * n;
+        const rows = items.slice(from, from + n);
+        where.textContent = total ? `${(from + 1).toLocaleString()}–${(from + rows.length).toLocaleString()} of ${total.toLocaleString()} · page ${page + 1} of ${pages}` : "";
+        prev.disabled = page === 0;
+        next.disabled = page >= pages - 1;
+        node.hidden = !total;
+        return rows;
+      },
+    };
+  }
+
   function details(pairs) {
     const dl = h("dl");
     pairs.filter(([, v]) => v !== undefined).forEach(([label, value]) => {
@@ -513,16 +544,74 @@
       const eventSel = select([["all", "Every event"], ...eventPairs], known.has(sub) ? sub : "all", "Event");
       const status = select([["registered", "Registered"], ["cancelled", "Cancelled"], ["all", "Registered and cancelled"]], "registered", "Status");
       const arrival = select([["all", "Arrived or not"], ["in", "Checked in"], ["out", "Not checked in yet"]], "all", "Check-in");
-      const q = searchBox("Find a name, email or ticket ID");
+      const through = select([["all", "Website or team"], ["site", "Through the website"], ["admin", "Added by the team"]], "all", "Through");
+      const since = h("input", { type: "date", class: "admin-input", "aria-label": "Registered from", title: "Registered from" });
+      const until = h("input", { type: "date", class: "admin-input", "aria-label": "Registered up to", title: "Registered up to" });
+      const q = searchBox("Find a name, email, phone or ticket ID");
+      const answerHost = h("div", { class: "inbox-bar inbox-bar--answers" });
+      const clear = btn("Clear filters", () => {
+        eventSel.value = "all"; status.value = "registered"; arrival.value = "all"; through.value = "all";
+        since.value = ""; until.value = ""; q.value = "";
+        answerFilters.forEach((f) => { f.sel.value = "all"; });
+        drawAnswerFilters();
+        refilter();
+      });
+      const count = h("span", { class: "inbox-count" });
+      const pages = pager(() => drawList());
       const summary = h("div", { class: "inbox-summary" });
       const listHost = h("div");
       const detailHost = h("div", { class: "detail-panel" });
 
+      // A filter for each question with a few set answers (gender, age
+      // category, state, …), from the answers people actually gave to the
+      // event chosen (or every event).
+      const answerOf = (r, key, part) => {
+        const a = (r.answers || []).find((x) => (x.id || x.label) === key);
+        if (!a || a.value == null || a.value === "") return "";
+        if (part) return (a.value && a.value[part]) || "";
+        return answerText(a.value);
+      };
+      let answerFilters = [];
+      function drawAnswerFilters() {
+        const kept = new Map(answerFilters.map((f) => [f.id, f.sel.value]));
+        const rows = all.filter((r) => eventSel.value === "all" || r.eventId === eventSel.value);
+        const questions = new Map();
+        rows.forEach((r) => (r.answers || []).forEach((a) => {
+          const key = a.id || a.label;
+          if (!key) return;
+          const place = a.type === "location" || (a.value && typeof a.value === "object" && !Array.isArray(a.value));
+          const parts = place ? [["country", "Country"], ["state", "State"]] : [["", a.label || key]];
+          parts.forEach(([part, label]) => {
+            const id = `${key}:${part}`;
+            if (!questions.has(id)) questions.set(id, { id, key, part, label, values: new Map() });
+            const v = answerOf(r, key, part);
+            if (v) { const m = questions.get(id).values; m.set(v, (m.get(v) || 0) + 1); }
+          });
+        }));
+        answerFilters = [...questions.values()]
+          .filter((x) => x.values.size > 1 && x.values.size <= 60)
+          .map((x) => {
+            const values = [...x.values.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+            const sel = select([["all", `Any ${x.label.toLowerCase()}`], ...values.map(([v, n]) => [v, `${v} (${n.toLocaleString()})`])], "all", x.label);
+            if (kept.has(x.id) && x.values.has(kept.get(x.id))) sel.value = kept.get(x.id);
+            sel.addEventListener("change", refilter);
+            return { ...x, sel };
+          });
+        answerHost.replaceChildren(...answerFilters.map((f) => f.sel));
+        answerHost.hidden = !answerFilters.length;
+      }
+
+      const dayOf = (iso) => (iso ? new Date(iso).toLocaleDateString("en-CA") : "");
       const shown = () => all.filter((r) =>
         (eventSel.value === "all" || r.eventId === eventSel.value) &&
         (status.value === "all" || r.status === status.value) &&
         (arrival.value === "all" || (arrival.value === "in" ? r.checkedIn : !r.checkedIn)) &&
+        (through.value === "all" || (through.value === "admin" ? r.source === "admin" : r.source !== "admin")) &&
+        (!since.value || dayOf(r.registeredAt) >= since.value) &&
+        (!until.value || dayOf(r.registeredAt) <= until.value) &&
+        answerFilters.every((f) => f.sel.value === "all" || answerOf(r, f.key, f.part) === f.sel.value) &&
         (!q.value.trim() || [r.name, r.email, r.id, r.phone].join(" ").toLowerCase().includes(q.value.trim().toLowerCase())));
+      const refilter = () => { pages.reset(); drawList(); };
 
       function drawSummary() {
         const scope = all.filter((r) => (eventSel.value === "all" || r.eventId === eventSel.value) && r.status === "registered");
@@ -540,16 +629,19 @@
       function drawList() {
         drawSummary();
         const items = shown();
+        count.textContent = `${plural(items.length, "registration")} found`;
+        const rows = pages.slice(items);
         if (!items.length) {
           listHost.replaceChildren(h("p", { class: "admin-empty", text: all.length ? "Nothing matches these filters." : "No one has registered for an event yet." }));
           return;
         }
-        listHost.replaceChildren(table([
+        listHost.replaceChildren(pages.node, table([
           ["Name", (r) => r.name],
           ["Event", (r) => r.eventName],
+          ["Registered", (r) => day(r.registeredAt)],
           ["Status", (r) => (r.status === "cancelled" ? pill("registrations", "cancelled") : r.checkedIn ? h("span", { class: "status-pill status-pill--checked", text: "Checked in" }) : pill("registrations", "registered"))],
           ["", (r) => (r.status === "registered" && !r.checkedIn ? btn("Check in", () => checkIn(r)) : "")],
-        ], items, { onOpen: (r) => { openId = r.id; drawList(); drawDetail(r); }, isCurrent: (r) => r.id === openId }));
+        ], rows, { onOpen: (r) => { openId = r.id; drawList(); drawDetail(r); }, isCurrent: (r) => r.id === openId }));
       }
 
       async function checkIn(r) {
@@ -627,11 +719,15 @@
         ], rows);
       });
 
-      [eventSel, status, arrival].forEach((s) => s.addEventListener("change", drawList));
-      q.addEventListener("input", drawList);
+      eventSel.addEventListener("change", () => { drawAnswerFilters(); refilter(); });
+      [status, arrival, through, since, until].forEach((s) => s.addEventListener("change", refilter));
+      q.addEventListener("input", refilter);
+      drawAnswerFilters();
       panel.replaceChildren(
         title,
-        h("div", { class: "inbox-bar" }, [eventSel, status, arrival, q, csv]),
+        h("div", { class: "inbox-bar" }, [eventSel, status, arrival, through, since, until, q]),
+        answerHost,
+        h("div", { class: "inbox-bar" }, [count, clear, csv]),
         summary,
         h("div", { class: "admin-layout inbox-layout" }, [
           listHost,

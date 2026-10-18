@@ -804,8 +804,18 @@
       return Object.fromEntries((rows || []).map((r) => [r.event_id, Number(r.registered)]));
     },
     async list(kind) {
+      // Supabase hands back at most 1,000 rows a request, so read a page at a
+      // time until one comes back short. Ordered by the key too, so no row is
+      // skipped or read twice between pages.
       const sb = await client();
-      const rows = must(await sb.from(kind).select("*").order(ORDER[kind], { ascending: false }).limit(5000));
+      const key = kind === "subscribers" ? "email" : "id";
+      const PAGE = 1000;
+      const rows = [];
+      for (let from = 0; ; from += PAGE) {
+        const page = must(await sb.from(kind).select("*").order(ORDER[kind], { ascending: false }).order(key).range(from, from + PAGE - 1));
+        rows.push(...page);
+        if (page.length < PAGE) break;
+      }
       return rows.map((r) => fromRow(kind, r));
     },
     async update(kind, id, patch) {

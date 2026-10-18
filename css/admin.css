@@ -450,6 +450,11 @@ textarea.admin-input { resize: vertical; line-height: 1.5; }
 .inbox-side .detail-panel { position: static; }
 .inbox-actions { margin: var(--space-s) 0; }
 .inbox-actions .btn { padding: 0.65rem 1rem; font-size: var(--step--1); }
+.inbox-bar--answers { margin-top: calc(var(--space-s) * -1); }
+.inbox-bar input[type="date"] { width: auto; flex: 0 0 auto; }
+.inbox-pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-xs); margin-bottom: var(--space-s); }
+.inbox-pager__nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2xs); }
+.inbox-pager button:disabled { opacity: 0.4; cursor: default; }
 .inbox-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-s); margin-bottom: var(--space-m); }
 .inbox-summary .stat-card__value { font-size: var(--step-2); }
 .inbox-stars { display: flex; gap: 2px; }
