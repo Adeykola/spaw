@@ -459,7 +459,7 @@
           h("div", { class: "admin-field" }, [h("span", { text: "Status" }), statusControl("volunteers", v, drawList)]),
           details([
             ["Reference", v.id], ["Email", mailto(v.email, "Volunteering at SPAW")], ["Phone", tel(v.phone)],
-            ["From", v.location], ["Gender", v.gender], ["Age category", v.ageCategory], ["Church or fellowship", v.church],
+            ["From", v.location], ["Birthday", v.birthday], ["Gender", v.gender], ["Age category", v.ageCategory], ["Church or fellowship", v.church],
             ["Teams", listText(v.teams)], ["Can serve", listText(v.days)], ["Experience", v.experience],
             ["In an emergency", v.emergencyName ? h("span", {}, [`${v.emergencyName} · `, tel(v.emergencyPhone)]) : ""],
             ["Signed", signature(v)],
@@ -478,7 +478,7 @@
         ["Reference", (v) => v.id], ["Signed up", (v) => v.submittedAt], ["Status", (v) => LABELS.volunteers[v.status]],
         ["Name", (v) => v.fullName], ["Email", (v) => v.email], ["Phone", (v) => v.phone],
         ["State", (v) => v.state], ["Country", (v) => v.country], ["From", (v) => v.location],
-        ["Gender", (v) => v.gender], ["Age category", (v) => v.ageCategory], ["Church or fellowship", (v) => v.church],
+        ["Birthday", (v) => v.birthday], ["Gender", (v) => v.gender], ["Age category", (v) => v.ageCategory], ["Church or fellowship", (v) => v.church],
         ["Teams", (v) => (v.teams || []).join("; ")], ["Can serve", (v) => (v.days || []).join("; ")], ["Experience", (v) => v.experience],
         ["Emergency contact", (v) => v.emergencyName], ["Emergency phone", (v) => v.emergencyPhone],
         ["Signature", (v) => v.signature], ["Signed at", (v) => v.signedAt || v.submittedAt], ["Terms version", (v) => v.termsVersion],

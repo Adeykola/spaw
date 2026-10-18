@@ -118,7 +118,7 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
         <article class="benefit-card">
           <span class="benefit-card__num mono-index">01</span>
           <h3 class="benefit-card__title display">Sign up</h3>
-          <p class="benefit-card__body">Tell us who you are, the teams you'd like to serve in, and the days you can give.</p>
+          <p class="benefit-card__body">Tell us who you are, the team you'd like to serve in, and the days you can give.</p>
         </article>
         <article class="benefit-card">
           <span class="benefit-card__num mono-index">02</span>
@@ -156,6 +156,14 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
             <input type="email" id="vol-email" name="email" autocomplete="email">
             <p class="field-error" data-field-error="email"></p>
           </div>
+          <div class="field">
+            <label for="vol-birth-day">Birthday (day and month) *</label>
+            <div class="field-pair">
+              <select id="vol-birth-day" aria-label="Day" autocomplete="bday-day" data-vol-birth-day><option value="">Day…</option></select>
+              <select id="vol-birth-month" aria-label="Month" autocomplete="bday-month" data-vol-birth-month><option value="">Month…</option></select>
+            </div>
+            <p class="field-error" data-field-error="birthday"></p>
+          </div>
           <!-- Phone with its country code, gender, age category, and state and
                country: drawn by volunteer.js (form-fields.js). -->
           <div class="field field--full" data-vol-question="phone"></div>
@@ -168,11 +176,11 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
           </div>
 
           <p class="form-part eyebrow">How you'd like to serve</p>
-          <fieldset class="check-group field--full">
-            <legend>The teams you'd like to serve in * <span>Choose as many as you like.</span></legend>
-            <div class="check-group__options" data-vol-teams></div>
+          <div class="field field--full">
+            <label for="vol-team">Volunteer team *</label>
+            <select id="vol-team" name="team" data-vol-team><option value="">Choose a team…</option></select>
             <p class="field-error" data-field-error="teams"></p>
-          </fieldset>
+          </div>
           <fieldset class="check-group field--full">
             <legend>When you can serve *</legend>
             <div class="check-group__options" data-vol-days></div>

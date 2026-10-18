@@ -1,8 +1,9 @@
 /**
  * volunteer.js
  * ----------------------------------------------------------------------
- * Drives volunteer.html: the teams and days to choose from (admin →
- * Volunteering, and the Symphony dates), the questions everyone answers
+ * Drives volunteer.html: the team (a dropdown) and the days to choose
+ * from (admin → Volunteering, and the Symphony dates), their birthday (day
+ * and month), the questions everyone answers
  * (form-fields.js), signing the Terms and Conditions for Volunteers by
  * ticking the box and typing their full name, and the submit through
  * api.submitVolunteer, which goes on to spaw-volunteer-thank-you.html with
@@ -23,11 +24,13 @@ function wirePrint() {
   document.querySelectorAll("[data-print]").forEach((b) => b.addEventListener("click", () => window.print()));
 }
 
-// A group of tick boxes (the teams, the days) inside its fieldset.
+// A group of tick boxes (the days) inside its fieldset.
 function checkGroup(host, name, options) {
   host.replaceChildren(...options.map((o) =>
     el("label", { class: "checkbox-field" }, [el("input", { type: "checkbox", name, value: o }), el("span", { text: o })])));
 }
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const DAYS_IN = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const ticked = (form, name) => Array.from(form.querySelectorAll(`[name='${name}']:checked`)).map((i) => i.value);
 
 async function wireVolunteerForm() {
@@ -58,16 +61,21 @@ async function wireVolunteerForm() {
     email: form.querySelector("#vol-email"),
     church: form.querySelector("#vol-church"),
     experience: form.querySelector("#vol-experience"),
+    team: form.querySelector("#vol-team"),
+    birthDay: form.querySelector("[data-vol-birth-day]"),
+    birthMonth: form.querySelector("[data-vol-birth-month]"),
     emergencyName: form.querySelector("#vol-emergency-name"),
     terms: form.querySelector("#vol-terms"),
     signature: form.querySelector("#vol-signature"),
   };
+  fields.birthDay.append(...Array.from({ length: 31 }, (_, i) => el("option", { value: String(i + 1), text: String(i + 1) })));
+  fields.birthMonth.append(...MONTHS.map((m) => el("option", { value: m, text: m })));
   const signedOn = form.querySelector("[data-signed-on]");
   if (signedOn) signedOn.textContent = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   try {
     const v = await api.getVolunteering();
-    checkGroup(form.querySelector("[data-vol-teams]"), "teams", [...v.teams, "Wherever I'm needed"]);
+    fields.team.append(...v.teams.map((t) => el("option", { value: t, text: t })));
     checkGroup(form.querySelector("[data-vol-days]"), "days", v.days);
     renderDates(v);
     if (questions.age && Array.isArray(v.ageCategories) && v.ageCategories.length) questions.age.setOptions(v.ageCategories);
@@ -88,7 +96,11 @@ async function wireVolunteerForm() {
     if (!fields.fullName.value.trim()) { setError("fullName", "Enter your full name."); valid = false; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email.value.trim())) { setError("email", "Enter a valid email address."); valid = false; }
     Object.values(questions).forEach((q) => { if (q.check()) valid = false; });
-    if (!ticked(form, "teams").length) { setError("teams", "Choose at least one team."); valid = false; }
+    const day = Number(fields.birthDay.value);
+    const month = MONTHS.indexOf(fields.birthMonth.value);
+    if (!day || month === -1) { setError("birthday", "Choose the day and month of your birthday."); valid = false; }
+    else if (day > DAYS_IN[month]) { setError("birthday", `${fields.birthMonth.value} has only ${DAYS_IN[month]} days.`); valid = false; }
+    if (!fields.team.value) { setError("teams", "Choose the team you'd like to serve in."); valid = false; }
     if (!ticked(form, "days").length) { setError("days", "Choose at least one day."); valid = false; }
     if (!fields.emergencyName.value.trim()) { setError("emergencyName", "Who should we call in an emergency?"); valid = false; }
     if (!fields.terms.checked) { setError("terms", "You need to agree to the Terms and Conditions for Volunteers."); valid = false; }
@@ -123,7 +135,8 @@ async function wireVolunteerForm() {
       state: place.state,
       country: place.country,
       location: FormFields.formatValue(place),
-      teams: ticked(form, "teams"),
+      birthday: `${fields.birthDay.value} ${fields.birthMonth.value}`,
+      teams: [fields.team.value],
       days: ticked(form, "days"),
       church: fields.church.value.trim(),
       experience: fields.experience.value.trim(),

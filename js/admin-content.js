@@ -283,7 +283,7 @@
       fields: [
         { key: "open", label: "Accept volunteers", type: "check", defaultOn: true, help: "Sign-up also closes by itself after the closing date, and the page then says so." },
         { key: "closes", label: "Sign-up closes", type: "date" },
-        { key: "teams", label: "Teams volunteers choose from", type: "lines", rows: 9, help: "One per line. “Wherever I'm needed” is always offered too." },
+        { key: "teams", label: "Teams volunteers choose from", type: "lines", rows: 11, help: "One per line. Volunteers choose one from a dropdown." },
         { key: "termsVersion", label: "Version of the volunteer terms", type: "text", help: "Kept with each volunteer's signature. Change it whenever you change the words of the terms page, so you know which version each person signed." },
       ],
     },

@@ -25,7 +25,7 @@ create table if not exists public.volunteers (
   phone          text,
   location       text,
   status         text not null default 'new' check (status in ('new', 'contacted', 'confirmed', 'declined')),
-  data           jsonb not null default '{}',  -- gender, age category, state, country, teams, days, church, experience, emergency contact
+  data           jsonb not null default '{}',  -- birthday, gender, age category, state, country, teams, days, church, experience, emergency contact
   signature      text not null,                -- the full name they typed to sign the volunteer terms
   terms_version  text,                         -- which terms they signed (admin → Volunteering)
   signed_at      timestamptz not null default now(),
@@ -122,6 +122,7 @@ begin
   values (
     ref, left(who, 200), mail, left(trim(payload ->> 'phone'), 40), left(trim(payload ->> 'location'), 200),
     jsonb_strip_nulls(jsonb_build_object(
+      'birthday', left(nullif(trim(coalesce(payload ->> 'birthday', '')), ''), 20),
       'gender', left(nullif(trim(coalesce(payload ->> 'gender', '')), ''), 60),
       'ageCategory', left(nullif(trim(coalesce(payload ->> 'ageCategory', '')), ''), 60),
       'state', left(nullif(trim(coalesce(payload ->> 'state', '')), ''), 100),

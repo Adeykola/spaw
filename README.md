@@ -125,7 +125,7 @@ Without a key the site reads her channel's public feed, which works most of the 
 
 ## Volunteers
 
-`/volunteer` is the page to share for volunteers; the Symphony page links to it at the bottom. Volunteers give their details (phone with its country code, gender, age category, state and country, church), tick the teams they'd like to serve in and the days they can give, and name someone to call in an emergency. They sign the [Terms and Conditions for Volunteers](spaw-volunteer-terms.html) by ticking the box and typing their full name, which has to match the name they gave; the signature is kept with the date, the time and the version of the terms. One sign-up per email address.
+`/volunteer` is the page to share for volunteers; the Symphony page links to it at the bottom. Volunteers give their details (phone with its country code, gender, age category, state and country, church), give their birthday (day and month), choose the team they'd like to serve in from a dropdown, tick the days they can give, and name someone to call in an emergency. They sign the [Terms and Conditions for Volunteers](spaw-volunteer-terms.html) by ticking the box and typing their full name, which has to match the name they gave; the signature is kept with the date, the time and the version of the terms. One sign-up per email address.
 
 - **Inbox → Volunteers** lists them, with filters by status, team and day, the full details and signature, buttons to email or WhatsApp them, notes, and a spreadsheet download. Statuses: New, Contacted, On the team, Not this time.
 - **Content → Volunteering** switches sign-up on or off, sets the closing date, edits the teams, and holds the version of the terms. The days come from the Symphony dates (Content → Symphony), so they follow them.
