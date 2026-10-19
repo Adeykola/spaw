@@ -31,6 +31,8 @@
  */
 
 const WHATSAPP = "https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e";
+// The volunteers' WhatsApp group: new volunteers are onboarded there.
+const WHATSAPP_VOLUNTEERS = "https://chat.whatsapp.com/KWIroHMSczsBmL4JQ7kAKo?s=cl&p=a&mlu=4&ilr=4";
 const DISCLAIMER = "Disclaimer: Contestants are responsible for their logistics to and from the event. DrAjokesings Productions Limited bears no responsibility for transportation or related costs.";
 const KEY_OF: Record<string, string> = { registrations: "id", applications: "id", enquiries: "id", subscribers: "email", volunteers: "id" };
 const SENT_AT: Record<string, string> = { registrations: "registered_at", applications: "submitted_at", enquiries: "submitted_at", subscribers: "subscribed_at", volunteers: "submitted_at" };
@@ -248,12 +250,13 @@ export function compose(kind: string, row: Row, content: Content, env: Pick<Sett
       blocks: [
         para(`Hi ${firstName(row.full_name)}, thank you for offering to serve at Symphony of Praise & Worship with Dr AjokeSings. Your registration has reached the volunteer team.`),
         facts([
-          ["Reference", row.id], ["Teams", list(d.teams)], ["Days", list(d.days)], ["From", row.location],
-          ["Signed", [row.signature, longDate(row.signed_at)].filter(Boolean).join(", ")],
+          ["Reference", row.id], ["Team", list(d.teams)], ["Days", list(d.days)], ["From", row.location],
+          ["Signed", row.signature ? [row.signature, longDate(row.signed_at)].filter(Boolean).join(", ") : ""],
         ]),
         heading("What happens next"),
-        para("The volunteer team will be in touch to confirm your place and your team, and to tell you where and when to report."),
-        button(`${site}/spaw-volunteer-terms`, "Read the volunteer terms you signed"),
+        para("Join the volunteers' WhatsApp group now: that's where you're onboarded, with your team, the briefings, and where and when to report."),
+        button(WHATSAPP_VOLUNTEERS, "Join the volunteers' WhatsApp group", "#1a8d48"),
+        button(`${site}/spaw-volunteer-terms`, "Read the volunteer terms"),
         whatsapp(),
       ],
       site, why,

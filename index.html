@@ -60,11 +60,16 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 <section class="intro" data-intro aria-label="Welcome">
   <div class="intro__progress" data-intro-progress></div>
   <div class="intro__media">
+    <!-- intro.js picks the film: the SPAW 2.0 teaser until the concert
+         (data-until, Lagos time), then the Glory Experience teaser again. -->
     <video
       class="intro__video"
       data-intro-video
-      src="assets/video/glory-experience-teaser.mp4"
-      poster="assets/images/TGE-1.jpeg"
+      data-src="assets/video/spaw-2-teaser.mp4"
+      data-poster="assets/images/spaw-stage-01.webp"
+      data-until="2026-11-28"
+      data-src-after="assets/video/glory-experience-teaser.mp4"
+      data-poster-after="assets/images/TGE-1.jpeg"
       muted
       playsinline
       preload="auto"
@@ -551,6 +556,33 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
         <div><strong>Nov 1</strong>Applications close</div>
         <div><strong>Nov 27</strong>SPAW Talent Quest</div>
         <div><strong>Nov 28</strong>SPAW Global Concert</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= SPAW 2.0 FLYERS (app.js: renderFlyers) ============================= -->
+  <section class="section flyers" aria-label="SPAW 2.0 flyers" data-track-section="Flyers" data-flyer-host hidden>
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">SPAW 2.0</p>
+          <h2 class="section-head__title display">Spread the <em>word.</em></h2>
+        </div>
+        <p class="section-head__note">Tap a flyer to open it full size, then save it and share it.</p>
+      </div>
+      <div class="flyers__grid">
+        <figure class="flyer" data-flyer="concert" hidden>
+          <figcaption class="flyer__caption">
+            <span>SPAW Global Concert &middot; 28 November</span>
+            <a href="register?event=event-004" class="btn btn-solid" data-register-event="event-004" data-cta="Concert: register (homepage flyer)">Register free</a>
+          </figcaption>
+        </figure>
+        <figure class="flyer" data-flyer="quest" hidden>
+          <figcaption class="flyer__caption">
+            <span>SPAW Talent Quest 2.0</span>
+            <a href="spaw-apply" class="btn btn-solid btn-quest" data-cta="Talent Quest: apply (homepage flyer)">Apply now</a>
+          </figcaption>
+        </figure>
       </div>
     </div>
   </section>

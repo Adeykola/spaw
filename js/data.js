@@ -20,6 +20,9 @@ const DB = {
     email: "hello@dr-ajokesings.com",
     bookingEmail: "booking@dr-ajokesings.com",
     whatsappChannel: "https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e",
+    // The volunteers' WhatsApp group, offered as soon as someone signs up
+    // to volunteer (spaw-volunteer-thank-you.html), so they're onboarded there.
+    whatsappVolunteers: "https://chat.whatsapp.com/KWIroHMSczsBmL4JQ7kAKo?s=cl&p=a&mlu=4&ilr=4",
     social: {
       instagram: "https://instagram.com/drajokesings",
       youtube: "https://youtube.com/@drajokesings",
@@ -371,6 +374,9 @@ const DB = {
       description: "Calling singers, songwriters, instrumentalists and producers: come on board and apply. Four tracks, one cohort, and one clear prize: your own recording, finished properly, and a place on the Symphony stage in front of a full house. The Quest is held live at Regal Hall, Daystar Christian Center, the day before the concert, and every applicant hears back, whichever way the answer goes.",
       // What the winners take home. Shown on the homepage's Talent Quest
       // slide and on the Symphony page; edited in admin → Symphony.
+      // The Talent Quest flyer: on the application page and the Symphony
+      // page, and beside the concert's flyer on the homepage.
+      flyer: "assets/images/spaw-talent-quest-flyer.jpg",
       prizes: [
         { place: "Winner", amount: "₦750,000", extra: "plus song recording, mixing and mastering" },
         { place: "Runner-up", amount: "₦500,000", extra: "plus a studio session" },
@@ -843,17 +849,25 @@ const api = {
     return true;
   },
 
-  // Signed by typing their full name, which has to match the name given.
+  // The full sign-up (volunteer.html) is signed by typing their full name,
+  // which has to match the name given. The quick one (form: "quick",
+  // volunter-registration.html) asks only name, birthday, team, email,
+  // phone and social media handles.
   async submitVolunteer(payload) {
     await this._delay(300);
-    const required = ["fullName", "email", "phone", "gender", "ageCategory", "state", "country", "location", "emergencyName", "emergencyPhone", "signature"];
+    const quick = payload.form === "quick";
+    const required = quick
+      ? ["fullName", "email", "phone", "birthday"]
+      : ["fullName", "email", "phone", "gender", "ageCategory", "state", "country", "location", "emergencyName", "emergencyPhone", "signature"];
     if (required.some((key) => !payload[key] || !String(payload[key]).trim())) throw new Error("Please complete all required fields before sending.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) throw new Error("That email address doesn't look right.");
-    if (!Array.isArray(payload.teams) || !payload.teams.length) throw new Error("Choose at least one team you'd like to serve in.");
-    if (!Array.isArray(payload.days) || !payload.days.length) throw new Error("Choose at least one day you can serve.");
-    if (!payload.agreedToTerms) throw new Error("You need to agree to the Terms and Conditions for Volunteers.");
-    const same = (a, b) => String(a).trim().replace(/\s+/g, " ").toLowerCase() === String(b).trim().replace(/\s+/g, " ").toLowerCase();
-    if (!same(payload.signature, payload.fullName)) throw new Error("To sign, type your full name exactly as you gave it above.");
+    if (!Array.isArray(payload.teams) || !payload.teams.length) throw new Error("Choose the team you'd like to serve in.");
+    if (!quick) {
+      if (!Array.isArray(payload.days) || !payload.days.length) throw new Error("Choose at least one day you can serve.");
+      if (!payload.agreedToTerms) throw new Error("You need to agree to the Terms and Conditions for Volunteers.");
+      const same = (a, b) => String(a).trim().replace(/\s+/g, " ").toLowerCase() === String(b).trim().replace(/\s+/g, " ").toLowerCase();
+      if (!same(payload.signature, payload.fullName)) throw new Error("To sign, type your full name exactly as you gave it above.");
+    }
     if (!this.volunteeringOpen()) throw new Error("Volunteer registration is closed.");
     const volunteer = await Backend.forms.submitVolunteer({ ...payload, termsVersion: (DB.volunteering || {}).termsVersion || "" });
     Backend.email.send("volunteers", volunteer.id); // "thank you for volunteering"

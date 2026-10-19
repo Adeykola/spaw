@@ -169,6 +169,7 @@
         { key: "visible", label: "Show on the website", type: "check", defaultOn: true, help: "Untick to prepare an event before announcing it." },
         { key: "description", label: "Description", type: "textarea", rows: 3 },
         { key: "image", label: "Picture", type: "image" },
+        { key: "flyer", label: "Flyer (optional)", type: "image", help: "Shown on the event's registration page. The SPAW Global Concert's flyer is also shown on the homepage and the Symphony page." },
         { type: "heading", label: "When" },
         { key: "date", label: "Date", type: "date" },
         { key: "endDate", label: "Last day (for an event over several days)", type: "date" },
@@ -253,6 +254,7 @@
         },
         {
           key: "quest", label: "The Talent Quest", type: "group", fields: [
+            { key: "flyer", label: "Flyer", type: "image", help: "Shown on the application page, the Symphony page and the homepage." },
             {
               key: "prizes", label: "Prizes", type: "list", itemName: "a prize",
               help: "Shown on the Symphony page and on the homepage's Talent Quest slide. The homepage slide's own copy is in index.html: change the two together.",

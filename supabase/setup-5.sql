@@ -25,8 +25,8 @@ create table if not exists public.volunteers (
   phone          text,
   location       text,
   status         text not null default 'new' check (status in ('new', 'contacted', 'confirmed', 'declined')),
-  data           jsonb not null default '{}',  -- birthday, gender, age category, state, country, teams, days, church, experience, emergency contact
-  signature      text not null,                -- the full name they typed to sign the volunteer terms
+  data           jsonb not null default '{}',  -- which form, birthday, social media, gender, age category, state, country, teams, days, church, experience, emergency contact
+  signature      text,                         -- the full name they typed to sign the volunteer terms (none on the quick form)
   terms_version  text,                         -- which terms they signed (admin → Volunteering)
   signed_at      timestamptz not null default now(),
   note           text,                         -- the team's private notes
@@ -35,6 +35,8 @@ create table if not exists public.volunteers (
   updated_by     text,
   emailed_at     timestamptz                   -- when the "thank you" email went (functions/send-email)
 );
+-- The quick form (volunter-registration) has no signature.
+alter table public.volunteers alter column signature drop not null;
 create index if not exists volunteers_submitted on public.volunteers (submitted_at desc);
 create index if not exists volunteers_email on public.volunteers (email);
 
@@ -65,6 +67,10 @@ create policy "owners delete volunteers" on public.volunteers for delete to auth
 -- 3. Registering to volunteer
 --    Follows admin → Volunteering once it has been published: switched off,
 --    or past its closing date, it says so. One registration per email.
+--    Two forms send here: the full one (volunteer.html: where they live,
+--    the days, an emergency contact, and signing the terms) and the quick
+--    one (form = 'quick', volunter-registration.html: name, birthday, team,
+--    email, phone and social media handles).
 -- ----------------------------------------------------------------------------
 create or replace function public.submit_volunteer(payload jsonb)
 returns jsonb language plpgsql security definer set search_path = public as $$
@@ -72,6 +78,7 @@ declare
   mail      text := lower(trim(coalesce(payload ->> 'email', '')));
   who       text := regexp_replace(trim(coalesce(payload ->> 'fullName', '')), '\s+', ' ', 'g');
   signed    text := regexp_replace(trim(coalesce(payload ->> 'signature', '')), '\s+', ' ', 'g');
+  quick     boolean := coalesce(payload ->> 'form', '') = 'quick';
   teams     jsonb := '[]';
   days      jsonb := '[]';
   settings  jsonb;
@@ -81,9 +88,10 @@ begin
   if length(payload::text) > 20000 then raise exception 'That registration is too long.'; end if;
   if length(who) = 0
      or length(trim(coalesce(payload ->> 'phone', ''))) = 0
-     or length(trim(coalesce(payload ->> 'location', ''))) = 0
-     or length(trim(coalesce(payload ->> 'emergencyName', ''))) = 0
-     or length(trim(coalesce(payload ->> 'emergencyPhone', ''))) = 0 then
+     or (quick and length(trim(coalesce(payload ->> 'birthday', ''))) = 0)
+     or (not quick and (length(trim(coalesce(payload ->> 'location', ''))) = 0
+       or length(trim(coalesce(payload ->> 'emergencyName', ''))) = 0
+       or length(trim(coalesce(payload ->> 'emergencyPhone', ''))) = 0)) then
     raise exception 'Please complete all required fields before sending.';
   end if;
   if mail !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' then raise exception 'That email address doesn''t look right.'; end if;
@@ -92,17 +100,18 @@ begin
     select coalesce(jsonb_agg(left(t, 100)), '[]'::jsonb) into teams
       from (select jsonb_array_elements_text(payload -> 'teams') as t limit 20) s where length(trim(t)) > 0;
   end if;
-  if jsonb_array_length(teams) = 0 then raise exception 'Choose at least one team you''d like to serve in.'; end if;
+  if jsonb_array_length(teams) = 0 then raise exception 'Choose the team you''d like to serve in.'; end if;
   if jsonb_typeof(payload -> 'days') = 'array' then
     select coalesce(jsonb_agg(left(t, 120)), '[]'::jsonb) into days
       from (select jsonb_array_elements_text(payload -> 'days') as t limit 10) s where length(trim(t)) > 0;
   end if;
-  if jsonb_array_length(days) = 0 then raise exception 'Choose at least one day you can serve.'; end if;
-
-  if not coalesce((payload ->> 'agreedToTerms')::boolean, false) then
-    raise exception 'You need to agree to the Terms and Conditions for Volunteers.';
+  if not quick then
+    if jsonb_array_length(days) = 0 then raise exception 'Choose at least one day you can serve.'; end if;
+    if not coalesce((payload ->> 'agreedToTerms')::boolean, false) then
+      raise exception 'You need to agree to the Terms and Conditions for Volunteers.';
+    end if;
+    if lower(signed) <> lower(who) then raise exception 'To sign, type your full name exactly as you gave it above.'; end if;
   end if;
-  if lower(signed) <> lower(who) then raise exception 'To sign, type your full name exactly as you gave it above.'; end if;
 
   select c.data into settings from public.content c where c.key = 'volunteering';
   if settings is not null then
@@ -120,9 +129,11 @@ begin
   ref := public.new_ref('VOL');
   insert into public.volunteers (id, full_name, email, phone, location, data, signature, terms_version)
   values (
-    ref, left(who, 200), mail, left(trim(payload ->> 'phone'), 40), left(trim(payload ->> 'location'), 200),
+    ref, left(who, 200), mail, left(trim(payload ->> 'phone'), 40), left(nullif(trim(coalesce(payload ->> 'location', '')), ''), 200),
     jsonb_strip_nulls(jsonb_build_object(
+      'form', case when quick then 'quick' else 'full' end,
       'birthday', left(nullif(trim(coalesce(payload ->> 'birthday', '')), ''), 20),
+      'socials', left(nullif(trim(coalesce(payload ->> 'socials', '')), ''), 500),
       'gender', left(nullif(trim(coalesce(payload ->> 'gender', '')), ''), 60),
       'ageCategory', left(nullif(trim(coalesce(payload ->> 'ageCategory', '')), ''), 60),
       'state', left(nullif(trim(coalesce(payload ->> 'state', '')), ''), 100),
@@ -131,10 +142,10 @@ begin
       'days', days,
       'church', left(nullif(trim(coalesce(payload ->> 'church', '')), ''), 200),
       'experience', left(nullif(trim(coalesce(payload ->> 'experience', '')), ''), 3000),
-      'emergencyName', left(trim(payload ->> 'emergencyName'), 200),
-      'emergencyPhone', left(trim(payload ->> 'emergencyPhone'), 40)
+      'emergencyName', left(nullif(trim(coalesce(payload ->> 'emergencyName', '')), ''), 200),
+      'emergencyPhone', left(nullif(trim(coalesce(payload ->> 'emergencyPhone', '')), ''), 40)
     )),
-    left(signed, 200),
+    case when quick then null else left(signed, 200) end,
     left(nullif(trim(coalesce(payload ->> 'termsVersion', '')), ''), 120)
   );
   return jsonb_build_object('id', ref, 'email', mail, 'submittedAt', now());

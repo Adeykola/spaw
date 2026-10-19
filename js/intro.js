@@ -29,6 +29,13 @@
     return;
   }
 
+  // Which film: the event's teaser until the end of its day in Lagos, then
+  // the usual one again (index.html: data-src, data-until, data-src-after).
+  const d = video.dataset;
+  const after = d.until && Date.now() > new Date(`${d.until}T23:59:59+01:00`).getTime();
+  video.poster = (after ? d.posterAfter : d.poster) || "";
+  video.src = (after ? d.srcAfter : d.src) || d.src;
+
   body.classList.add("no-scroll");
 
   function markSeen() {

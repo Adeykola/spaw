@@ -10,11 +10,17 @@
  * the reference. The team sees every volunteer in the admin (Inbox →
  * Volunteers).
  *
+ * volunter-registration.html is the quick form: full name, birthday, the
+ * team, email, phone and social media handles, and nothing to sign. Both
+ * go to the same thank-you page, which offers the volunteers' WhatsApp
+ * group first, and counts the Meta Pixel Lead once.
+ *
  * On spaw-volunteer-terms.html it only runs the print button.
  * ----------------------------------------------------------------------
  */
 document.addEventListener("DOMContentLoaded", () => {
   wireVolunteerForm();
+  wireQuickForm();
   volunteerThankYou();
   wirePrint();
   wireYear();
@@ -31,6 +37,27 @@ function checkGroup(host, name, options) {
 }
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DAYS_IN = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+// The birthday's day and month, and the team dropdown, as both forms have them.
+function birthdayPicker(form) {
+  const dayBox = form.querySelector("[data-vol-birth-day]");
+  const monthBox = form.querySelector("[data-vol-birth-month]");
+  dayBox.append(...Array.from({ length: 31 }, (_, i) => el("option", { value: String(i + 1), text: String(i + 1) })));
+  monthBox.append(...MONTHS.map((m) => el("option", { value: m, text: m })));
+  return {
+    // The error to show, or "".
+    check() {
+      const day = Number(dayBox.value);
+      const month = MONTHS.indexOf(monthBox.value);
+      if (!day || month === -1) return "Choose the day and month of your birthday.";
+      if (day > DAYS_IN[month]) return `${monthBox.value} has only ${DAYS_IN[month]} days.`;
+      return "";
+    },
+    read: () => `${dayBox.value} ${monthBox.value}`,
+  };
+}
+function fillTeams(select, teams) {
+  select.append(...teams.map((t) => el("option", { value: t, text: t })));
+}
 const ticked = (form, name) => Array.from(form.querySelectorAll(`[name='${name}']:checked`)).map((i) => i.value);
 
 async function wireVolunteerForm() {
@@ -62,20 +89,18 @@ async function wireVolunteerForm() {
     church: form.querySelector("#vol-church"),
     experience: form.querySelector("#vol-experience"),
     team: form.querySelector("#vol-team"),
-    birthDay: form.querySelector("[data-vol-birth-day]"),
-    birthMonth: form.querySelector("[data-vol-birth-month]"),
+    socials: form.querySelector("#vol-socials"),
     emergencyName: form.querySelector("#vol-emergency-name"),
     terms: form.querySelector("#vol-terms"),
     signature: form.querySelector("#vol-signature"),
   };
-  fields.birthDay.append(...Array.from({ length: 31 }, (_, i) => el("option", { value: String(i + 1), text: String(i + 1) })));
-  fields.birthMonth.append(...MONTHS.map((m) => el("option", { value: m, text: m })));
+  const birthday = birthdayPicker(form);
   const signedOn = form.querySelector("[data-signed-on]");
   if (signedOn) signedOn.textContent = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   try {
     const v = await api.getVolunteering();
-    fields.team.append(...v.teams.map((t) => el("option", { value: t, text: t })));
+    fillTeams(fields.team, v.teams);
     checkGroup(form.querySelector("[data-vol-days]"), "days", v.days);
     renderDates(v);
     if (questions.age && Array.isArray(v.ageCategories) && v.ageCategories.length) questions.age.setOptions(v.ageCategories);
@@ -96,10 +121,8 @@ async function wireVolunteerForm() {
     if (!fields.fullName.value.trim()) { setError("fullName", "Enter your full name."); valid = false; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email.value.trim())) { setError("email", "Enter a valid email address."); valid = false; }
     Object.values(questions).forEach((q) => { if (q.check()) valid = false; });
-    const day = Number(fields.birthDay.value);
-    const month = MONTHS.indexOf(fields.birthMonth.value);
-    if (!day || month === -1) { setError("birthday", "Choose the day and month of your birthday."); valid = false; }
-    else if (day > DAYS_IN[month]) { setError("birthday", `${fields.birthMonth.value} has only ${DAYS_IN[month]} days.`); valid = false; }
+    const birthdayError = birthday.check();
+    if (birthdayError) { setError("birthday", birthdayError); valid = false; }
     if (!fields.team.value) { setError("teams", "Choose the team you'd like to serve in."); valid = false; }
     if (!ticked(form, "days").length) { setError("days", "Choose at least one day."); valid = false; }
     if (!fields.emergencyName.value.trim()) { setError("emergencyName", "Who should we call in an emergency?"); valid = false; }
@@ -135,7 +158,8 @@ async function wireVolunteerForm() {
       state: place.state,
       country: place.country,
       location: FormFields.formatValue(place),
-      birthday: `${fields.birthDay.value} ${fields.birthMonth.value}`,
+      birthday: birthday.read(),
+      socials: fields.socials.value.trim(),
       teams: [fields.team.value],
       days: ticked(form, "days"),
       church: fields.church.value.trim(),
@@ -148,6 +172,76 @@ async function wireVolunteerForm() {
 
     try {
       const volunteer = await api.submitVolunteer(payload);
+      FormDone.go("volunteers", "", { id: volunteer.id, email: volunteer.email, name: volunteer.fullName }, "spaw-volunteer-thank-you");
+    } catch (err) {
+      banner.textContent = err.message || "Something went wrong sending your registration. Please try again.";
+      submitBtn.disabled = false;
+      submitBtn.textContent = label;
+    }
+  });
+}
+
+// volunter-registration: the quick form.
+async function wireQuickForm() {
+  const form = document.querySelector("[data-volunteer-quick-form]");
+  if (!form) return;
+  const banner = form.querySelector("[data-form-error]");
+  const submitBtn = form.querySelector("button[type='submit']");
+  const name = form.querySelector("#vq-name");
+  const email = form.querySelector("#vq-email");
+  const team = form.querySelector("#vq-team");
+  const socials = form.querySelector("#vq-socials");
+  const birthday = birthdayPicker(form);
+  const slot = form.querySelector("[data-vol-question='phone']");
+  const phone = FormFields.render({ id: "phone", label: "Phone number", type: "phone", required: true, full: true }, { prefix: "vq" });
+  slot.replaceWith(phone.node);
+
+  try {
+    const v = await api.getVolunteering();
+    fillTeams(team, v.teams);
+    if (!api.volunteeringOpen()) showClosed(form, v);
+  } catch (err) {
+    console.error("[volunteer] settings failed", err);
+  }
+
+  const setError = (key, message) => {
+    const e = form.querySelector(`[data-field-error="${key}"]`);
+    if (e) e.textContent = message;
+  };
+  function validate() {
+    form.querySelectorAll(".field-error").forEach((e) => { e.textContent = ""; });
+    let valid = true;
+    if (!name.value.trim()) { setError("fullName", "Enter your full name."); valid = false; }
+    const birthdayError = birthday.check();
+    if (birthdayError) { setError("birthday", birthdayError); valid = false; }
+    if (!team.value) { setError("teams", "Choose the team you belong to."); valid = false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { setError("email", "Enter a valid email address."); valid = false; }
+    if (phone.check()) valid = false;
+    return valid;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    banner.textContent = "";
+    if (!validate()) {
+      const first = form.querySelector(".field-error:not(:empty)");
+      const input = first && first.closest(".field") && first.closest(".field").querySelector("input, select, textarea");
+      if (input) input.focus();
+      return;
+    }
+    submitBtn.disabled = true;
+    const label = submitBtn.textContent;
+    submitBtn.textContent = "Sending…";
+    try {
+      const volunteer = await api.submitVolunteer({
+        form: "quick",
+        fullName: name.value.trim().replace(/\s+/g, " "),
+        birthday: birthday.read(),
+        teams: [team.value],
+        email: email.value.trim(),
+        phone: phone.read(),
+        socials: socials.value.trim(),
+      });
       FormDone.go("volunteers", "", { id: volunteer.id, email: volunteer.email, name: volunteer.fullName }, "spaw-volunteer-thank-you");
     } catch (err) {
       banner.textContent = err.message || "Something went wrong sending your registration. Please try again.";
@@ -201,7 +295,16 @@ function volunteerThankYou() {
     idLine.hidden = true;
     return;
   }
-  FormDone.first("volunteers");
+  if (FormDone.first("volunteers")) {
+    api._lead("Volunteer registration", "SPAW volunteers", v.id);
+    // The volunteers' WhatsApp group, as a pop-up, the first time.
+    const dialog = document.querySelector("[data-wa-dialog]");
+    if (dialog && typeof dialog.showModal === "function") {
+      dialog.querySelector("[data-wa-close]").addEventListener("click", () => dialog.close());
+      dialog.querySelector(".wa-dialog__join").addEventListener("click", () => dialog.close());
+      dialog.showModal();
+    }
+  }
   root.querySelector("[data-done-email]").textContent = v.email;
   idLine.querySelector("span").textContent = v.id;
   FormDone.emailed("volunteers").then((sent) => {

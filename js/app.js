@@ -19,7 +19,59 @@ document.addEventListener("DOMContentLoaded", () => {
   wireNewsletter();
   wireYear();
   renderQuestCall();
+  renderFlyers();
 });
+
+/* ---------------------------------------------------------------------
+ * Flyers
+ * <figure data-flyer="quest">    the Talent Quest's flyer (admin → Symphony)
+ * <figure data-flyer="concert">  the concert event's flyer (admin → Events)
+ * <figure data-flyer="event">    the flyer of the event in the address
+ *                                (register?event=…)
+ * A flyer shows when there is one, and opens full size. Its
+ * [data-flyer-host] shows once any flyer inside it does, and takes
+ * .has-flyer.
+ * ------------------------------------------------------------------- */
+async function renderFlyers() {
+  const slots = [...document.querySelectorAll("[data-flyer]")];
+  if (!slots.length) return;
+  let info = null;
+  const symphony = async () => (info = info || await api.getSymphonyInfo());
+  const eventFlyer = async (id) => {
+    if (!id) return "";
+    try { return (await api.getEventById(id)).flyer || ""; } catch (_) { return ""; }
+  };
+  await Promise.all(slots.map(async (slot) => {
+    let src = "";
+    let alt = "";
+    try {
+      const kind = slot.dataset.flyer;
+      if (kind === "quest") {
+        const s = await symphony();
+        // Symphony settings published before the flyer could be set have no
+        // flyer key: they get the one the site ships with (data.js).
+        const q = s.quest || {};
+        src = "flyer" in q ? q.flyer || "" : "assets/images/spaw-talent-quest-flyer.jpg";
+        alt = "The SPAW Talent Quest flyer";
+      } else if (kind === "concert") {
+        const s = await symphony();
+        src = await eventFlyer(s.concert && s.concert.eventId);
+        alt = `The ${(s.concert && s.concert.name) || "SPAW Global Concert"} flyer`;
+      } else if (kind === "event") {
+        src = await eventFlyer(new URLSearchParams(location.search).get("event"));
+        alt = "The event's flyer";
+      }
+    } catch (err) {
+      console.error("[flyers]", err);
+    }
+    if (!src) return;
+    const img = el("img", { class: "flyer__img", src, alt, loading: "lazy", decoding: "async" });
+    slot.prepend(el("a", { class: "flyer__link", href: src, target: "_blank", rel: "noopener", "aria-label": `${alt} (opens full size)` }, [img]));
+    slot.hidden = false;
+    const host = slot.closest("[data-flyer-host]");
+    if (host) { host.hidden = false; host.classList.add("has-flyer"); }
+  }));
+}
 
 /* ---------------------------------------------------------------------
  * The Talent Quest's call for applicants

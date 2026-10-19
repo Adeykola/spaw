@@ -1074,3 +1074,9 @@ html:has(.spaw-sheet[open]) { overflow: hidden; }
 /* reveal targets (JS/GSAP hooks) */
 [data-reveal] { opacity: 1; }
 .js-enabled [data-reveal] { opacity: 0; }
+
+/* ---- SPAW 2.0 flyers (app.js: renderFlyers) ---- */
+.flyers .section-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-m); margin-bottom: var(--space-l); }
+.flyers .section-head__title { font-family: var(--font-display); font-size: var(--step-3); margin-top: var(--space-s); }
+.flyers .section-head__title em { font-style: italic; color: var(--red-bright); }
+.flyers .section-head__note { max-width: 38ch; font-size: var(--step--1); color: var(--gray-on-dark); }
