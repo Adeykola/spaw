@@ -17,6 +17,7 @@
     applications: { received: "To review", shortlisted: "Shortlisted", invited: "Invited", selected: "Selected", "not-selected": "Not selected" },
     registrations: { registered: "Registered", cancelled: "Cancelled" },
     volunteers: { new: "New", contacted: "Contacted", confirmed: "On the team", declined: "Not this time" },
+    community_members: { new: "New", contacted: "Contacted", active: "Active", inactive: "Inactive" },
   };
   const pill = (kind, status) => h("span", { class: `status-pill status-pill--${status}`, text: LABELS[kind][status] || status });
   const day = (iso) => (iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—");
@@ -200,6 +201,10 @@
       const volunteers = await Backend.forms.list("volunteers");
       Admin.setBadge("volunteers", volunteers.filter((v) => v.status === "new").length);
     } catch (_) { /* setup-5.sql not run yet */ }
+    try {
+      const members = await Backend.forms.list("community_members");
+      Admin.setBadge("community", members.filter((m) => m.status === "new").length);
+    } catch (_) { /* setup-6.sql not run yet */ }
   }
   Admin.onBadges(refreshCounts);
 
@@ -520,6 +525,94 @@
       [status, team, when].forEach((s) => s.addEventListener("change", drawList));
       q.addEventListener("input", drawList);
       panel.replaceChildren(title, h("div", { class: "inbox-bar" }, [status, team, when, q, count, csv]), h("div", { class: "admin-layout inbox-layout" }, [listHost, detailHost]));
+      drawList();
+      const first = shown()[0];
+      if (first) { openId = first.id; drawList(); }
+      drawDetail(first || null);
+    },
+  });
+
+  /* ===================================================================
+   * Community members (community-member.html)
+   * =================================================================== */
+  // Live, before supabase/setup-6.sql has run there's no table to read.
+  async function listMembers() {
+    try { return await Backend.forms.list("community_members"); } catch (err) {
+      if (/community_members/.test(err.message || "") && /schema cache|does not exist|not find/i.test(err.message || "")) {
+        throw new Error("Community members aren't kept yet: run supabase/setup-6.sql in Supabase (SQL Editor), then open this screen again. Until then the /community-member page can't send.");
+      }
+      throw err;
+    }
+  }
+
+  Admin.register("community", {
+    async render(panel) {
+      const title = head("Community members", "Everyone who has joined at /community-member, with the team they belong to. Notes are only for the admin team.");
+      const all = await loadOr(panel, title, listMembers);
+      if (!all) return;
+      all.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+      let openId = null;
+
+      const teams = [...new Set(all.map((m) => m.team).filter(Boolean))].sort();
+      const status = select([["all", "Every status"], ...Object.entries(LABELS.community_members)], "all", "Status");
+      const team = select([["all", "Every team"], ...teams.map((t) => [t, t])], "all", "Team");
+      const q = searchBox("Find a name, email, phone or handle");
+      const count = h("span", { class: "inbox-count" });
+      const pages = pager(() => drawList());
+      const listHost = h("div");
+      const detailHost = h("div", { class: "detail-panel" });
+
+      const shown = () => all.filter((m) =>
+        (status.value === "all" || m.status === status.value) &&
+        (team.value === "all" || m.team === team.value) &&
+        (!q.value.trim() || [m.fullName, m.email, m.phone, m.socials, m.id].join(" ").toLowerCase().includes(q.value.trim().toLowerCase())));
+
+      function drawList() {
+        const items = shown();
+        count.textContent = plural(items.length, "member");
+        const rows = pages.slice(items);
+        if (!items.length) {
+          listHost.replaceChildren(h("p", { class: "admin-empty", text: all.length ? "Nothing matches these filters." : "No one has joined yet. The sign-up page is at /community-member." }));
+          return;
+        }
+        listHost.replaceChildren(pages.node, table([
+          ["Name", (m) => m.fullName],
+          ["Team", (m) => m.team],
+          ["Birthday", (m) => m.birthday],
+          ["Status", (m) => pill("community_members", m.status)],
+          ["Joined", (m) => day(m.submittedAt)],
+        ], rows, { onOpen: (m) => { openId = m.id; drawList(); drawDetail(m); }, isCurrent: (m) => m.id === openId }));
+      }
+
+      function drawDetail(m) {
+        if (!m) { detailHost.replaceChildren(h("p", { class: "detail-panel__empty", text: "Choose someone to see everything they sent." })); return; }
+        const wa = whatsappLink(m.phone);
+        detailHost.replaceChildren(
+          h("p", { class: "admin-card__title", text: m.fullName }),
+          h("div", { class: "admin-field" }, [h("span", { text: "Status" }), statusControl("community_members", m, drawList)]),
+          details([
+            ["Reference", m.id], ["Email", mailto(m.email, "The Dr AjokeSings community")], ["Phone", tel(m.phone)],
+            ["Birthday", m.birthday], ["Team", m.team], ["Social media", m.socials],
+            ["Joined", Admin.fmtDate(m.submittedAt)],
+          ]),
+          h("div", { class: "pe-actions-row inbox-actions" }, [
+            h("a", { class: "btn btn-solid", href: `mailto:${m.email}?subject=${encodeURIComponent("The Dr AjokeSings community")}` }, "Email them"),
+            wa ? h("a", { class: "pe-small-btn", href: wa, target: "_blank", rel: "noopener" }, "WhatsApp them") : null,
+            deleteControl("community_members", m, "this community member", () => { all.splice(all.indexOf(m), 1); openId = null; drawList(); drawDetail(null); }),
+          ].filter(Boolean)),
+          noteControl("community_members", m)
+        );
+      }
+
+      const csv = btn("Download spreadsheet", () => downloadCsv(`community-members-${stamp()}.csv`, [
+        ["Reference", (m) => m.id], ["Joined", (m) => m.submittedAt], ["Status", (m) => LABELS.community_members[m.status]],
+        ["Name", (m) => m.fullName], ["Birthday", (m) => m.birthday], ["Team", (m) => m.team],
+        ["Email", (m) => m.email], ["Phone", (m) => m.phone], ["Social media", (m) => m.socials], ["Notes", (m) => m.note],
+      ], shown()));
+
+      [status, team].forEach((s) => s.addEventListener("change", () => { pages.reset(); drawList(); }));
+      q.addEventListener("input", () => { pages.reset(); drawList(); });
+      panel.replaceChildren(title, h("div", { class: "inbox-bar" }, [status, team, q, count, csv]), h("div", { class: "admin-layout inbox-layout" }, [listHost, detailHost]));
       drawList();
       const first = shown()[0];
       if (first) { openId = first.id; drawList(); }

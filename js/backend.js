@@ -567,13 +567,14 @@
     applications: ["received", "shortlisted", "invited", "selected", "not-selected"],
     registrations: ["registered", "cancelled"],
     volunteers: ["new", "contacted", "confirmed", "declined"],
+    community_members: ["new", "contacted", "active", "inactive"],
   };
   const newRef = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 6).toUpperCase()}${Date.now().toString(36).slice(-4).toUpperCase()}`;
   const statusOf = (s, list) => {
     const v = String(s || "").toLowerCase().replace(/\s+/g, "-");
     return list.includes(v) ? v : list[0];
   };
-  const FORM_KEYS = { enquiries: "enquiries", applications: "talentApplications", registrations: "registrations", subscribers: "newsletter", volunteers: "volunteers" };
+  const FORM_KEYS = { enquiries: "enquiries", applications: "talentApplications", registrations: "registrations", subscribers: "newsletter", volunteers: "volunteers", community_members: "communityMembers" };
   // The answers to an event's own questions, kept to a sensible size (the
   // database trims them the same way, setup-4.sql).
   function cleanAnswers(list) {
@@ -593,6 +594,7 @@
     if (kind === "applications") return { ...r, status: statusOf(r.status, STATUS.applications), rating: r.rating || 0, note: r.note || "", files: r.files || [] };
     if (kind === "registrations") return { ...r, status: r.status || "registered", note: r.note || "", source: r.source || "website", answers: Array.isArray(r.answers) ? r.answers : [] };
     if (kind === "volunteers") return { ...r, status: statusOf(r.status, STATUS.volunteers), note: r.note || "", teams: r.teams || [], days: r.days || [] };
+    if (kind === "community_members") return { ...r, status: statusOf(r.status, STATUS.community_members), note: r.note || "" };
     return r;
   }
   const demoKeyOf = (kind, r) => (kind === "subscribers" ? (typeof r === "string" ? r : r.email) : r.id);
@@ -655,6 +657,14 @@
       list.push(volunteer);
       mustWrite(FORM_KEYS.volunteers, list);
       return volunteer;
+    },
+    async submitCommunityMember(payload) {
+      const list = Store.read(FORM_KEYS.community_members, []);
+      if (list.some((m) => lower(m.email) === lower(payload.email))) throw new Error("You've already joined with that email. Welcome back!");
+      const member = { id: newRef("COM"), submittedAt: now(), status: "new", note: "", ...payload };
+      list.push(member);
+      mustWrite(FORM_KEYS.community_members, list);
+      return member;
     },
     async eventCounts() {
       const counts = {};
@@ -757,10 +767,14 @@
       const d = r.data || {};
       return { ...d, id: r.id, fullName: r.full_name, email: r.email, phone: r.phone || "", location: r.location || "", teams: d.teams || [], days: d.days || [], signature: r.signature, termsVersion: r.terms_version || "", signedAt: r.signed_at, status: r.status, note: r.note || "", submittedAt: r.submitted_at, updatedAt: r.updated_at, updatedBy: r.updated_by };
     }
+    if (kind === "community_members") {
+      const d = r.data || {};
+      return { ...d, id: r.id, fullName: r.full_name, email: r.email, phone: r.phone || "", status: r.status, note: r.note || "", submittedAt: r.submitted_at, updatedAt: r.updated_at, updatedBy: r.updated_by };
+    }
     return r;
   }
   const ROW_FIELDS = { status: "status", note: "note", rating: "rating", checkedIn: "checked_in", checkedInAt: "checked_in_at", unsubscribedAt: "unsubscribed_at" };
-  const ORDER = { enquiries: "submitted_at", applications: "submitted_at", registrations: "registered_at", subscribers: "subscribed_at", volunteers: "submitted_at" };
+  const ORDER = { enquiries: "submitted_at", applications: "submitted_at", registrations: "registered_at", subscribers: "subscribed_at", volunteers: "submitted_at", community_members: "submitted_at" };
 
   live.forms = {
     async submitEnquiry(payload) {
@@ -798,6 +812,10 @@
     async submitVolunteer(payload) {
       const r = await rpc("submit_volunteer", { payload });
       return { ...payload, id: r.id, submittedAt: r.submittedAt, signedAt: r.submittedAt };
+    },
+    async submitCommunityMember(payload) {
+      const r = await rpc("submit_community_member", { payload });
+      return { ...payload, id: r.id, submittedAt: r.submittedAt };
     },
     async eventCounts() {
       const rows = await rpc("event_counts", {});

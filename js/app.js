@@ -20,7 +20,45 @@ document.addEventListener("DOMContentLoaded", () => {
   wireYear();
   renderQuestCall();
   renderFlyers();
+  renderCountdown();
 });
+
+/* ---------------------------------------------------------------------
+ * The countdown to the concert (index.html: [data-countdown]): days,
+ * hours, minutes and seconds to the time it carries. From then until
+ * data-countdown-hide it says the concert is today; after that it goes.
+ * ------------------------------------------------------------------- */
+function renderCountdown() {
+  const root = document.querySelector("[data-countdown]");
+  if (!root) return;
+  const at = Date.parse(root.dataset.countdown);
+  const hideAt = Date.parse(root.dataset.countdownHide || "") || at + 12 * 3600e3;
+  const part = (name) => root.querySelector(`[data-countdown-${name}]`);
+  const out = { days: part("days"), hours: part("hours"), minutes: part("minutes"), seconds: part("seconds") };
+  const pad = (n) => String(n).padStart(2, "0");
+  let timer = 0;
+  function tick() {
+    const now = Date.now();
+    if (now >= hideAt) { root.hidden = true; clearInterval(timer); return; }
+    if (now >= at) {
+      root.classList.add("is-live");
+      part("title").innerHTML = "It's happening <em>today.</em>";
+      Object.values(out).forEach((n) => { n.textContent = "00"; });
+      clearInterval(timer);
+      return;
+    }
+    let s = Math.floor((at - now) / 1000);
+    const d = Math.floor(s / 86400); s -= d * 86400;
+    const h = Math.floor(s / 3600); s -= h * 3600;
+    const m = Math.floor(s / 60); s -= m * 60;
+    out.days.textContent = String(d);
+    out.hours.textContent = pad(h);
+    out.minutes.textContent = pad(m);
+    out.seconds.textContent = pad(s);
+  }
+  tick();
+  if (!root.hidden && !root.classList.contains("is-live")) timer = setInterval(tick, 1000);
+}
 
 /* ---------------------------------------------------------------------
  * Flyers

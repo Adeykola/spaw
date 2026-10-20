@@ -1105,3 +1105,24 @@ html:has(.spaw-sheet[open]) { overflow: hidden; }
   max-height: calc(100svh - var(--nav-h) - var(--hero-footer) - 7rem);
 }
 .hero-flyer__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-s) var(--space-m); }
+
+/* ---- Countdown to the concert (app.js: renderCountdown) ---- */
+.countdown { background: linear-gradient(120deg, #7d1016 0%, var(--red, #a91d2c) 55%, #c4382b 100%); padding-block: var(--space-l); color: var(--paper); }
+.countdown__wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-l); }
+.countdown .eyebrow { color: color-mix(in srgb, var(--paper) 80%, transparent); }
+.countdown__title { font-family: var(--font-display); font-size: var(--step-3); line-height: 1; margin-top: var(--space-2xs); }
+.countdown__title em { font-style: italic; color: #ffd59a; }
+.countdown__where { margin-top: var(--space-2xs); font-size: var(--step--1); color: color-mix(in srgb, var(--paper) 82%, transparent); }
+.countdown__clock { display: flex; gap: var(--space-xs); }
+.countdown__clock div { min-width: 5.2rem; padding: 0.7rem 0.6rem 0.6rem; text-align: center; background: rgba(10, 9, 8, 0.28); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 10px; }
+.countdown__clock strong { display: block; font-family: var(--font-ui); font-weight: 800; font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.countdown__clock span { display: block; margin-top: 0.35rem; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--paper) 78%, transparent); }
+.countdown__cta { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+@media (max-width: 1024px) {
+  .countdown__wrap { grid-template-columns: 1fr; justify-items: start; gap: var(--space-m); }
+}
+@media (max-width: 680px) {
+  .countdown__clock { width: 100%; }
+  .countdown__clock div { flex: 1; min-width: 0; }
+  .countdown__cta { width: 100%; text-align: center; justify-content: center; }
+}

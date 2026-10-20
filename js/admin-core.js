@@ -34,6 +34,7 @@
         ["enquiries", "Contact & bookings", ALL],
         ["talent", "Talent applicants", ALL],
         ["volunteers", "Volunteers", ALL],
+        ["community", "Community members", ALL],
         ["subscribers", "Newsletter", ALL],
       ],
     },

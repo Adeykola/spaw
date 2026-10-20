@@ -20,7 +20,18 @@
  */
 document.addEventListener("DOMContentLoaded", () => {
   wireVolunteerForm();
-  wireQuickForm();
+  wireQuickForm("[data-volunteer-quick-form]", {
+    prefix: "vq",
+    followsVolunteering: true,
+    send: (p) => api.submitVolunteer({ form: "quick", ...p, teams: [p.team], team: undefined }),
+    done: (r) => FormDone.go("volunteers", "", { id: r.id, email: r.email, name: r.fullName }, "spaw-volunteer-thank-you"),
+  });
+  wireQuickForm("[data-community-form]", {
+    prefix: "cm",
+    send: (p) => api.submitCommunityMember(p),
+    done: (r) => FormDone.go("community_members", "", { id: r.id, email: r.email, name: r.fullName }, "community-member-thank-you"),
+  });
+  communityThankYou();
   volunteerThankYou();
   wirePrint();
   wireYear();
@@ -181,25 +192,28 @@ async function wireVolunteerForm() {
   });
 }
 
-// volunteer-registration: the quick form.
-async function wireQuickForm() {
-  const form = document.querySelector("[data-volunteer-quick-form]");
+// The short form: full name, birthday, the team, email, phone and social
+// media handles. volunteer-registration (a volunteer, following admin →
+// Volunteering's open and closing date) and community-member (a community
+// member, kept apart) both use it. The teams are admin → Volunteering's.
+async function wireQuickForm(selector, { prefix, followsVolunteering = false, send, done }) {
+  const form = document.querySelector(selector);
   if (!form) return;
   const banner = form.querySelector("[data-form-error]");
   const submitBtn = form.querySelector("button[type='submit']");
-  const name = form.querySelector("#vq-name");
-  const email = form.querySelector("#vq-email");
-  const team = form.querySelector("#vq-team");
-  const socials = form.querySelector("#vq-socials");
+  const name = form.querySelector(`#${prefix}-name`);
+  const email = form.querySelector(`#${prefix}-email`);
+  const team = form.querySelector(`#${prefix}-team`);
+  const socials = form.querySelector(`#${prefix}-socials`);
   const birthday = birthdayPicker(form);
   const slot = form.querySelector("[data-vol-question='phone']");
-  const phone = FormFields.render({ id: "phone", label: "Phone number", type: "phone", required: true, full: true }, { prefix: "vq" });
+  const phone = FormFields.render({ id: "phone", label: "Phone number", type: "phone", required: true, full: true }, { prefix });
   slot.replaceWith(phone.node);
 
   try {
     const v = await api.getVolunteering();
     fillTeams(team, v.teams);
-    if (!api.volunteeringOpen()) showClosed(form, v);
+    if (followsVolunteering && !api.volunteeringOpen()) showClosed(form, v);
   } catch (err) {
     console.error("[volunteer] settings failed", err);
   }
@@ -233,16 +247,15 @@ async function wireQuickForm() {
     const label = submitBtn.textContent;
     submitBtn.textContent = "Sending…";
     try {
-      const volunteer = await api.submitVolunteer({
-        form: "quick",
+      const sent = await send({
         fullName: name.value.trim().replace(/\s+/g, " "),
         birthday: birthday.read(),
-        teams: [team.value],
+        team: team.value,
         email: email.value.trim(),
         phone: phone.read(),
         socials: socials.value.trim(),
       });
-      FormDone.go("volunteers", "", { id: volunteer.id, email: volunteer.email, name: volunteer.fullName }, "spaw-volunteer-thank-you");
+      done(sent);
     } catch (err) {
       banner.textContent = err.message || "Something went wrong sending your registration. Please try again.";
       submitBtn.disabled = false;
@@ -281,6 +294,22 @@ function showClosed(form, v) {
     }),
     el("div", { class: "confirm-screen__actions" }, [el("a", { class: "btn btn-line", href: "symphony", text: "About SPAW" })]),
   ]));
+}
+
+// community-member-thank-you: after joining.
+function communityThankYou() {
+  const root = document.querySelector("[data-community-done]");
+  if (!root) return;
+  const m = FormDone.read("community_members");
+  const idLine = root.querySelector("[data-done-id]");
+  if (!m) {
+    root.querySelector("[data-done-body]").textContent = "Thank you for joining the Dr AjokeSings community. The team will be in touch.";
+    idLine.hidden = true;
+    return;
+  }
+  if (FormDone.first("community_members")) api._lead("Community member", "Dr AjokeSings community", m.id);
+  root.querySelector("[data-done-email]").textContent = m.email;
+  idLine.querySelector("span").textContent = m.id;
 }
 
 // spaw-volunteer-thank-you: after signing up.

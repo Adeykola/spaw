@@ -288,6 +288,27 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
     <p class="sr-only" role="status" aria-live="polite" data-hero-live></p>
   </section>
 
+  <!-- ============================= COUNTDOWN TO THE CONCERT (app.js: renderCountdown) =============================
+       Counts down to data-countdown (Lagos time); on the day it says the
+       concert is today, and after data-countdown-hide it takes itself away. -->
+  <section class="countdown" aria-label="Countdown to the SPAW 2.0 Global Concert" data-track-section="Countdown"
+           data-countdown="2026-11-28T13:00:00+01:00" data-countdown-hide="2026-11-29T00:00:00+01:00">
+    <div class="wrap countdown__wrap">
+      <div class="countdown__lead">
+        <p class="eyebrow">SPAW 2.0 Global Concert</p>
+        <h2 class="countdown__title display" data-countdown-title>Saturday 28 November, <em>1pm.</em></h2>
+        <p class="countdown__where">The Regal Hall, Oregun, Lagos &middot; Free entry, registration required</p>
+      </div>
+      <div class="countdown__clock" data-countdown-clock role="timer" aria-live="off">
+        <div><strong data-countdown-days>--</strong><span>Days</span></div>
+        <div><strong data-countdown-hours>--</strong><span>Hours</span></div>
+        <div><strong data-countdown-minutes>--</strong><span>Minutes</span></div>
+        <div><strong data-countdown-seconds>--</strong><span>Seconds</span></div>
+      </div>
+      <a href="register?event=event-004" class="btn btn-solid countdown__cta" data-magnetic data-register-event="event-004" data-cta="Concert: register (homepage countdown)">Register free</a>
+    </div>
+  </section>
+
   <!-- ============================= SPAW "SEE MORE" SHEETS =============================
        Opened by "See more" on the SPAW slides (phones; hero.js). Kept outside
        the hero so a swipe or an arrow key inside an open sheet never changes

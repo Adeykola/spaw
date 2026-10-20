@@ -52,6 +52,8 @@
     { page: "spaw-apply-thank-you", label: "Talent Quest: thank you", file: "spaw-apply-thank-you.html", path: "spaw-apply-thank-you" },
     { page: "spaw-volunteer", label: "Volunteer sign-up", file: "volunteer.html", path: "volunteer" },
     { page: "volunteer-registration", label: "Volunteer registration (quick form)", file: "volunteer-registration.html", path: "volunteer-registration" },
+    { page: "community-member", label: "Community member sign-up", file: "community-member.html", path: "community-member" },
+    { page: "community-member-thank-you", label: "Community: thank you", file: "community-member-thank-you.html", path: "community-member-thank-you" },
     { page: "spaw-volunteer-thank-you", label: "Volunteers: thank you", file: "spaw-volunteer-thank-you.html", path: "spaw-volunteer-thank-you" },
     { page: "spaw-volunteer-terms", label: "Volunteer terms", file: "spaw-volunteer-terms.html", path: "spaw-volunteer-terms" },
     { page: "events", label: "Events", file: "events.html", path: "events" },

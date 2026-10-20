@@ -986,7 +986,7 @@
     const events = (Array.isArray(pub.events) ? pub.events : DB.events).filter((e) => e.visible !== false && e.status !== "cancelled");
     const tracks = Array.isArray(pub.tracks) ? pub.tracks : DB.tracks;
     return [
-      ["Pages", [["", "Homepage"], ["events", "Events"], ["symphony", "Symphony"], ["spaw-apply", "Talent Quest application"], ["volunteer", "Volunteer sign-up"], ["volunteer-registration", "Volunteer registration (quick form)"], ["music", "Music"],
+      ["Pages", [["", "Homepage"], ["events", "Events"], ["symphony", "Symphony"], ["spaw-apply", "Talent Quest application"], ["volunteer", "Volunteer sign-up"], ["volunteer-registration", "Volunteer registration (quick form)"], ["community-member", "Community member sign-up"], ["music", "Music"],
         ["media", "Media (videos and photos)"], ["ministry", "Ministry"], ["about", "About"], ["contact", "Contact"], ["contact#booking", "Booking form"]]],
       ["Register for an event", events.map((e) => [`register?event=${e.id}`, `${plain(e.name)} · ${e.date ? dayLabel(e.date, { day: "numeric", month: "short" }) : ""}`])],
       ["A song", tracks.map((t) => [`song?id=${t.id}`, plain(t.title) || t.id])],
