@@ -420,6 +420,8 @@ const DB = {
       registered: 96,
       description: "Calling vocalists, songwriters, instrumentalists and producers: apply to take the stage at the SPAW Talent Quest, held live the day before the concert.",
       image: "assets/images/spaw-stage-01.webp",
+      flyer: "assets/images/spaw-talent-quest-flyer.jpg",
+      flyerWide: "assets/images/spaw-talent-quest-flyer-wide.jpg", // landscape, for wide screens
       ticketRequired: true,
       // The registration form's own questions (admin → Events → Registration form).
       phone: "optional",
@@ -949,8 +951,15 @@ const api = {
   },
 
   // Events the admin hasn't announced yet ("Show on the website" off) stay off the site.
+  // Events published before an event could have a flyer have no flyer
+  // keys: the SPAW events get the flyers the site ships with.
+  _shippedFlyers: {
+    "event-002": { flyer: "assets/images/spaw-talent-quest-flyer.jpg", flyerWide: "assets/images/spaw-talent-quest-flyer-wide.jpg" },
+    "event-004": { flyer: "assets/images/spaw-concert-flyer.jpg", flyerWide: "assets/images/spaw-concert-flyer-wide.jpg" },
+  },
   _shownEvents() {
-    return DB.events.filter((e) => e.visible !== false);
+    return DB.events.filter((e) => e.visible !== false)
+      .map((e) => ("flyer" in e || !this._shippedFlyers[e.id] ? e : { ...e, ...this._shippedFlyers[e.id] }));
   },
 
   async getUpcomingEvents(limit = 3) {

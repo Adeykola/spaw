@@ -8,6 +8,19 @@
  * Talent Quest has no Register button: it calls people to apply.
  * ----------------------------------------------------------------------
  */
+
+// An event's picture: its flyer when it has one (landscape on wide screens,
+// portrait on phones, shown whole and opening full size), else its photo.
+function eventPicture(e) {
+  const portrait = e.flyer || "";
+  const wide = e.flyerWide || "";
+  if (!portrait && !wide) {
+    return el("img", { class: "event-full-row__img", src: e.image || "assets/images/ministry-hero.jpg", alt: "", loading: "lazy" });
+  }
+  const img = el("img", { class: "event-full-row__img event-full-row__img--flyer", src: portrait || wide, alt: `${e.name}: the flyer`, loading: "lazy", decoding: "async" });
+  const pic = wide && portrait ? el("picture", {}, [el("source", { media: "(min-width: 681px)", srcset: wide }), img]) : img;
+  return el("a", { class: "event-full-row__flyer", href: portrait || wide, target: "_blank", rel: "noopener", "aria-label": `${e.name}: open the flyer full size` }, [pic]);
+}
 document.addEventListener("DOMContentLoaded", () => {
   // Registration links from before each event had its own page
   // (events?register=event-004) go to that page.
@@ -80,7 +93,7 @@ async function renderEventsList() {
         const admission = admissionText(e);
 
         return el("article", { class: `event-full-row${e.status === "cancelled" ? " is-cancelled" : ""}` }, [
-          el("img", { class: "event-full-row__img", src: e.image || "assets/images/ministry-hero.jpg", alt: "", loading: "lazy" }),
+          eventPicture(e),
           el("div", {}, [
             el("p", { class: "event-full-row__date", text: `${formatEventDays(e)} · ${formatEventTimes(e)}` }),
             flags.length ? el("div", { class: "event-flags" }, flags) : null,

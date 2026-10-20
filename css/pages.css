@@ -261,7 +261,7 @@ body.has-persistent-player { padding-bottom: 92px; }
 /* ---- Event detail rows w/ image ---- */
 .event-full-row {
   display: grid;
-  grid-template-columns: 260px 1fr auto;
+  grid-template-columns: 340px 1fr auto;
   gap: var(--space-l);
   align-items: center;
   padding-block: var(--space-l);
@@ -269,6 +269,8 @@ body.has-persistent-player { padding-bottom: 92px; }
 }
 .event-full-row:last-child { border-bottom: 1px solid var(--paper-line); }
 .event-full-row__img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+.event-full-row__flyer { display: block; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18); }
+.event-full-row__flyer .event-full-row__img--flyer { aspect-ratio: auto; height: auto; object-fit: initial; display: block; }
 .event-full-row__date { font-size: var(--step--1); color: var(--gold); font-weight: 600; letter-spacing: 0.02em; }
 .event-full-row__title { font-family: var(--font-display); font-size: var(--step-2); margin-top: var(--space-2xs); }
 .event-full-row__venue { color: var(--gray-on-light); font-size: var(--step--1); margin-top: var(--space-2xs); }
