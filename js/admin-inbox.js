@@ -556,6 +556,9 @@
       const teams = [...new Set(all.map((m) => m.team).filter(Boolean))].sort();
       const status = select([["all", "Every status"], ...Object.entries(LABELS.community_members)], "all", "Status");
       const team = select([["all", "Every team"], ...teams.map((t) => [t, t])], "all", "Team");
+      const states = (key) => [...new Set(all.map((m) => m[key]).filter(Boolean))].sort();
+      const lives = select([["all", "Any state of residence"], ...states("stateOfResidence").map((s) => [s, s])], "all", "State of residence");
+      const origin = select([["all", "Any state of origin"], ...states("stateOfOrigin").map((s) => [s, s])], "all", "State of origin");
       const q = searchBox("Find a name, email, phone or handle");
       const count = h("span", { class: "inbox-count" });
       const pages = pager(() => drawList());
@@ -565,7 +568,9 @@
       const shown = () => all.filter((m) =>
         (status.value === "all" || m.status === status.value) &&
         (team.value === "all" || m.team === team.value) &&
-        (!q.value.trim() || [m.fullName, m.email, m.phone, m.socials, m.id].join(" ").toLowerCase().includes(q.value.trim().toLowerCase())));
+        (lives.value === "all" || m.stateOfResidence === lives.value) &&
+        (origin.value === "all" || m.stateOfOrigin === origin.value) &&
+        (!q.value.trim() || [m.fullName, m.email, m.phone, m.socials, m.stateOfResidence, m.stateOfOrigin, m.id].join(" ").toLowerCase().includes(q.value.trim().toLowerCase())));
 
       function drawList() {
         const items = shown();
@@ -579,6 +584,7 @@
           ["Name", (m) => m.fullName],
           ["Team", (m) => m.team],
           ["Birthday", (m) => m.birthday],
+          ["Lives in", (m) => m.stateOfResidence],
           ["Status", (m) => pill("community_members", m.status)],
           ["Joined", (m) => day(m.submittedAt)],
         ], rows, { onOpen: (m) => { openId = m.id; drawList(); drawDetail(m); }, isCurrent: (m) => m.id === openId }));
@@ -592,7 +598,10 @@
           h("div", { class: "admin-field" }, [h("span", { text: "Status" }), statusControl("community_members", m, drawList)]),
           details([
             ["Reference", m.id], ["Email", mailto(m.email, "The Dr AjokeSings community")], ["Phone", tel(m.phone)],
-            ["Birthday", m.birthday], ["Team", m.team], ["Social media", m.socials],
+            ["Birthday", m.birthday],
+            ["State of residence", [m.stateOfResidence, m.countryOfResidence].filter(Boolean).join(", ")],
+            ["State of origin", m.stateOfOrigin],
+            ["Team", m.team], ["Social media", m.socials],
             ["Joined", Admin.fmtDate(m.submittedAt)],
           ]),
           h("div", { class: "pe-actions-row inbox-actions" }, [
@@ -606,13 +615,15 @@
 
       const csv = btn("Download spreadsheet", () => downloadCsv(`community-members-${stamp()}.csv`, [
         ["Reference", (m) => m.id], ["Joined", (m) => m.submittedAt], ["Status", (m) => LABELS.community_members[m.status]],
-        ["Name", (m) => m.fullName], ["Birthday", (m) => m.birthday], ["Team", (m) => m.team],
+        ["Name", (m) => m.fullName], ["Birthday", (m) => m.birthday],
+        ["State of residence", (m) => m.stateOfResidence], ["Country of residence", (m) => m.countryOfResidence], ["State of origin", (m) => m.stateOfOrigin],
+        ["Team", (m) => m.team],
         ["Email", (m) => m.email], ["Phone", (m) => m.phone], ["Social media", (m) => m.socials], ["Notes", (m) => m.note],
       ], shown()));
 
-      [status, team].forEach((s) => s.addEventListener("change", () => { pages.reset(); drawList(); }));
+      [status, team, lives, origin].forEach((s) => s.addEventListener("change", () => { pages.reset(); drawList(); }));
       q.addEventListener("input", () => { pages.reset(); drawList(); });
-      panel.replaceChildren(title, h("div", { class: "inbox-bar" }, [status, team, q, count, csv]), h("div", { class: "admin-layout inbox-layout" }, [listHost, detailHost]));
+      panel.replaceChildren(title, h("div", { class: "inbox-bar" }, [status, team, lives, origin, q, count, csv]), h("div", { class: "admin-layout inbox-layout" }, [listHost, detailHost]));
       drawList();
       const first = shown()[0];
       if (first) { openId = first.id; drawList(); }

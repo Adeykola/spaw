@@ -1,8 +1,8 @@
 -- ============================================================================
 -- Dr AjokeSings: Supabase setup, part 6 — community members
 -- People who join the community at /community-member: full name, birthday
--- (day and month), the team they belong to, email, phone and social media
--- handles. Kept apart from the volunteers (setup-5.sql), with a screen of
+-- (day and month), state of residence (and its country), state of origin,
+-- the team they belong to, email, phone and social media handles. Kept apart from the volunteers (setup-5.sql), with a screen of
 -- their own in the admin (Inbox → Community members).
 --
 -- Run it once, after parts 1 to 5 (setup.sql to setup-5.sql):
@@ -25,7 +25,7 @@ create table if not exists public.community_members (
   email          text not null,
   phone          text,
   status         text not null default 'new' check (status in ('new', 'contacted', 'active', 'inactive')),
-  data           jsonb not null default '{}',  -- birthday, team, social media handles
+  data           jsonb not null default '{}',  -- birthday, state of residence and country, state of origin, team, social media handles
   note           text,                         -- the team's private notes
   submitted_at   timestamptz not null default now(),
   updated_at     timestamptz,
@@ -71,7 +71,9 @@ begin
   if length(payload::text) > 10000 then raise exception 'That sign-up is too long.'; end if;
   if length(who) = 0
      or length(trim(coalesce(payload ->> 'phone', ''))) = 0
-     or length(trim(coalesce(payload ->> 'birthday', ''))) = 0 then
+     or length(trim(coalesce(payload ->> 'birthday', ''))) = 0
+     or length(trim(coalesce(payload ->> 'stateOfResidence', ''))) = 0
+     or length(trim(coalesce(payload ->> 'stateOfOrigin', ''))) = 0 then
     raise exception 'Please complete all required fields before sending.';
   end if;
   if length(team) = 0 then raise exception 'Choose the team you belong to.'; end if;
@@ -87,6 +89,9 @@ begin
     ref, left(who, 200), mail, left(trim(payload ->> 'phone'), 40),
     jsonb_strip_nulls(jsonb_build_object(
       'birthday', left(trim(payload ->> 'birthday'), 20),
+      'stateOfResidence', left(trim(payload ->> 'stateOfResidence'), 100),
+      'countryOfResidence', left(nullif(trim(coalesce(payload ->> 'countryOfResidence', '')), ''), 100),
+      'stateOfOrigin', left(trim(payload ->> 'stateOfOrigin'), 100),
       'team', team,
       'socials', left(nullif(trim(coalesce(payload ->> 'socials', '')), ''), 500)
     ))

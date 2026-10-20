@@ -28,6 +28,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   wireQuickForm("[data-community-form]", {
     prefix: "cm",
+    questions: {
+      residence: { id: "residence", label: "State of residence", type: "location", required: true, full: true },
+      origin: { id: "origin", label: "State of origin", type: "select", required: true, full: true, options: () => [...FormFields.NG_STATES, "Not from Nigeria"] },
+    },
+    // State of residence and the country it's in, and state of origin.
+    extra: (q) => {
+      const home = q.residence.read();
+      return { stateOfResidence: home.state, countryOfResidence: home.country, stateOfOrigin: q.origin.read() };
+    },
     send: (p) => api.submitCommunityMember(p),
     done: (r) => FormDone.go("community_members", "", { id: r.id, email: r.email, name: r.fullName }, "community-member-thank-you"),
   });
@@ -196,7 +205,7 @@ async function wireVolunteerForm() {
 // media handles. volunteer-registration (a volunteer, following admin →
 // Volunteering's open and closing date) and community-member (a community
 // member, kept apart) both use it. The teams are admin → Volunteering's.
-async function wireQuickForm(selector, { prefix, followsVolunteering = false, send, done }) {
+async function wireQuickForm(selector, { prefix, followsVolunteering = false, questions = {}, extra, send, done }) {
   const form = document.querySelector(selector);
   if (!form) return;
   const banner = form.querySelector("[data-form-error]");
@@ -209,6 +218,14 @@ async function wireQuickForm(selector, { prefix, followsVolunteering = false, se
   const slot = form.querySelector("[data-vol-question='phone']");
   const phone = FormFields.render({ id: "phone", label: "Phone number", type: "phone", required: true, full: true }, { prefix });
   slot.replaceWith(phone.node);
+  // The form's own further questions, drawn into their places.
+  const asked = {};
+  Object.entries(questions).forEach(([key, q]) => {
+    const place = form.querySelector(`[data-vol-question='${key}']`);
+    if (!place) return;
+    asked[key] = FormFields.render({ ...q, options: typeof q.options === "function" ? q.options() : q.options }, { prefix });
+    place.replaceWith(asked[key].node);
+  });
 
   try {
     const v = await api.getVolunteering();
@@ -231,6 +248,7 @@ async function wireQuickForm(selector, { prefix, followsVolunteering = false, se
     if (!team.value) { setError("teams", "Choose the team you belong to."); valid = false; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { setError("email", "Enter a valid email address."); valid = false; }
     if (phone.check()) valid = false;
+    Object.values(asked).forEach((q) => { if (q.check()) valid = false; });
     return valid;
   }
 
@@ -254,6 +272,7 @@ async function wireQuickForm(selector, { prefix, followsVolunteering = false, se
         email: email.value.trim(),
         phone: phone.read(),
         socials: socials.value.trim(),
+        ...(extra ? extra(asked) : {}),
       });
       done(sent);
     } catch (err) {

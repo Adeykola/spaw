@@ -883,7 +883,7 @@ const api = {
   /* ---- The community (community-member.html) ---- */
   async submitCommunityMember(payload) {
     await this._delay(300);
-    if (["fullName", "email", "phone", "birthday", "team"].some((key) => !payload[key] || !String(payload[key]).trim())) throw new Error("Please complete all required fields before sending.");
+    if (["fullName", "email", "phone", "birthday", "team", "stateOfResidence", "stateOfOrigin"].some((key) => !payload[key] || !String(payload[key]).trim())) throw new Error("Please complete all required fields before sending.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) throw new Error("That email address doesn't look right.");
     return Backend.forms.submitCommunityMember(payload);
   },
