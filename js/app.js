@@ -28,45 +28,68 @@ document.addEventListener("DOMContentLoaded", () => {
  * <figure data-flyer="concert">  the concert event's flyer (admin → Events)
  * <figure data-flyer="event">    the flyer of the event in the address
  *                                (register?event=…)
- * A flyer shows when there is one, and opens full size. Its
- * [data-flyer-host] shows once any flyer inside it does, and takes
- * .has-flyer.
+ * Each has a portrait flyer and may have a landscape one (flyerWide): wide
+ * screens get the landscape one, phones the portrait one, unless the slot
+ * says data-flyer-portrait. A flyer opens full size, or goes to
+ * data-flyer-link. Its [data-flyer-host] shows once any flyer inside it
+ * does, and takes .has-flyer.
  * ------------------------------------------------------------------- */
+const FLYER_WIDE = "(min-width: 681px)";
+// Settings published before a flyer could be set have no flyer keys: they
+// get the flyers the site ships with (data.js).
+const SHIPPED_FLYERS = {
+  quest: { flyer: "assets/images/spaw-talent-quest-flyer.jpg", flyerWide: "assets/images/spaw-talent-quest-flyer-wide.jpg" },
+  "event-004": { flyer: "assets/images/spaw-concert-flyer.jpg", flyerWide: "assets/images/spaw-concert-flyer-wide.jpg" },
+};
+function flyersOf(item, shipped) {
+  const has = item && "flyer" in item;
+  const from = has ? item : shipped || {};
+  return { portrait: from.flyer || "", wide: (has ? item.flyerWide : from.flyerWide) || "" };
+}
+function flyerPicture({ portrait, wide }, alt, { portraitOnly = false, eager = false } = {}) {
+  const img = el("img", { class: "flyer__img", src: portrait || wide, alt, loading: eager ? "eager" : "lazy", decoding: "async" });
+  if (portraitOnly || !wide || !portrait) return img;
+  return el("picture", {}, [el("source", { media: FLYER_WIDE, srcset: wide }), img]);
+}
 async function renderFlyers() {
   const slots = [...document.querySelectorAll("[data-flyer]")];
   if (!slots.length) return;
   let info = null;
   const symphony = async () => (info = info || await api.getSymphonyInfo());
-  const eventFlyer = async (id) => {
-    if (!id) return "";
-    try { return (await api.getEventById(id)).flyer || ""; } catch (_) { return ""; }
+  const eventFlyers = async (id) => {
+    if (!id) return {};
+    try { return flyersOf(await api.getEventById(id), SHIPPED_FLYERS[id]); } catch (_) { return {}; }
   };
   await Promise.all(slots.map(async (slot) => {
-    let src = "";
+    let flyers = {};
     let alt = "";
     try {
       const kind = slot.dataset.flyer;
       if (kind === "quest") {
         const s = await symphony();
-        // Symphony settings published before the flyer could be set have no
-        // flyer key: they get the one the site ships with (data.js).
-        const q = s.quest || {};
-        src = "flyer" in q ? q.flyer || "" : "assets/images/spaw-talent-quest-flyer.jpg";
-        alt = "The SPAW Talent Quest flyer";
+        flyers = flyersOf(s.quest || {}, SHIPPED_FLYERS.quest);
+        alt = "The SPAW Talent Quest 2.0 flyer";
       } else if (kind === "concert") {
         const s = await symphony();
-        src = await eventFlyer(s.concert && s.concert.eventId);
+        flyers = await eventFlyers(s.concert && s.concert.eventId);
         alt = `The ${(s.concert && s.concert.name) || "SPAW Global Concert"} flyer`;
       } else if (kind === "event") {
-        src = await eventFlyer(new URLSearchParams(location.search).get("event"));
+        flyers = await eventFlyers(new URLSearchParams(location.search).get("event"));
         alt = "The event's flyer";
       }
     } catch (err) {
       console.error("[flyers]", err);
     }
-    if (!src) return;
-    const img = el("img", { class: "flyer__img", src, alt, loading: "lazy", decoding: "async" });
-    slot.prepend(el("a", { class: "flyer__link", href: src, target: "_blank", rel: "noopener", "aria-label": `${alt} (opens full size)` }, [img]));
+    if (!flyers.portrait && !flyers.wide) return;
+    const portraitOnly = slot.hasAttribute("data-flyer-portrait");
+    const link = slot.dataset.flyerLink;
+    const full = flyers.portrait || flyers.wide;
+    const a = el("a", link
+      ? { class: "flyer__link", href: link }
+      : { class: "flyer__link", href: full, target: "_blank", rel: "noopener", "aria-label": `${alt} (opens full size)` },
+    [flyerPicture(flyers, alt, { portraitOnly, eager: slot.hasAttribute("data-flyer-eager") })]);
+    const old = slot.querySelector(".flyer__link");
+    if (old) old.replaceWith(a); else slot.prepend(a);
     slot.hidden = false;
     const host = slot.closest("[data-flyer-host]");
     if (host) { host.hidden = false; host.classList.add("has-flyer"); }

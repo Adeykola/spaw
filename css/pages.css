@@ -1109,7 +1109,7 @@ a.contact-list__value:hover { color: var(--red-bright); }
 
 /* ==========================================================================
    FORM LANDING — the form first, under a bold title (volunteer.html,
-   volunter-registration.html)
+   volunteer-registration.html)
    ========================================================================== */
 .form-landing { padding-top: calc(var(--nav-h) + var(--space-l)); }
 .form-landing .eyebrow { margin-bottom: var(--space-xs); }

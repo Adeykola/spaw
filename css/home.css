@@ -1080,3 +1080,28 @@ html:has(.spaw-sheet[open]) { overflow: hidden; }
 .flyers .section-head__title { font-family: var(--font-display); font-size: var(--step-3); margin-top: var(--space-s); }
 .flyers .section-head__title em { font-style: italic; color: var(--red-bright); }
 .flyers .section-head__note { max-width: 38ch; font-size: var(--step--1); color: var(--gray-on-dark); }
+
+/* ---- Flyer slides (the SPAW slides): the flyer, sharp, over itself
+   blurred in the slats. Landscape on wide screens, portrait on phones. ---- */
+.hero-slide[data-hero-tone="flyer"] .hero-slat img { filter: blur(26px) brightness(0.42) saturate(1.15); }
+.hero-slide[data-hero-tone="flyer"] .hero-slide__scrim {
+  background: linear-gradient(180deg, rgba(10,9,8,0.35) 0%, rgba(10,9,8,0.1) 30%, rgba(10,9,8,0.1) 70%, rgba(10,9,8,0.75) 100%);
+}
+.hero-flyer {
+  position: absolute;
+  z-index: 3;
+  inset: calc(var(--nav-h) + var(--space-s)) var(--edge) calc(var(--hero-footer) + var(--space-2xs));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+}
+.hero-flyer__flyer { margin: 0; min-height: 0; display: flex; justify-content: center; }
+.hero-flyer__flyer .flyer__link { border-radius: 10px; }
+.hero-flyer__flyer .flyer__img {
+  width: auto;
+  max-width: 100%;
+  max-height: calc(100svh - var(--nav-h) - var(--hero-footer) - 7rem);
+}
+.hero-flyer__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-s) var(--space-m); }

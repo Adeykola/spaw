@@ -87,6 +87,16 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 </nav>
 
 <main id="main" data-register-page>
+  <!-- ============================= THE EVENT'S FLYER (app.js: renderFlyers) =============================
+       For an event with a flyer (admin → Events): landscape on wide
+       screens, portrait on phones, standing in for the page hero below. -->
+  <section class="flyer-hero" aria-label="The event's flyer" data-flyer-host hidden>
+    <figure class="flyer flyer-hero__flyer" data-flyer="event" data-flyer-eager hidden></figure>
+    <div class="flyer-hero__actions">
+      <a href="#register" class="btn btn-solid" data-magnetic data-cta="Event: register (registration page flyer)">Register below</a>
+    </div>
+  </section>
+
   <!-- ============================= THE EVENT ============================= -->
   <section class="page-hero page-hero--stage" aria-label="The event" data-reg-head>
     <div class="page-hero__media"><img src="assets/images/spaw-duet.webp" alt="" loading="eager" data-reg-image></div>
@@ -103,7 +113,6 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
   <!-- ============================= THE FORM ============================= -->
   <section class="section" id="register" aria-label="Register" data-quest-call-away>
     <div class="wrap form-with-flyer" data-flyer-host>
-      <figure class="flyer form-with-flyer__flyer" data-flyer="event" hidden></figure>
       <div class="form-with-flyer__main">
       <p class="eyebrow" style="margin-bottom: var(--space-s);">Registration</p>
       <h2 class="display" style="font-size: var(--step-3); margin-bottom: var(--space-s);">Reserve your place.</h2>

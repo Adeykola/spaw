@@ -374,9 +374,11 @@ const DB = {
       description: "Calling singers, songwriters, instrumentalists and producers: come on board and apply. Four tracks, one cohort, and one clear prize: your own recording, finished properly, and a place on the Symphony stage in front of a full house. The Quest is held live at Regal Hall, Daystar Christian Center, the day before the concert, and every applicant hears back, whichever way the answer goes.",
       // What the winners take home. Shown on the homepage's Talent Quest
       // slide and on the Symphony page; edited in admin → Symphony.
-      // The Talent Quest flyer: on the application page and the Symphony
-      // page, and beside the concert's flyer on the homepage.
+      // The Talent Quest flyer, portrait (phones, and for sharing) and
+      // landscape (wide screens): the homepage slider, the application page,
+      // the Symphony page.
       flyer: "assets/images/spaw-talent-quest-flyer.jpg",
+      flyerWide: "assets/images/spaw-talent-quest-flyer-wide.jpg", // landscape, for wide screens
       prizes: [
         { place: "Winner", amount: "₦750,000", extra: "plus song recording, mixing and mastering" },
         { place: "Runner-up", amount: "₦500,000", extra: "plus a studio session" },
@@ -451,6 +453,8 @@ const DB = {
       registered: 122,
       description: "One night of worship with the full house band, opened by this year's Talent Quest finalists.",
       image: "assets/images/spaw-duet.webp",
+      flyer: "assets/images/spaw-concert-flyer.jpg",
+      flyerWide: "assets/images/spaw-concert-flyer-wide.jpg", // landscape, for wide screens
       ticketRequired: true,
       phone: "optional",
       formFields: [
@@ -851,7 +855,7 @@ const api = {
 
   // The full sign-up (volunteer.html) is signed by typing their full name,
   // which has to match the name given. The quick one (form: "quick",
-  // volunter-registration.html) asks only name, birthday, team, email,
+  // volunteer-registration.html) asks only name, birthday, team, email,
   // phone and social media handles.
   async submitVolunteer(payload) {
     await this._delay(300);

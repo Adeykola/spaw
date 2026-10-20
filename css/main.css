@@ -1044,4 +1044,17 @@ p { text-wrap: pretty; }
 
 .flyers__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 420px)); gap: var(--space-xl); justify-content: center; }
 .flyer-row { display: flex; justify-content: center; margin-bottom: var(--space-xl); }
-.flyer-row .flyer { width: min(100%, 440px); }
+.flyer-row .flyer { width: min(100%, 1100px); }
+@media (max-width: 680px) { .flyer-row .flyer { width: min(100%, 440px); } }
+
+/* A page that opens on its flyer (spaw-apply, register): the flyer stands
+   in for the page hero that follows it. */
+.flyer-hero { padding: calc(var(--nav-h) + var(--space-m)) var(--edge) var(--space-l); background: var(--ink); display: flex; flex-direction: column; align-items: center; gap: var(--space-m); }
+.flyer-hero__flyer { width: min(100%, 1280px); display: flex; justify-content: center; }
+.flyer-hero__flyer .flyer__img { width: auto; max-width: 100%; max-height: calc(100svh - var(--nav-h) - 8rem); }
+.flyer-hero__flyer .flyer__link { border-radius: 12px; }
+.flyer-hero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-s); }
+.flyer-hero.has-flyer + .page-hero { display: none; }
+@media (max-width: 680px) {
+  .flyer-hero__flyer { width: min(100%, 520px); }
+}

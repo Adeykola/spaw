@@ -35,7 +35,7 @@ create table if not exists public.volunteers (
   updated_by     text,
   emailed_at     timestamptz                   -- when the "thank you" email went (functions/send-email)
 );
--- The quick form (volunter-registration) has no signature.
+-- The quick form (volunteer-registration) has no signature.
 alter table public.volunteers alter column signature drop not null;
 create index if not exists volunteers_submitted on public.volunteers (submitted_at desc);
 create index if not exists volunteers_email on public.volunteers (email);
@@ -69,7 +69,7 @@ create policy "owners delete volunteers" on public.volunteers for delete to auth
 --    or past its closing date, it says so. One registration per email.
 --    Two forms send here: the full one (volunteer.html: where they live,
 --    the days, an emergency contact, and signing the terms) and the quick
---    one (form = 'quick', volunter-registration.html: name, birthday, team,
+--    one (form = 'quick', volunteer-registration.html: name, birthday, team,
 --    email, phone and social media handles).
 -- ----------------------------------------------------------------------------
 create or replace function public.submit_volunteer(payload jsonb)

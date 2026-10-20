@@ -188,112 +188,49 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
       </article>
 
       <!-- 02 — SPAW: Talent Quest (it comes first: the Quest is the day before the concert).
-           Both SPAW slides carry two layouts: .hero__desk for wide screens
-           and, for phones, .hero__phone beside .hero-side: the name spelt
-           out large, a Register button, a short write-up and "See more",
-           with her portrait at the side. responsive.css picks one. The
-           sheets "See more" opens follow the hero. -->
-      <article class="hero-slide hero-slide--spaw" data-hero-slide
-               data-hero-image="assets/images/spaw-talent.svg"
-               data-hero-image-alt="Symphony of Praise and Worship Talent Quest artwork: a spotlight finding a microphone inside concentric rings"
+           Both SPAW slides are their flyers (app.js: renderFlyers, from
+           admin → Symphony and admin → Events): landscape on wide screens,
+           portrait on phones, over the same flyer blurred in the slats.
+           "See more" opens the sheets that follow the hero. -->
+      <article class="hero-slide hero-slide--flyer" data-hero-slide
+               data-hero-image="assets/images/spaw-talent-quest-flyer-wide.jpg"
+               data-hero-image-phone="assets/images/spaw-talent-quest-flyer.jpg"
+               data-hero-image-alt=""
                data-hero-focus="center"
-               data-hero-tone="graphic"
+               data-hero-tone="flyer"
                aria-roledescription="slide"
-               aria-label="Slide 2 of 3: Symphony of Praise and Worship Talent Quest">
+               aria-label="Slide 2 of 3: SPAW Talent Quest 2.0">
         <div class="hero-slide__slats" data-hero-slats></div>
         <div class="hero-slide__scrim"></div>
-        <div class="hero-side" aria-hidden="true">
-          <div class="hero-side__photo" style="--side-focus: 50% 18%"><img src="assets/images/artist-portrait.jpg" alt="" loading="lazy" decoding="async"></div>
-          <span class="hero-side__mark" data-hero-anim="4">2026</span>
-          <p class="hero-side__caption" data-hero-anim="3"><span>SPAW Talent Quest with Dr AjokeSings</span><em>Come on board. Lend a voice.</em></p>
-        </div>
-        <div class="hero__content">
-          <div class="hero__title-block hero__desk">
-            <p class="hero__eyebrow" data-hero-anim="1">SPAW Talent Quest &middot; Applications open</p>
-            <h2 class="hero__title display" data-hero-anim="2">We're listening for <em>your voice.</em></h2>
-            <!-- The prizes (also on the Symphony page, from
-                 DB.symphony.quest.prizes; change the two together). -->
-            <ul class="hero__prizes" data-hero-anim="3">
-              <li><span class="hero__prize-place">Winner</span><strong class="hero__prize-amount">&#8358;750,000</strong><span class="hero__prize-extra">plus song recording, mixing and mastering</span></li>
-              <li><span class="hero__prize-place">Runner-up</span><strong class="hero__prize-amount">&#8358;500,000</strong><span class="hero__prize-extra">plus a studio session</span></li>
-              <li><span class="hero__prize-place">Second runner-up</span><strong class="hero__prize-amount">&#8358;350,000</strong><span class="hero__prize-extra">plus a studio session</span></li>
-            </ul>
-            <p class="hero__lede" data-hero-anim="3">Singers, songwriters, instrumentalists and producers: come on board.</p>
-          </div>
-          <div class="hero__meta hero__desk" data-hero-anim="4">
-            <div class="hero__now-playing">
-              <span class="dot" aria-hidden="true"></span>
-              Applications open
-            </div>
-            <dl class="hero__facts">
-              <div><dt>Date</dt><dd>Friday 27 November 2026</dd></div>
-              <div><dt>Venue</dt><dd>Regal Hall, Daystar Christian Center, Oregun, Ikeja, Lagos</dd></div>
-              <div><dt>Apply by</dt><dd>1 November 2026</dd></div>
-            </dl>
+        <div class="hero-flyer">
+          <figure class="flyer hero-flyer__flyer" data-flyer="quest" data-flyer-link="spaw-apply" data-hero-anim="1">
+            <a class="flyer__link" href="spaw-apply"><picture><source media="(min-width: 681px)" srcset="assets/images/spaw-talent-quest-flyer-wide.jpg"><img class="flyer__img" src="assets/images/spaw-talent-quest-flyer.jpg" alt="SPAW Talent Quest 2.0: calling on all gospel rising stars. Win ₦750k, ₦500k or ₦350k. Apply at www.dr-ajokesings.com." loading="lazy" decoding="async"></picture></a>
+          </figure>
+          <div class="hero-flyer__actions" data-hero-anim="2">
             <a href="spaw-apply" class="btn btn-solid btn-quest" data-magnetic data-cta="Talent Quest: apply (homepage slide)">Apply to take part</a>
-          </div>
-          <div class="hero__phone">
-            <h2 class="hero__spaw" data-hero-anim="1">
-              <span class="hero__spaw-name">Symphony of Praise<br> and Worship</span>
-              <em class="hero__spaw-event">(SPAW) Talent Quest</em>
-              <span class="hero__spaw-with">with Dr AjokeSings</span>
-            </h2>
-            <a href="spaw-apply" class="btn btn-solid hero__register btn-quest" data-hero-anim="2" data-cta="Talent Quest: apply (homepage slide, phone)">Apply to take part</a>
-            <p class="hero__phone-text" data-hero-anim="3">Calling vocalists, songwriters, instrumentalists and producers: come on board.</p>
-            <ul class="hero__prizes hero__prizes--phone" data-hero-anim="3">
-              <li><span class="hero__prize-place">Winner</span><strong class="hero__prize-amount">&#8358;750,000</strong><span class="hero__prize-extra">plus song recording, mixing and mastering</span></li>
-              <li><span class="hero__prize-place">Runner-up</span><strong class="hero__prize-amount">&#8358;500,000</strong><span class="hero__prize-extra">plus a studio session</span></li>
-              <li><span class="hero__prize-place">2nd runner-up</span><strong class="hero__prize-amount">&#8358;350,000</strong><span class="hero__prize-extra">plus a studio session</span></li>
-            </ul>
-            <p class="hero__phone-when" data-hero-anim="3">Fri 27 Nov 2026 &middot; Regal Hall, Lagos</p>
-            <a href="symphony#quest" class="hero__more" data-hero-more="spaw-more-quest" data-hero-anim="4">See more <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
+            <a href="symphony#quest" class="hero__more" data-hero-more="spaw-more-quest">See more <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
           </div>
         </div>
       </article>
 
       <!-- 03 — SPAW Global Concert -->
-      <article class="hero-slide hero-slide--spaw" data-hero-slide
-               data-hero-image="assets/images/spaw-concert.svg"
-               data-hero-image-alt="SPAW Global Concert artwork: stage beams over a congregation with raised hands"
+      <article class="hero-slide hero-slide--flyer" data-hero-slide
+               data-hero-image="assets/images/spaw-concert-flyer-wide.jpg"
+               data-hero-image-phone="assets/images/spaw-concert-flyer.jpg"
+               data-hero-image-alt=""
                data-hero-focus="center"
-               data-hero-tone="graphic"
+               data-hero-tone="flyer"
                aria-roledescription="slide"
-               aria-label="Slide 3 of 3: SPAW Global Concert with Dr AjokeSings">
+               aria-label="Slide 3 of 3: SPAW 2.0 Global Concert with Dr AjokeSings">
         <div class="hero-slide__slats" data-hero-slats></div>
         <div class="hero-slide__scrim"></div>
-        <div class="hero-side" aria-hidden="true">
-          <div class="hero-side__photo" style="--side-focus: 50% 30%"><img src="assets/images/symphony-hero.jpg" alt="" loading="lazy" decoding="async"></div>
-          <span class="hero-side__mark" data-hero-anim="4">2026</span>
-          <p class="hero-side__caption" data-hero-anim="3"><span>SPAW Global Concert with Dr AjokeSings</span><em>A global symphony of praise and worship.</em></p>
-        </div>
-        <div class="hero__content">
-          <div class="hero__title-block hero__desk">
-            <p class="hero__eyebrow" data-hero-anim="1">Symphony of Praise &amp; Worship &middot; Global Concert</p>
-            <h2 class="hero__title display" data-hero-anim="2">A night the city <em>sings back.</em></h2>
-            <p class="hero__lede" data-hero-anim="3">Eight hundred voices, a fourteen-piece house band, and one long room with no stage &mdash; only an altar.</p>
-          </div>
-          <div class="hero__phone">
-            <h2 class="hero__spaw" data-hero-anim="1">
-              <span class="hero__spaw-name">Symphony of Praise<br> and Worship</span>
-              <em class="hero__spaw-event">(SPAW) Global Concert</em>
-              <span class="hero__spaw-with">with Dr AjokeSings</span>
-            </h2>
-            <a href="register?event=event-004" class="btn btn-solid hero__register" data-hero-anim="2" data-register-event="symphony-concert" data-cta="SPAW Global Concert: register (homepage slide, phone)">Register here</a>
-            <p class="hero__phone-text" data-hero-anim="3">Dr AjokeSings, Nigerian gospel music minister, hosts the SPAW Global Concert: a night of praise and worship, free to attend.</p>
-            <p class="hero__phone-when" data-hero-anim="3">Sat 28 Nov 2026 &middot; Regal Hall, Lagos</p>
-            <a href="symphony#concert" class="hero__more" data-hero-more="spaw-more-concert" data-hero-anim="4">See more <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
-          </div>
-          <div class="hero__meta hero__desk" data-hero-anim="4">
-            <div class="hero__now-playing">
-              <span class="dot" aria-hidden="true"></span>
-              <span data-register-status="symphony-concert">Registration open</span>
-            </div>
-            <dl class="hero__facts">
-              <div><dt>Date</dt><dd>Saturday 28 November 2026</dd></div>
-              <div><dt>Venue</dt><dd>Regal Hall, Daystar Christian Center, Oregun, Ikeja, Lagos</dd></div>
-              <div><dt>Time</dt><dd>To be announced &middot; Free entry, registration required</dd></div>
-            </dl>
-            <a href="register?event=event-004" class="btn btn-solid" data-magnetic data-register-event="symphony-concert" data-cta="SPAW Global Concert: register (homepage slide)">Reserve your seat</a>
+        <div class="hero-flyer">
+          <figure class="flyer hero-flyer__flyer" data-flyer="concert" data-flyer-link="register?event=event-004" data-hero-anim="1">
+            <a class="flyer__link" href="register?event=event-004"><picture><source media="(min-width: 681px)" srcset="assets/images/spaw-concert-flyer-wide.jpg"><img class="flyer__img" src="assets/images/spaw-concert-flyer.jpg" alt="Symphony of Praise and Worship, SPAW 2.0, a live global gospel music concert hosted by Dr AjokeSings with Frank Edwards, Beejay Sax, Mercy Chinwo, Yinka Alaseyori and Dare Justified. Saturday 28 November 2026, 1pm, The Regal Hall, Oregun, Lagos. Register for free." loading="lazy" decoding="async"></picture></a>
+          </figure>
+          <div class="hero-flyer__actions" data-hero-anim="2">
+            <a href="register?event=event-004" class="btn btn-solid" data-magnetic data-register-event="symphony-concert" data-cta="SPAW Global Concert: register (homepage slide)">Register free</a>
+            <a href="symphony#concert" class="hero__more" data-hero-more="spaw-more-concert">See more <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
           </div>
         </div>
       </article>
@@ -571,13 +508,13 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
         <p class="section-head__note">Tap a flyer to open it full size, then save it and share it.</p>
       </div>
       <div class="flyers__grid">
-        <figure class="flyer" data-flyer="concert" hidden>
+        <figure class="flyer" data-flyer="concert" data-flyer-portrait hidden>
           <figcaption class="flyer__caption">
             <span>SPAW Global Concert &middot; 28 November</span>
             <a href="register?event=event-004" class="btn btn-solid" data-register-event="event-004" data-cta="Concert: register (homepage flyer)">Register free</a>
           </figcaption>
         </figure>
-        <figure class="flyer" data-flyer="quest" hidden>
+        <figure class="flyer" data-flyer="quest" data-flyer-portrait hidden>
           <figcaption class="flyer__caption">
             <span>SPAW Talent Quest 2.0</span>
             <a href="spaw-apply" class="btn btn-solid btn-quest" data-cta="Talent Quest: apply (homepage flyer)">Apply now</a>

@@ -87,6 +87,17 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 </nav>
 
 <main id="main">
+  <!-- ============================= THE FLYER (app.js: renderFlyers) =============================
+       Landscape on wide screens, portrait on phones. Once it shows, it
+       stands in for the page hero below (still filled in by talent.js). -->
+  <section class="flyer-hero" aria-label="SPAW Talent Quest 2.0" data-flyer-host hidden>
+    <figure class="flyer flyer-hero__flyer" data-flyer="quest" data-flyer-eager hidden></figure>
+    <div class="flyer-hero__actions">
+      <a href="#apply" class="btn btn-solid btn-quest" data-magnetic data-cta="Talent Quest: apply (application page flyer)">Start your application</a>
+      <a href="symphony#quest" class="btn btn-line" data-magnetic>About the Talent Quest</a>
+    </div>
+  </section>
+
   <!-- ============================= PAGE HERO ============================= -->
   <section class="page-hero page-hero--stage" aria-label="Apply to the Talent Quest">
     <div class="page-hero__media"><img src="assets/images/spaw-stage-01.webp" alt="Two singers laughing together on the SPAW stage" loading="eager"></div>
@@ -106,7 +117,6 @@ src="https://www.facebook.com/tr?id=1354004723598509&ev=PageView&noscript=1"/>
 
   <section class="section" id="apply" aria-label="The application">
     <div class="wrap form-with-flyer" data-flyer-host>
-      <figure class="flyer form-with-flyer__flyer" data-flyer="quest" hidden></figure>
       <div class="form-with-flyer__main">
       <p class="eyebrow" style="margin-bottom: var(--space-s);">Talent Quest application</p>
       <h2 class="display" style="font-size: var(--step-3); margin-bottom: var(--space-l);">Tell us who you are.</h2>

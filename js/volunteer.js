@@ -10,7 +10,7 @@
  * the reference. The team sees every volunteer in the admin (Inbox →
  * Volunteers).
  *
- * volunter-registration.html is the quick form: full name, birthday, the
+ * volunteer-registration.html is the quick form: full name, birthday, the
  * team, email, phone and social media handles, and nothing to sign. Both
  * go to the same thank-you page, which offers the volunteers' WhatsApp
  * group first, and counts the Meta Pixel Lead once.
@@ -181,7 +181,7 @@ async function wireVolunteerForm() {
   });
 }
 
-// volunter-registration: the quick form.
+// volunteer-registration: the quick form.
 async function wireQuickForm() {
   const form = document.querySelector("[data-volunteer-quick-form]");
   if (!form) return;

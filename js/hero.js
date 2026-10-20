@@ -71,7 +71,8 @@
       holder.dataset.built = String(n);
       holder.style.setProperty("--n", String(n));
 
-      const src = slide.dataset.heroImage;
+      // A flyer slide has a portrait picture for phones (data-hero-image-phone).
+      const src = (n === 4 && slide.dataset.heroImagePhone) || slide.dataset.heroImage;
       const focus = slide.dataset.heroFocus || "center";
       const frag = document.createDocumentFragment();
 
