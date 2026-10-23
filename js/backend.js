@@ -760,7 +760,7 @@
       return { ...d, id: r.id, fullName: r.full_name, email: r.email, phone: r.phone || "", location: r.location || "", track: r.track || "", status: r.status, rating: r.rating || 0, note: r.note || "", files: d.files || [], submittedAt: r.submitted_at, updatedAt: r.updated_at, updatedBy: r.updated_by };
     }
     if (kind === "registrations") {
-      return { id: r.id, eventId: r.event_id, eventName: r.event_name, name: r.name, email: r.email, phone: r.phone || "", answers: Array.isArray(r.answers) ? r.answers : [], status: r.status, checkedIn: r.checked_in, checkedInAt: r.checked_in_at, source: r.source, note: r.note || "", registeredAt: r.registered_at, updatedAt: r.updated_at };
+      return { id: r.id, eventId: r.event_id, eventName: r.event_name, name: r.name, email: r.email, phone: r.phone || "", answers: Array.isArray(r.answers) ? r.answers : [], status: r.status, checkedIn: r.checked_in, checkedInAt: r.checked_in_at, checkedInBy: r.checked_in_by || "", source: r.source, note: r.note || "", registeredAt: r.registered_at, updatedAt: r.updated_at };
     }
     if (kind === "subscribers") return { email: r.email, source: r.source || "", subscribedAt: r.subscribed_at, unsubscribedAt: r.unsubscribed_at };
     if (kind === "volunteers") {
@@ -1001,6 +1001,167 @@
     },
   };
 
+  /* ===================================================================
+   * CHECK-IN BY THE REGISTRATION TEAM (checkin.html, checkin-test.html)
+   * A volunteer on the Registration team signs in with their email and a
+   * one-time code sent to it, and stays signed in until the event's
+   * check-in window closes (admin → Check-in access). Live, everything goes
+   * through the checkin_* database functions (supabase/setup-7.sql), which
+   * check the session every time; the code is emailed by send-email.
+   * Demo keeps it in this browser, shows the code on the page instead of
+   * emailing it, and makes the test event with 60 guests.
+   * =================================================================== */
+  const windowOf = (r) => ({ eventId: r.event_id, eventName: r.event_name, opensAt: r.opens_at, closesAt: r.closes_at, isTest: Boolean(r.is_test), updatedAt: r.updated_at, updatedBy: r.updated_by });
+  const sessionOf = (r) => ({ token: r.token, email: r.email, volunteerName: r.volunteer_name, eventId: r.event_id, createdAt: r.created_at, expiresAt: r.expires_at, lastSeenAt: r.last_seen_at });
+
+  const CK = { windows: "checkinWindows", codes: "checkinCodes", sessions: "checkinSessions" };
+  // The demo's test event and its 60 guests, made once.
+  function demoCheckinSeed() {
+    let windows = Store.read(CK.windows, null);
+    if (!Array.isArray(windows)) {
+      windows = [{ eventId: "event-test", eventName: "Check-in test event", opensAt: now(), closesAt: new Date(Date.now() + 60 * 864e5).toISOString(), isTest: true }];
+      Store.write(CK.windows, windows);
+      const regs = Store.read(FORM_KEYS.registrations, []);
+      if (!regs.some((r) => r.eventId === "event-test")) {
+        const first = ["Adaeze", "Tunde", "Chiamaka", "Emeka", "Funmilayo", "Ibrahim", "Ngozi", "Segun", "Aisha", "Chinedu", "Bukola", "Yusuf", "Ifeoma", "Kunle", "Zainab", "Obinna", "Temitope", "Musa", "Nkechi", "Femi"];
+        const last = ["Okafor", "Adeyemi", "Bello", "Eze", "Ogunleye", "Abubakar", "Nwosu", "Balogun", "Okonkwo", "Adebayo", "Danjuma", "Olawale", "Uche", "Lawal", "Afolabi"];
+        for (let i = 1; i <= 60; i += 1) {
+          regs.push({
+            id: `REG-TEST${String(i).padStart(4, "0")}`, eventId: "event-test", eventName: "Check-in test event",
+            name: `${first[(i - 1) % 20]} ${last[((i - 1) * 7) % 15]}`, email: `guest${String(i).padStart(2, "0")}@example.com`,
+            phone: `+234 80${String((i * 7919) % 1e8).padStart(8, "0")}`, status: "registered", checkedIn: false, source: "test",
+            registeredAt: new Date(Date.now() - i * 3600e3).toISOString(),
+          });
+        }
+        Store.write(FORM_KEYS.registrations, regs);
+      }
+    }
+    return windows;
+  }
+  const demoOpen = (w) => w && Date.now() >= Date.parse(w.opensAt) && Date.now() < Date.parse(w.closesAt);
+  function demoTeamMember(email) {
+    return Store.read(FORM_KEYS.volunteers, []).find((v) => lower(v.email) === lower(email) && v.status !== "declined"
+      && (v.teams || []).some((t) => lower(String(t).trim()) === "registration"));
+  }
+  function demoSession(token) {
+    const s = Store.read(CK.sessions, []).find((x) => x.token === token);
+    const w = s && demoCheckinSeed().find((x) => x.eventId === s.eventId);
+    if (!s || Date.parse(s.expiresAt) <= Date.now() || !demoOpen(w)) throw new Error("Your check-in sign-in has ended. Sign in again with your email.");
+    return { s, w };
+  }
+  const demoCounts = (eventId) => {
+    const regs = Store.read(FORM_KEYS.registrations, []).filter((r) => r.eventId === eventId && (r.status || "registered") === "registered");
+    return { registered: regs.length, checkedIn: regs.filter((r) => r.checkedIn).length };
+  };
+  const hide = (r) => ({
+    id: r.id, name: r.name, email: String(r.email || "").replace(/^(.)[^@]*/, "$1•••"),
+    phone: r.phone ? `••• ${String(r.phone).replace(/\D/g, "").slice(-4)}` : "",
+    status: r.status || "registered", checkedIn: Boolean(r.checkedIn), checkedInAt: r.checkedInAt || null,
+  });
+
+  demo.checkin = {
+    async events(test) {
+      await wait(150);
+      return demoCheckinSeed().filter((w) => w.isTest === Boolean(test) && Date.parse(w.closesAt) > Date.now())
+        .map((w) => ({ id: w.eventId, name: w.eventName, opensAt: w.opensAt, closesAt: w.closesAt, open: Date.now() >= Date.parse(w.opensAt) }));
+    },
+    async requestCode(email, eventId) {
+      await wait(300);
+      const w = demoCheckinSeed().find((x) => x.eventId === eventId);
+      if (!demoOpen(w)) throw new Error("Check-in for this event isn't open.");
+      if (!demoTeamMember(email)) throw new Error("That email isn't on the registration team. Use the email you volunteered with, or ask the team to add you to Registration.");
+      const code = String(Math.floor(Math.random() * 1e6)).padStart(6, "0");
+      const id = newRef("OTP");
+      Store.write(CK.codes, [...Store.read(CK.codes, []), { id, email: lower(email), eventId, code, attempts: 0, expiresAt: new Date(Date.now() + 6e5).toISOString() }]);
+      return { id, demoCode: code };
+    },
+    async verify(email, eventId, code) {
+      await wait(300);
+      const codes = Store.read(CK.codes, []);
+      const c = [...codes].reverse().find((x) => x.email === lower(email) && x.eventId === eventId && !x.usedAt && Date.parse(x.expiresAt) > Date.now());
+      if (!c) return { ok: false, error: "That code has expired. Ask for a new one." };
+      if (c.attempts >= 5) return { ok: false, error: "Too many tries. Ask for a new code." };
+      if (c.code !== String(code).replace(/\D/g, "")) { c.attempts += 1; Store.write(CK.codes, codes); return { ok: false, error: "That code isn't right. Check the email and try again." }; }
+      c.usedAt = now();
+      Store.write(CK.codes, codes);
+      const w = demoCheckinSeed().find((x) => x.eventId === eventId);
+      const v = demoTeamMember(email);
+      const token = `${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+      Store.write(CK.sessions, [...Store.read(CK.sessions, []), { token, email: lower(email), volunteerName: v.fullName, eventId, createdAt: now(), expiresAt: w.closesAt }]);
+      return { ok: true, token, expiresAt: w.closesAt, eventId, eventName: w.eventName, name: v.fullName, email: lower(email) };
+    },
+    async whoami(token) {
+      const { s, w } = demoSession(token);
+      return { email: s.email, name: s.volunteerName, eventId: s.eventId, eventName: w.eventName, expiresAt: s.expiresAt, ...demoCounts(s.eventId) };
+    },
+    async search(token, query) {
+      await wait(150);
+      const { s } = demoSession(token);
+      const q = lower(String(query || "").trim());
+      if (q.length < 2) return [];
+      const digits = q.replace(/\D/g, "");
+      return Store.read(FORM_KEYS.registrations, []).filter((r) => r.eventId === s.eventId && (
+        lower(r.id) === q || lower(r.name).includes(q) || lower(r.email).includes(q) || (digits.length >= 4 && String(r.phone || "").replace(/\D/g, "").includes(digits))
+      )).sort((a, b) => a.name.localeCompare(b.name)).slice(0, 25).map(hide);
+    },
+    async mark(token, id) {
+      await wait(150);
+      const { s } = demoSession(token);
+      const list = Store.read(FORM_KEYS.registrations, []);
+      const r = list.find((x) => String(x.id).toUpperCase() === String(id || "").trim().toUpperCase());
+      if (!r) throw new Error("No ticket found with that ID.");
+      if (r.eventId !== s.eventId) throw new Error(`This ticket is for ${r.eventName || r.eventId}, not this event.`);
+      if ((r.status || "registered") !== "registered") throw new Error("This registration was cancelled. Send them to the registration desk lead.");
+      if (r.checkedIn) return { id: r.id, name: r.name, already: true, checkedInAt: r.checkedInAt, checkedInBy: r.checkedInBy };
+      const before = { ...r };
+      Object.assign(r, { checkedIn: true, checkedInAt: now(), checkedInBy: s.email });
+      mustWrite(FORM_KEYS.registrations, list);
+      logInboxChange("registrations", before, r);
+      return { id: r.id, name: r.name, already: false, checkedInAt: r.checkedInAt, checkedIn: demoCounts(s.eventId).checkedIn };
+    },
+    async signOut(token) { Store.write(CK.sessions, Store.read(CK.sessions, []).filter((x) => x.token !== token)); },
+    // The admin's side.
+    async windows() { return demoCheckinSeed(); },
+    async saveWindow(w) {
+      const list = demoCheckinSeed().filter((x) => x.eventId !== w.eventId);
+      list.push({ ...w, updatedAt: now(), updatedBy: localSessionEmail() });
+      Store.write(CK.windows, list);
+    },
+    async removeWindow(eventId) { Store.write(CK.windows, demoCheckinSeed().filter((x) => x.eventId !== eventId)); },
+    async sessions() { return Store.read(CK.sessions, []).filter((x) => Date.parse(x.expiresAt) > Date.now()); },
+    async endSession(token) { Store.write(CK.sessions, Store.read(CK.sessions, []).filter((x) => x.token !== token)); },
+  };
+
+  live.checkin = {
+    async events(test) { return rpc("checkin_events", { p_test: Boolean(test) }); },
+    async requestCode(email, eventId) { return rpc("checkin_request_code", { p_email: email, p_event: eventId }); },
+    async verify(email, eventId, code) { return rpc("checkin_verify", { p_email: email, p_event: eventId, p_code: code }); },
+    async whoami(token) { return rpc("checkin_whoami", { p_token: token }); },
+    async search(token, query) { return rpc("checkin_search", { p_token: token, p_query: query }); },
+    async mark(token, id) { return rpc("checkin_mark", { p_token: token, p_id: id }); },
+    async signOut(token) { return rpc("checkin_sign_out", { p_token: token }, { quiet: true }).catch(() => null); },
+    async windows() {
+      const sb = await client();
+      return must(await sb.from("checkin_windows").select("*").order("opens_at", { ascending: false })).map(windowOf);
+    },
+    async saveWindow(w) {
+      const sb = await client();
+      must(await sb.from("checkin_windows").upsert({ event_id: w.eventId, event_name: w.eventName, opens_at: w.opensAt, closes_at: w.closesAt, is_test: Boolean(w.isTest) }));
+    },
+    async removeWindow(eventId) {
+      const sb = await client();
+      must(await sb.from("checkin_windows").delete().eq("event_id", eventId));
+    },
+    async sessions() {
+      const sb = await client();
+      return must(await sb.from("checkin_sessions").select("*").gt("expires_at", now()).order("created_at", { ascending: false })).map(sessionOf);
+    },
+    async endSession(token) {
+      const sb = await client();
+      must(await sb.from("checkin_sessions").delete().eq("token", token));
+    },
+  };
+
   const impl = LIVE ? live : demo;
   window.Backend = Object.freeze({
     mode: LIVE ? "live" : "demo",
@@ -1021,6 +1182,7 @@
     media: impl.media,
     forms: impl.forms,
     analytics: impl.analytics,
+    checkin: impl.checkin,
     email,
   });
 })();

@@ -763,8 +763,8 @@
           details([
             ["Ticket ID", r.id], ["Event", r.eventName], ["Email", mailto(r.email, r.eventName)], ["Phone", tel(r.phone)],
             ...answerPairs(r),
-            ["Registered", Admin.fmtDate(r.registeredAt)], ["Through", r.source === "admin" ? "Added by the team" : "The website"],
-            ["Status", r.status === "cancelled" ? "Cancelled" : r.checkedIn ? `Checked in at ${Admin.fmtDate(r.checkedInAt)}` : "Registered, not checked in yet"],
+            ["Registered", Admin.fmtDate(r.registeredAt)], ["Through", r.source === "admin" ? "Added by the team" : r.source === "test" ? "Made up, for testing check-in" : "The website"],
+            ["Status", r.status === "cancelled" ? "Cancelled" : r.checkedIn ? `Checked in at ${Admin.fmtDate(r.checkedInAt)}${r.checkedInBy ? ` by ${r.checkedInBy}` : ""}` : "Registered, not checked in yet"],
           ]),
           h("div", { class: "pe-actions-row inbox-actions" }, [
             r.status === "registered" && !r.checkedIn ? btn("Check in", () => checkIn(r), "btn btn-solid") : null,
@@ -1046,6 +1046,126 @@
       input.focus();
     },
   });
+
+  /* ===================================================================
+   * Check-in access: when the registration team can check guests in at
+   * /checkin (and /checkin-test), who's on that team, who's signed in.
+   * supabase/setup-7.sql.
+   * =================================================================== */
+  // datetime-local wants "YYYY-MM-DDTHH:MM" in this computer's time.
+  const toLocalInput = (iso) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60e3).toISOString().slice(0, 16);
+  };
+  const fromLocalInput = (v) => (v ? new Date(v).toISOString() : "");
+  const stamp2 = (iso) => (iso ? new Date(iso).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—");
+  const onTeam = (v) => (v.teams || []).some((t) => String(t).trim().toLowerCase() === "registration");
+
+  const checkinAccess = {
+    async render(panel) {
+      const redraw = () => checkinAccess.render(panel);
+      const title = head("Check-in access", "Volunteers on the Registration team check guests in on their phones at /checkin. They sign in with the email they volunteered with and a one-time code we email them, and only while an event's check-in is open: when it closes, they're signed out.");
+      const loaded = await loadOr(panel, title, async () => {
+        try {
+          return await Promise.all([Backend.checkin.windows(), Backend.checkin.sessions(), currentEvents(), Backend.forms.list("volunteers").catch(() => [])]);
+        } catch (err) {
+          if (/checkin_|schema cache|does not exist/i.test(err.message || "")) throw new Error("Check-in access isn't set up yet: run supabase/setup-7.sql in Supabase (SQL Editor), and deploy the send-email function again, then open this screen again.");
+          throw err;
+        }
+      });
+      if (!loaded) return;
+      const [windows, sessions, events, volunteers] = loaded;
+      const nowMs = Date.now();
+      const state = (w) => (nowMs < Date.parse(w.opensAt) ? "Opens later" : nowMs < Date.parse(w.closesAt) ? "Open now" : "Closed");
+
+      // Opening check-in for an event (or changing when).
+      const known = [...events].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      windows.filter((w) => !known.some((e) => e.id === w.eventId)).forEach((w) => known.push({ id: w.eventId, name: w.eventName, date: "", isTest: w.isTest }));
+      const eventSel = select(known.map((e) => [e.id, `${e.name}${e.date ? ` · ${day(e.date)}` : ""}${e.isTest ? " (test)" : ""}`]), (known.find((e) => String(e.date) >= new Date().toISOString().slice(0, 10)) || known[0] || {}).id, "Event");
+      const opens = h("input", { type: "datetime-local", class: "admin-input" });
+      const closes = h("input", { type: "datetime-local", class: "admin-input" });
+      const note = h("p", { class: "admin-auth__note", role: "alert" });
+      function fill() {
+        const w = windows.find((x) => x.eventId === eventSel.value);
+        const e = known.find((x) => x.id === eventSel.value) || {};
+        // An event's own day, morning to midnight, until it's been set.
+        opens.value = w ? toLocalInput(w.opensAt) : e.date ? `${e.date}T07:00` : "";
+        closes.value = w ? toLocalInput(w.closesAt) : e.date ? `${e.date}T23:59` : "";
+      }
+      eventSel.addEventListener("change", fill);
+      fill();
+      const form = h("form", { class: "inbox-add", novalidate: true }, [
+        h("label", { class: "admin-field" }, [h("span", { text: "Event" }), eventSel]),
+        h("label", { class: "admin-field" }, [h("span", { text: "Check-in opens" }), opens]),
+        h("label", { class: "admin-field" }, [h("span", { text: "Check-in closes (everyone is signed out)" }), closes]),
+        note,
+        h("button", { type: "submit", class: "btn btn-solid" }, "Save"),
+      ]);
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        note.textContent = "";
+        const ev = known.find((x) => x.id === eventSel.value);
+        if (!ev || !opens.value || !closes.value) { note.textContent = "Choose the event and both times."; return; }
+        if (new Date(closes.value) <= new Date(opens.value)) { note.textContent = "Check-in has to close after it opens."; return; }
+        const existing = windows.find((x) => x.eventId === ev.id);
+        try {
+          await Backend.checkin.saveWindow({ eventId: ev.id, eventName: ev.name, opensAt: fromLocalInput(opens.value), closesAt: fromLocalInput(closes.value), isTest: existing ? existing.isTest : Boolean(ev.isTest) });
+          toast("Check-in times saved.", "is-success");
+          redraw();
+        } catch (err) { note.textContent = err.message; }
+      });
+
+      const windowList = windows.length ? table([
+        ["Event", (w) => `${w.eventName}${w.isTest ? " (test: /checkin-test)" : ""}`],
+        ["Opens", (w) => stamp2(w.opensAt)],
+        ["Closes", (w) => stamp2(w.closesAt)],
+        ["", (w) => h("span", { class: `status-pill status-pill--${state(w) === "Open now" ? "confirmed" : state(w) === "Closed" ? "declined" : "new"}`, text: state(w) })],
+        ["", (w) => btn("Remove", async () => {
+          const ok = await dialog({ title: `Stop check-in for ${w.eventName}?`, body: [h("p", { text: "No one can sign in to check guests in for it, and anyone signed in is signed out." })], actions: [["Keep it", false], ["Remove", true, "is-danger"]] });
+          if (!ok) return;
+          try { await Backend.checkin.removeWindow(w.eventId); toast("Removed."); redraw(); } catch (err) { toast(err.message, "is-error"); }
+        }, "pe-small-btn is-danger")],
+      ], windows) : h("p", { class: "admin-empty", text: "No event has check-in times yet. Set them above." });
+
+      // Who can sign in: the Registration team.
+      const team = volunteers.filter(onTeam).sort((a, b) => a.fullName.localeCompare(b.fullName));
+      const teamList = team.length ? table([
+        ["Name", (v) => v.fullName],
+        ["Email (they sign in with it)", (v) => v.email],
+        ["", (v) => (v.status === "declined" ? h("span", { class: "status-pill status-pill--declined", text: "Not this time: can't sign in" }) : pill("volunteers", v.status))],
+      ], team) : h("p", { class: "admin-empty", text: "No one has volunteered for the Registration team yet. Volunteers choose it on /volunteer-registration or /volunteer." });
+
+      // Who's signed in now.
+      const nameOf = (id) => (known.find((e) => e.id === id) || {}).name || id;
+      const sessionList = sessions.length ? table([
+        ["Who", (s) => s.volunteerName || s.email],
+        ["Event", (s) => nameOf(s.eventId)],
+        ["Signed in", (s) => stamp2(s.createdAt)],
+        ["Last used", (s) => (s.lastSeenAt ? stamp2(s.lastSeenAt) : "—")],
+        ["", (s) => btn("Sign out", async () => {
+          try { await Backend.checkin.endSession(s.token); toast(`${s.volunteerName || s.email} is signed out.`); redraw(); } catch (err) { toast(err.message, "is-error"); }
+        }, "pe-small-btn is-danger")],
+      ], sessions) : h("p", { class: "admin-empty", text: "No one is signed in to check-in right now." });
+
+      const link = (path, text) => h("a", { class: "pe-small-btn", href: `${Backend.root}${path}`, target: "_blank", rel: "noopener", text });
+      panel.replaceChildren(
+        title,
+        h("div", { class: "inbox-bar" }, [link("checkin", "Open /checkin ↗"), link("checkin-test", "Open the test page, /checkin-test ↗")]),
+        h("div", { class: "admin-layout inbox-layout" }, [
+          h("div", {}, [
+            h("p", { class: "admin-card__title", text: "When check-in is open" }), windowList,
+            h("p", { class: "admin-card__title", style: "margin-top: var(--space-l);", text: `The registration team (${team.length})` }),
+            h("p", { class: "field-hint", text: "Only these volunteers can sign in, with the email shown. Setting someone to “Not this time” under Inbox → Volunteers stops them." }),
+            teamList,
+            h("p", { class: "admin-card__title", style: "margin-top: var(--space-l);", text: `Signed in now (${sessions.length})` }), sessionList,
+          ]),
+          h("div", { class: "inbox-side" }, [h("div", { class: "admin-card" }, [h("p", { class: "admin-card__title", text: "Set check-in times" }), form])]),
+        ])
+      );
+    },
+  };
+  Admin.register("checkin-access", checkinAccess);
 
   /* ===================================================================
    * Dashboard: what needs attention, above the analytics

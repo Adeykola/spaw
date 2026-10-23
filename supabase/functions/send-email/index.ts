@@ -1,7 +1,7 @@
 /**
  * send-email — the email each visitor gets after sending a form on the site.
  *
- *   POST { kind, id }   kind: "registrations" | "applications" | "enquiries" | "subscribers" | "volunteers"
+ *   POST { kind, id }   kind: "registrations" | "applications" | "enquiries" | "subscribers" | "volunteers" | "checkin_codes"
  *                       id: the reference the database gave it (the address, for subscribers)
  *   GET  ?qr=REG-…      a ticket's QR code as a PNG, for the ticket email
  *
@@ -19,7 +19,9 @@
  *   Volunteer           "thank you for signing up to serve", what they
  *                       chose, and the terms they signed
  *   Newsletter          a welcome
- * Every one points to the WhatsApp channel.
+ *   Check-in code       the one-time code a volunteer on the registration
+ *                       team signs in to /checkin with (setup-7.sql)
+ * Every one but the code points to the WhatsApp channel.
  *
  * Settings (Supabase → Edge Functions → Secrets), see supabase/README.md:
  *   RESEND_API_KEY   from resend.com, with dr-ajokesings.com verified there
@@ -34,8 +36,8 @@ const WHATSAPP = "https://whatsapp.com/channel/0029Vb65h9vDTkJvUfOFSx1e";
 // The volunteers' WhatsApp group: new volunteers are onboarded there.
 const WHATSAPP_VOLUNTEERS = "https://chat.whatsapp.com/KWIroHMSczsBmL4JQ7kAKo?s=cl&p=a&mlu=4&ilr=4";
 const DISCLAIMER = "Disclaimer: Contestants are responsible for their logistics to and from the event. DrAjokesings Productions Limited bears no responsibility for transportation or related costs.";
-const KEY_OF: Record<string, string> = { registrations: "id", applications: "id", enquiries: "id", subscribers: "email", volunteers: "id" };
-const SENT_AT: Record<string, string> = { registrations: "registered_at", applications: "submitted_at", enquiries: "submitted_at", subscribers: "subscribed_at", volunteers: "submitted_at" };
+const KEY_OF: Record<string, string> = { registrations: "id", applications: "id", enquiries: "id", subscribers: "email", volunteers: "id", checkin_codes: "id" };
+const SENT_AT: Record<string, string> = { registrations: "registered_at", applications: "submitted_at", enquiries: "submitted_at", subscribers: "subscribed_at", volunteers: "submitted_at", checkin_codes: "created_at" };
 const MAX_AGE = 6 * 3600e3;
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -179,6 +181,27 @@ function layout(o: { subject: string; eyebrow: string; title: string; preheader:
 export function compose(kind: string, row: Row, content: Content, env: Pick<Settings, "site" | "functionUrl">): Email {
   const site = env.site;
   const why = "You're getting this email because you sent a form on our website. Just reply if you have any questions.";
+
+  if (kind === "checkin_codes") {
+    const code = String(row.code || "");
+    return layout({
+      subject: `${code} is your check-in code`,
+      eyebrow: "Event check-in",
+      title: "Your check-in code",
+      preheader: `${code}: use it within 10 minutes to sign in to check-in.`,
+      blocks: [
+        para(`Here is your one-time code to sign in to check-in for ${row.event_name || "the event"}:`),
+        {
+          html: `<p style="margin:8px 0 24px;font-family:${FONT};font-size:38px;font-weight:bold;letter-spacing:10px;color:#0a0908;">${esc(code)}</p>`,
+          text: code,
+        },
+        para("Type it on the check-in page within 10 minutes. You'll stay signed in until check-in for the event closes."),
+        small("Didn't ask for this? Someone may have typed your email by mistake. You can ignore this email: nobody can sign in without the code."),
+      ],
+      site,
+      why: "You're getting this email because you're on the registration team for a Dr AjokeSings event.",
+    });
+  }
 
   if (kind === "registrations") {
     const e = findEvent(row.event_id, content) || { name: row.event_name || "our event" };
@@ -374,6 +397,7 @@ async function handle(req: Request): Promise<Response> {
   if (!at || Date.now() - at > MAX_AGE) return json({ sent: false, reason: "too old" });
   if (kind === "registrations" && row.status !== "registered") return json({ sent: false, reason: "not registered" });
   if (kind === "subscribers" && row.unsubscribed_at) return json({ sent: false, reason: "unsubscribed" });
+  if (kind === "checkin_codes" && (row.used_at || Date.parse(row.expires_at || "") < Date.now())) return json({ sent: false, reason: "code expired" });
 
   // Claim it first, so two calls at once send one email.
   const claim = await rest(env, `${kind}?${match}&emailed_at=is.null`, {

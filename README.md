@@ -132,6 +132,10 @@ Without a key the site reads her channel's public feed, which works most of the 
 - **Pages** edits the words of both pages. Changing the terms page's words? Change the version under Volunteering too, so each volunteer's record says which version they signed.
 - Live, volunteers need [`supabase/setup-5.sql`](supabase/setup-5.sql) run once: until then the sign-up page can't send, and Inbox → Volunteers says so.
 
+## Check-in by the registration team
+
+`/checkin` is check-in on its own, for volunteers on the Registration team, on their phones. They sign in with the email they volunteered with and a 6-digit code emailed to it (it works for 10 minutes), and stay signed in until the event's check-in closes. The admin sets when check-in opens and closes for each event under Events → Check-in access, which also lists the registration team and who's signed in (with a button to sign anyone out). Then they type or scan a ticket's ID, or find a guest by name, email or phone (shown partly hidden), and check them in; each check-in keeps who did it. Everything goes through the `checkin_*` database functions (`supabase/setup-7.sql`), which check the sign-in on every call, and the code is emailed by `send-email` (deploy it again). `/checkin-test` is the same page for the test event: "Check-in test event", with 60 made-up guests (`REG-TEST0001` to `REG-TEST0060`, example.com addresses), open for 60 days from when setup-7.sql was first run, and left out of the analytics. `checkin.js` drives both.
+
 ## Prototype boundaries
 
 Media in `assets/` is placeholder and streaming links are stubs. Email alerts for new enquiries and applications aren't built yet.

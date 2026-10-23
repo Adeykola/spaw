@@ -358,10 +358,12 @@
 
   // Registrations, fetched once for a little while: the Events editor
   // redraws an event's panel as its numbers are typed.
+  // The check-in test event's made-up guests (setup-7.sql) aren't counted.
+  const withoutTests = (regs) => regs.filter((r) => r.source !== "test");
   let regsCache = null;
   function registrations() {
     if (!regsCache || Date.now() - regsCache.at > 30e3) {
-      const p = Backend.forms.list("registrations");
+      const p = Backend.forms.list("registrations").then(withoutTests);
       regsCache = { at: Date.now(), p };
       p.catch(() => { regsCache = null; });
     }
@@ -708,7 +710,7 @@
       const g = cur.goals || {};
       const f = cur.funnels || { talent: [0, 0, 0], events: [0, 0, 0], booking: [0, 0, 0] };
       const [regs, events, apps] = await Promise.all([
-        Backend.forms.list("registrations").catch(() => []),
+        Backend.forms.list("registrations").then(withoutTests).catch(() => []),
         currentEvents(),
         Backend.forms.list("applications").catch(() => null),
       ]);
@@ -895,7 +897,7 @@
     host.replaceChildren(loading("Counting visits…"));
     try {
       const b = bounds({ key: "30" });
-      const [{ cur, prev }, regs, events] = await Promise.all([getReport(b), Backend.forms.list("registrations").catch(() => []), currentEvents()]);
+      const [{ cur, prev }, regs, events] = await Promise.all([getReport(b), Backend.forms.list("registrations").then(withoutTests).catch(() => []), currentEvents()]);
       const t = cur.totals;
       const p = prev.totals;
       const avg = (x) => (x.sessions ? x.engagedSeconds / x.sessions : 0);

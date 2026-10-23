@@ -26,6 +26,7 @@
         ["events", "Events", EDIT],
         ["registrations", "Registrations", ALL],
         ["checkin", "Event check-in", ALL],
+        ["checkin-access", "Check-in access", EDIT],
       ],
     },
     {

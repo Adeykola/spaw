@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Check-in test — Dr AjokeSings</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Check-in for the Dr AjokeSings registration team.">
+<meta name="theme-color" content="#0a0908">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/checkin.css">
+</head>
+<!-- The test check-in: the same page as checkin.html, for the test events
+     only (data-checkin-test). See supabase/setup-7.sql, section 5. -->
+<body class="ck-body" data-checkin-test>
+<header class="ck-top">
+  <img class="ck-top__logo" src="assets/images/logo.svg" alt="Dr AjokeSings">
+  <p class="ck-top__title">Check-in <em>test</em></p>
+  <div class="ck-top__who" data-ck-who hidden></div>
+</header>
+
+<main class="ck-main" data-checkin>
+  <p class="ck-test-note" data-ck-test-note hidden>Test page: it works exactly like check-in on the day, with the test event's made-up guests.</p>
+
+  <!-- 1. Sign in: the event, and the email they volunteered with -->
+  <section class="ck-card" data-ck-step="email" hidden>
+    <p class="eyebrow">Registration team</p>
+    <h1 class="ck-title">Sign in to check guests in.</h1>
+    <p class="ck-text">Use the email you volunteered with. We'll email you a one-time code.</p>
+    <form class="ck-form" data-ck-email-form novalidate>
+      <div class="field" data-ck-event-field>
+        <label for="ck-event">Event</label>
+        <select id="ck-event" data-ck-event></select>
+      </div>
+      <div class="field">
+        <label for="ck-email">Your email</label>
+        <input type="email" id="ck-email" autocomplete="email" inputmode="email" required>
+      </div>
+      <p class="ck-error" data-ck-error role="alert"></p>
+      <button type="submit" class="btn btn-solid ck-wide">Email me a code</button>
+    </form>
+    <p class="ck-text ck-muted" data-ck-closed hidden></p>
+  </section>
+
+  <!-- 2. The code from the email -->
+  <section class="ck-card" data-ck-step="code" hidden>
+    <p class="eyebrow">Check your email</p>
+    <h1 class="ck-title">Type the 6-digit code.</h1>
+    <p class="ck-text">We've sent it to <strong data-ck-sent-to></strong>. It works for 10 minutes.</p>
+    <p class="ck-demo-code" data-ck-demo-code hidden></p>
+    <form class="ck-form" data-ck-code-form novalidate>
+      <div class="field">
+        <label for="ck-code">Code</label>
+        <input type="text" id="ck-code" class="ck-code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" required>
+      </div>
+      <p class="ck-error" data-ck-error role="alert"></p>
+      <button type="submit" class="btn btn-solid ck-wide">Sign in</button>
+    </form>
+    <p class="ck-links">
+      <button type="button" class="ck-link" data-ck-resend>Send a new code</button>
+      <button type="button" class="ck-link" data-ck-restart>Use another email</button>
+    </p>
+  </section>
+
+  <!-- 3. Checking guests in -->
+  <section data-ck-step="desk" hidden>
+    <div class="ck-card ck-status">
+      <div>
+        <p class="eyebrow" data-ck-event-name></p>
+        <p class="ck-count"><strong data-ck-in>0</strong> of <span data-ck-total>0</span> checked in</p>
+        <div class="ck-bar"><span data-ck-bar></span></div>
+      </div>
+      <p class="ck-text ck-muted" data-ck-until></p>
+    </div>
+
+    <div class="ck-card">
+      <form class="ck-ticket" data-ck-ticket-form novalidate>
+        <label class="ck-label" for="ck-ticket">Ticket ID</label>
+        <div class="ck-ticket__row">
+          <input type="text" id="ck-ticket" placeholder="REG-XXXXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <button type="submit" class="btn btn-solid">Check in</button>
+        </div>
+        <button type="button" class="btn btn-line ck-wide" data-ck-scan>Scan a ticket</button>
+      </form>
+      <video class="ck-video" data-ck-video playsinline muted hidden></video>
+      <div class="ck-result" data-ck-result role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="ck-card">
+      <label class="ck-label" for="ck-search">No ticket? Find them</label>
+      <input type="search" id="ck-search" placeholder="Name, email or phone" autocomplete="off" data-ck-search>
+      <ul class="ck-results" data-ck-results></ul>
+    </div>
+
+    <div class="ck-card">
+      <p class="ck-label">Checked in on this phone</p>
+      <ul class="ck-recent" data-ck-recent><li class="ck-muted">No one yet.</li></ul>
+    </div>
+  </section>
+
+  <p class="ck-loading" data-ck-loading>Loading…</p>
+</main>
+
+<script src="js/config.js" defer></script>
+<script src="js/data.js" defer></script>
+<script src="js/backend.js" defer></script>
+<script src="js/checkin.js" defer></script>
+</body>
+</html>
