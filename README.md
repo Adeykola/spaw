@@ -46,6 +46,7 @@ The old site on the cPanel server stays there, untouched, but no longer shows at
 | `spaw-volunteer-terms.html` | The Terms and Conditions for Volunteers (`/spaw-volunteer-terms`), with a print / save-as-PDF button |
 | `events.html` | Full calendar, each event with its Register link (the Talent Quest with Apply instead) |
 | `ticket.html` | The ticket page the ticket email links to: the designed ticket, ready to download |
+| `attending.html` | The attendee picture maker (`/attending`): add a name and portrait, then download a personalized concert graphic. |
 | `about.html` | Story, timeline, principles, recognition |
 | `contact.html` | Contact and booking as one form with two modes |
 | `admin.html` | The admin: sign-in with roles; Pages and "Edit this page" for every word, link and picture; header, menus and footer; songs, albums, videos, galleries, events, Symphony, About lists, Ministry, artists, contact-page options and an announcement bar; drafts with preview, publishing and history; events with status, tickets, expected guests, sold out, and a registration form with their own questions; the inbox (enquiries, Talent Quest applicants with their entry playing in the admin, volunteers with the terms they signed, registrations, QR check-in, newsletter) with spreadsheet downloads; analytics (traffic, sources and campaigns, audience, pages, music and video, sign-ups step by step, site speed and errors); campaign links with QR codes; media library; people & roles; activity log. Works on a phone |

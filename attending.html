@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>I am attending — Dr AjokeSings</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<meta name="description" content="Create and download your personalized SPAW Global Concert attendee picture.">
+<meta name="theme-color" content="#0a0908">
+<meta property="og:title" content="I am attending — SPAW Global Concert">
+<meta property="og:description" content="Create and download your SPAW Global Concert attendee picture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/attending.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header" data-site-header>
+  <div class="wrap">
+    <a href="./" class="brand attending-brand" aria-label="Dr AjokeSings — home">Dr AjokeSings</a>
+    <nav class="primary-nav" aria-label="Primary">
+      <ul class="primary-nav__list">
+        <li><a href="./">Home</a></li>
+        <li><a href="events">Events</a></li>
+        <li><a href="symphony">Symphony</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <a href="events" class="btn btn-solid">Event details</a>
+      <button class="menu-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<nav id="mobile-nav" class="mobile-nav" data-mobile-nav aria-label="Mobile">
+  <ul class="mobile-nav__list">
+    <li><a href="./">Home</a></li><li><a href="events">Events</a></li><li><a href="symphony">Symphony</a></li>
+  </ul>
+</nav>
+
+<main id="main" class="attending-page">
+  <section class="attending-intro" aria-labelledby="attending-title">
+    <div class="wrap">
+      <p class="eyebrow">SPAW Global Concert · 28 November 2026</p>
+      <h1 id="attending-title" class="display">I am <em>attending.</em></h1>
+      <p class="attending-intro__text">Add your photo and name, then download your personalized picture.</p>
+    </div>
+  </section>
+
+  <section class="attending-workspace" aria-label="Create your attendee picture">
+    <div class="wrap attending-workspace__grid">
+      <form class="attending-form" data-attending-form>
+        <p class="eyebrow">Make it yours</p>
+        <label class="attending-field" for="attendee-name">
+          <span>Your name</span>
+          <input id="attendee-name" name="name" type="text" autocomplete="name" maxlength="42" placeholder="Type your name" required>
+        </label>
+        <label class="attending-upload" for="attendee-photo">
+          <span class="attending-upload__mark" aria-hidden="true">+</span>
+          <span class="attending-upload__copy"><strong>Add your photo</strong><small>JPG, PNG or WebP · up to 15 MB</small></span>
+          <input id="attendee-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp">
+        </label>
+        <p class="attending-form__privacy">Your photo is used to make this picture in your browser. It is not uploaded.</p>
+        <div class="attending-actions">
+          <button type="button" class="btn btn-solid" data-attending-download>Download picture</button>
+        </div>
+        <p class="attending-status" data-attending-status role="status" aria-live="polite"></p>
+      </form>
+
+      <figure class="attending-preview">
+        <canvas data-attending-canvas width="3600" height="3870" role="img" aria-label="Preview of your SPAW Global Concert attendee picture"></canvas>
+        <figcaption>Preview · your finished picture is ready to download</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<footer class="attending-footer">
+  <div class="wrap"><span>SPAW Global Concert</span><a href="events">Event details</a></div>
+</footer>
+
+<script src="js/navigation.js" defer></script>
+<script src="js/attending.js" defer></script>
+</body>
+</html>
